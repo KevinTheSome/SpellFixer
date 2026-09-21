@@ -1,0 +1,1389 @@
+[
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "chose"
+    ],
+    "tags": [
+      "silent-e"
+    ],
+    "word": "chose",
+    "hint": "5 letters, starts with 'c'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "for",
+      "ty"
+    ],
+    "tags": [
+      "u-omission"
+    ],
+    "word": "forty",
+    "hint": "5 letters, starts with 'f'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "heard"
+    ],
+    "tags": [
+      "ea-confusion"
+    ],
+    "word": "heard",
+    "hint": "5 letters, starts with 'h'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "heart"
+    ],
+    "tags": [
+      "ea-confusion"
+    ],
+    "word": "heart",
+    "hint": "5 letters, starts with 'h'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "hu",
+      "mor"
+    ],
+    "tags": [
+      "-or-vs-our"
+    ],
+    "word": "humor",
+    "hint": "5 letters, starts with 'h'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "meant"
+    ],
+    "tags": [
+      "ea-confusion"
+    ],
+    "word": "meant",
+    "hint": "5 letters, starts with 'm'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "qui",
+      "et"
+    ],
+    "tags": [
+      "quiet-quite"
+    ],
+    "word": "quiet",
+    "hint": "5 letters, starts with 'q'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "quite"
+    ],
+    "tags": [
+      "quiet-quite"
+    ],
+    "word": "quite",
+    "hint": "5 letters, starts with 'q'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "their"
+    ],
+    "tags": [
+      "their-there"
+    ],
+    "word": "their",
+    "hint": "5 letters, starts with 't'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "there"
+    ],
+    "tags": [
+      "their-there"
+    ],
+    "word": "there",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "tru",
+      "ly"
+    ],
+    "tags": [
+      "-ely-vs-ly"
+    ],
+    "word": "truly",
+    "hint": "5 letters, starts with 't'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "un",
+      "til"
+    ],
+    "tags": [
+      "single-vs-double"
+    ],
+    "word": "until",
+    "hint": "5 letters, starts with 'u'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "which"
+    ],
+    "tags": [
+      "wh-confusion"
+    ],
+    "word": "which",
+    "hint": "2 h's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "a",
+      "cross"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "across",
+    "hint": "2 s's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "choose"
+    ],
+    "tags": [
+      "double-o"
+    ],
+    "word": "choose",
+    "hint": "2 o's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "e",
+      "nough"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "enough",
+    "hint": "6 letters, starts with 'e'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "friend"
+    ],
+    "tags": [
+      "ie-ei"
+    ],
+    "word": "friend",
+    "hint": "6 letters, starts with 'f'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "peo",
+      "ple"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "people",
+    "hint": "2 e's, 2 p's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "twelve"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "twelve",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "be",
+      "cause"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "because",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "be",
+      "lieve"
+    ],
+    "tags": [
+      "ie-ei"
+    ],
+    "word": "believe",
+    "hint": "3 e's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "care",
+      "ful"
+    ],
+    "tags": [
+      "-ful-vs-full"
+    ],
+    "word": "careful",
+    "hint": "7 letters, starts with 'c'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "cer",
+      "tain"
+    ],
+    "tags": [
+      "ai-confusion"
+    ],
+    "word": "certain",
+    "hint": "7 letters, starts with 'c'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "fi",
+      "nal",
+      "ly"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "finally",
+    "hint": "2 l's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "hap",
+      "pi",
+      "ly"
+    ],
+    "tags": [
+      "y-to-i"
+    ],
+    "word": "happily",
+    "hint": "2 p's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "lei",
+      "sure"
+    ],
+    "tags": [
+      "ie-ei"
+    ],
+    "word": "leisure",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "o",
+      "pin",
+      "ion"
+    ],
+    "tags": [
+      "unstressed-vowel"
+    ],
+    "word": "opinion",
+    "hint": "2 i's, 2 n's, 2 o's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "sim",
+      "i",
+      "lar"
+    ],
+    "tags": [
+      "-ar-vs-er"
+    ],
+    "word": "similar",
+    "hint": "2 i's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "through"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "through",
+    "hint": "2 h's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "weath",
+      "er"
+    ],
+    "tags": [
+      "ea-confusion"
+    ],
+    "word": "weather",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "beau",
+      "ti",
+      "ful"
+    ],
+    "tags": [
+      "ie-ei",
+      "-ful-vs-full"
+    ],
+    "word": "beautiful",
+    "hint": "2 u's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "en",
+    "syllables": [
+      "dif",
+      "fer",
+      "ent"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "different",
+    "hint": "2 e's, 2 f's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "lose"
+    ],
+    "tags": [
+      "lose-loose"
+    ],
+    "word": "lose",
+    "hint": "4 letters, starts with 'l'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "chief"
+    ],
+    "tags": [
+      "ie-ei"
+    ],
+    "word": "chief",
+    "hint": "5 letters, starts with 'c'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "doubt"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "doubt",
+    "hint": "5 letters, starts with 'd'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "loose"
+    ],
+    "tags": [
+      "lose-loose"
+    ],
+    "word": "loose",
+    "hint": "2 o's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "ly",
+      "ing"
+    ],
+    "tags": [
+      "y-to-i"
+    ],
+    "word": "lying",
+    "hint": "5 letters, starts with 'l'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "weird"
+    ],
+    "tags": [
+      "ie-ei"
+    ],
+    "word": "weird",
+    "hint": "5 letters, starts with 'w'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "breath"
+    ],
+    "tags": [
+      "ea-confusion"
+    ],
+    "word": "breath",
+    "hint": "6 letters, starts with 'b'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "col",
+      "umn"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "column",
+    "hint": "6 letters, starts with 'c'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "des",
+      "ert"
+    ],
+    "tags": [
+      "s-vs-ss"
+    ],
+    "word": "desert",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "eighth"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "eighth",
+    "hint": "2 h's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "ex",
+      "cept"
+    ],
+    "tags": [
+      "-cept-confusion"
+    ],
+    "word": "except",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "height"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "height",
+    "hint": "2 h's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "is",
+      "land"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "island",
+    "hint": "6 letters, starts with 'i'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "length"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "length",
+    "hint": "6 letters, starts with 'l'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "min",
+      "ute"
+    ],
+    "tags": [
+      "unstressed-vowel"
+    ],
+    "word": "minute",
+    "hint": "6 letters, starts with 'm'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "mus",
+      "cle"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "muscle",
+    "hint": "6 letters, starts with 'm'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "pur",
+      "sue"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "pursue",
+    "hint": "2 u's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "tongue"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "tongue",
+    "hint": "6 letters, starts with 't'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "a",
+      "chieve"
+    ],
+    "tags": [
+      "ie-ei"
+    ],
+    "word": "achieve",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "ath",
+      "lete"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "athlete",
+    "hint": "2 e's, 2 t's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "breathe"
+    ],
+    "tags": [
+      "ea-confusion",
+      "silent-e"
+    ],
+    "word": "breathe",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "car",
+      "ried"
+    ],
+    "tags": [
+      "y-to-i"
+    ],
+    "word": "carried",
+    "hint": "2 r's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "ceil",
+      "ing"
+    ],
+    "tags": [
+      "ie-ei"
+    ],
+    "word": "ceiling",
+    "hint": "2 i's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "clothes"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "clothes",
+    "hint": "7 letters, starts with 'c'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "des",
+      "sert"
+    ],
+    "tags": [
+      "s-vs-ss"
+    ],
+    "word": "dessert",
+    "hint": "2 e's, 2 s's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "de",
+      "vel",
+      "op"
+    ],
+    "tags": [
+      "unstressed-vowel"
+    ],
+    "word": "develop",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "for",
+      "eign"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "foreign",
+    "hint": "7 letters, starts with 'f'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "gram",
+      "mar"
+    ],
+    "tags": [
+      "double-consonant",
+      "-ar-vs-er"
+    ],
+    "word": "grammar",
+    "hint": "2 a's, 2 m's, 2 r's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "li",
+      "brar",
+      "y"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "library",
+    "hint": "2 r's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "li",
+      "cense"
+    ],
+    "tags": [
+      "c-vs-s"
+    ],
+    "word": "license",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "nei",
+      "ther"
+    ],
+    "tags": [
+      "ie-ei"
+    ],
+    "word": "neither",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "re",
+      "ceive"
+    ],
+    "tags": [
+      "ie-ei"
+    ],
+    "word": "receive",
+    "hint": "3 e's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "sol",
+      "dier"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "soldier",
+    "hint": "7 letters, starts with 's'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "stom",
+      "ach"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "stomach",
+    "hint": "7 letters, starts with 's'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "suc",
+      "ceed"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "succeed",
+    "hint": "2 c's, 2 e's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "ap",
+      "par",
+      "ent"
+    ],
+    "tags": [
+      "double-consonant",
+      "unstressed-vowel"
+    ],
+    "word": "apparent",
+    "hint": "2 a's, 2 p's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "ar",
+      "gu",
+      "ment"
+    ],
+    "tags": [
+      "unstressed-vowel"
+    ],
+    "word": "argument",
+    "hint": "8 letters, starts with 'a'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "busi",
+      "ness"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "business",
+    "hint": "3 s's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "cal",
+      "en",
+      "dar"
+    ],
+    "tags": [
+      "-ar-vs-er"
+    ],
+    "word": "calendar",
+    "hint": "2 a's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "de",
+      "scribe"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "describe",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "ex",
+      "er",
+      "cise"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "exercise",
+    "hint": "3 e's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "fa",
+      "mil",
+      "iar"
+    ],
+    "tags": [
+      "unstressed-vowel"
+    ],
+    "word": "familiar",
+    "hint": "2 a's, 2 i's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "Feb",
+      "ru",
+      "ar",
+      "y"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "February",
+    "hint": "2 r's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "judg",
+      "ment"
+    ],
+    "tags": [
+      "e-omission"
+    ],
+    "word": "judgment",
+    "hint": "8 letters, starts with 'j'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "main",
+      "tain"
+    ],
+    "tags": [
+      "ai-confusion"
+    ],
+    "word": "maintain",
+    "hint": "2 a's, 2 i's, 2 n's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "mar",
+      "riage"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "marriage",
+    "hint": "2 a's, 2 r's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "mis",
+      "spell"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "misspell",
+    "hint": "2 l's, 2 s's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "neigh",
+      "bor"
+    ],
+    "tags": [
+      "silent-letter",
+      "-or-vs-our"
+    ],
+    "word": "neighbor",
+    "hint": "8 letters, starts with 'n'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "oc",
+      "ca",
+      "sion"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "occasion",
+    "hint": "2 c's, 2 o's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "op",
+      "po",
+      "site"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "opposite",
+    "hint": "2 o's, 2 p's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "pleas",
+      "ant"
+    ],
+    "tags": [
+      "-ant-vs-ent"
+    ],
+    "word": "pleasant",
+    "hint": "2 a's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "sched",
+      "ule"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "schedule",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "scis",
+      "sors"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "scissors",
+    "hint": "4 s's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "sep",
+      "a",
+      "rate"
+    ],
+    "tags": [
+      "-ar-vs-er"
+    ],
+    "word": "separate",
+    "hint": "2 a's, 2 e's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "sur",
+      "prise"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "surprise",
+    "hint": "2 r's, 2 s's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "be",
+      "gin",
+      "ning"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "beginning",
+    "hint": "3 n's, 2 g's, 2 i's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "bril",
+      "liant"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "brilliant",
+    "hint": "2 i's, 2 l's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "dis",
+      "ap",
+      "pear"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "disappear",
+    "hint": "2 a's, 2 p's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "ex",
+      "cel",
+      "lent"
+    ],
+    "tags": [
+      "-ent-vs-ant"
+    ],
+    "word": "excellent",
+    "hint": "3 e's, 2 l's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "gen",
+      "er",
+      "al",
+      "ly"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "generally",
+    "hint": "2 e's, 2 l's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "knowl",
+      "edge"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "knowledge",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "nec",
+      "es",
+      "sar",
+      "y"
+    ],
+    "tags": [
+      "c-vs-s"
+    ],
+    "word": "necessary",
+    "hint": "2 e's, 2 s's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "prin",
+      "ci",
+      "pal"
+    ],
+    "tags": [
+      "-pal-vs-ple"
+    ],
+    "word": "principal",
+    "hint": "2 i's, 2 p's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "prin",
+      "ci",
+      "ple"
+    ],
+    "tags": [
+      "-pal-vs-ple"
+    ],
+    "word": "principle",
+    "hint": "2 i's, 2 p's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "rec",
+      "om",
+      "mend"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "recommend",
+    "hint": "2 e's, 2 m's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "sin",
+      "cere",
+      "ly"
+    ],
+    "tags": [
+      "-ely-vs-ly"
+    ],
+    "word": "sincerely",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "veg",
+      "e",
+      "ta",
+      "ble"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "vegetable",
+    "hint": "3 e's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "def",
+      "i",
+      "nite",
+      "ly"
+    ],
+    "tags": [
+      "unstressed-vowel"
+    ],
+    "word": "definitely",
+    "hint": "2 e's, 2 i's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "dic",
+      "tion",
+      "ar",
+      "y"
+    ],
+    "tags": [
+      "-ary-vs-ery"
+    ],
+    "word": "dictionary",
+    "hint": "2 i's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "dis",
+      "ap",
+      "point"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "disappoint",
+    "hint": "2 i's, 2 p's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "ex",
+      "pe",
+      "ri",
+      "ence"
+    ],
+    "tags": [
+      "-ence-vs-ance"
+    ],
+    "word": "experience",
+    "hint": "4 e's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "gov",
+      "ern",
+      "ment"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "government",
+    "hint": "2 e's, 2 n's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "en",
+    "syllables": [
+      "in",
+      "ter",
+      "est",
+      "ing"
+    ],
+    "tags": [
+      "unstressed-vowel"
+    ],
+    "word": "interesting",
+    "hint": "2 e's, 2 i's, 2 n's, 2 t's"
+  }
+]

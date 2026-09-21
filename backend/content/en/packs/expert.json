@@ -1,0 +1,525 @@
+[
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "hardest"
+    ],
+    "word": "demarche",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "syllables": [
+      "pneu",
+      "mo",
+      "nia"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "pneumonia",
+    "hint": "2 n's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "syllables": [
+      "pso",
+      "ri",
+      "a",
+      "sis"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "psoriasis",
+    "hint": "3 s's, 2 i's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "hardest"
+    ],
+    "word": "querulous",
+    "hint": "3 u's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "hardest"
+    ],
+    "word": "soubrette",
+    "hint": "2 e's, 2 t's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "hardest"
+    ],
+    "word": "xanthosis",
+    "hint": "2 s's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "hardest"
+    ],
+    "word": "ochlocracy",
+    "hint": "3 c's, 2 o's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "syllables": [
+      "ren",
+      "dez",
+      "vous"
+    ],
+    "tags": [
+      "french-loan",
+      "silent-letter"
+    ],
+    "word": "rendezvous",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "hardest"
+    ],
+    "word": "synecdoche",
+    "hint": "2 c's, 2 e's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "hardest"
+    ],
+    "word": "borborygmus",
+    "hint": "2 b's, 2 o's, 2 r's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "hardest"
+    ],
+    "word": "dysrhythmia",
+    "hint": "2 h's, 2 y's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "hardest"
+    ],
+    "word": "foliicolous",
+    "hint": "3 o's, 2 i's, 2 l's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "hardest"
+    ],
+    "word": "ichthyology",
+    "hint": "2 h's, 2 o's, 2 y's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "hardest"
+    ],
+    "word": "pococurante",
+    "hint": "2 c's, 2 o's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "syllables": [
+      "pter",
+      "o",
+      "dac",
+      "tyl"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "pterodactyl",
+    "hint": "2 t's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "hardest"
+    ],
+    "word": "vicissitude",
+    "hint": "3 i's, 2 s's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "hardest"
+    ],
+    "word": "weltschmerz",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "hardest"
+    ],
+    "word": "cymotrichous",
+    "hint": "2 c's, 2 o's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "syllables": [
+      "id",
+      "i",
+      "o",
+      "syn",
+      "cra",
+      "sy"
+    ],
+    "tags": [
+      "y-confusion"
+    ],
+    "word": "idiosyncrasy",
+    "hint": "2 i's, 2 s's, 2 y's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "syllables": [
+      "on",
+      "o",
+      "mat",
+      "o",
+      "poe",
+      "ia"
+    ],
+    "tags": [
+      "unstressed-vowel"
+    ],
+    "word": "onomatopoeia",
+    "hint": "4 o's, 2 a's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "hardest"
+    ],
+    "word": "stichomythia",
+    "hint": "2 h's, 2 i's, 2 t's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "syllables": [
+      "chrys",
+      "an",
+      "the",
+      "mum"
+    ],
+    "tags": [
+      "silent-letter",
+      "y-confusion"
+    ],
+    "word": "chrysanthemum",
+    "hint": "2 h's, 2 m's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "syllables": [
+      "con",
+      "scien",
+      "tious"
+    ],
+    "tags": [
+      "sci-confusion"
+    ],
+    "word": "conscientious",
+    "hint": "2 c's, 2 i's, 2 n's, 2 o's, 2 s's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "hardest"
+    ],
+    "word": "perspicacious",
+    "hint": "2 c's, 2 i's, 2 p's, 2 s's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "hardest"
+    ],
+    "word": "schadenfreude",
+    "hint": "3 e's, 2 d's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "hardest"
+    ],
+    "word": "aggrandizement",
+    "hint": "2 a's, 2 e's, 2 g's, 2 n's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "hardest"
+    ],
+    "word": "circumlocution",
+    "hint": "3 c's, 2 i's, 2 o's, 2 u's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "hardest"
+    ],
+    "word": "obsequiousness",
+    "hint": "4 s's, 2 e's, 2 o's, 2 u's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "longest"
+    ],
+    "word": "sesquipedalian",
+    "hint": "2 a's, 2 e's, 2 i's, 2 s's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "hardest"
+    ],
+    "word": "unparliamentary",
+    "hint": "3 a's, 2 n's, 2 r's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "hardest"
+    ],
+    "word": "anesthesiologist",
+    "hint": "3 s's, 2 e's, 2 i's, 2 o's, 2 t's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "hardest"
+    ],
+    "word": "prestidigitation",
+    "hint": "4 i's, 3 t's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "longest"
+    ],
+    "word": "sphygmomanometer",
+    "hint": "3 m's, 2 e's, 2 o's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "longest"
+    ],
+    "word": "trichotillomania",
+    "hint": "3 i's, 2 a's, 2 l's, 2 o's, 2 t's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "longest"
+    ],
+    "word": "disproportionality",
+    "hint": "3 i's, 3 o's, 2 p's, 2 r's, 2 t's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "hardest"
+    ],
+    "word": "gastroenterologist",
+    "hint": "3 o's, 3 t's, 2 e's, 2 g's, 2 r's, 2 s's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "longest"
+    ],
+    "word": "incomprehensibility",
+    "hint": "4 i's, 2 e's, 2 n's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "longest"
+    ],
+    "word": "sternocleidomastoid",
+    "hint": "3 o's, 2 d's, 2 e's, 2 i's, 2 s's, 2 t's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "longest"
+    ],
+    "word": "counterrevolutionary",
+    "hint": "3 o's, 3 r's, 2 e's, 2 n's, 2 t's, 2 u's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "longest"
+    ],
+    "word": "otorhinolaryngologist",
+    "hint": "5 o's, 2 g's, 2 i's, 2 l's, 2 n's, 2 r's, 2 t's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "longest"
+    ],
+    "word": "electroencephalography",
+    "hint": "4 e's, 2 a's, 2 c's, 2 h's, 2 l's, 2 o's, 2 p's, 2 r's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "longest"
+    ],
+    "word": "laryngotracheobronchitis",
+    "hint": "3 o's, 3 r's, 2 a's, 2 c's, 2 h's, 2 i's, 2 n's, 2 t's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "longest"
+    ],
+    "word": "antidisestablishmentarianism",
+    "hint": "5 i's, 4 a's, 4 s's, 3 n's, 3 t's, 2 e's, 2 m's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "longest"
+    ],
+    "word": "floccinaucinihilipilification",
+    "hint": "9 i's, 4 c's, 3 l's, 3 n's, 2 a's, 2 f's, 2 o's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "longest"
+    ],
+    "word": "pseudopseudohypoparathyroidism",
+    "hint": "4 o's, 4 p's, 3 d's, 3 s's, 2 a's, 2 e's, 2 h's, 2 i's, 2 r's, 2 u's, 2 y's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "longest"
+    ],
+    "word": "supercalifragilisticexpialidocious",
+    "hint": "7 i's, 3 a's, 3 c's, 3 l's, 3 s's, 2 e's, 2 o's, 2 p's, 2 r's, 2 u's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "longest"
+    ],
+    "word": "hippopotomonstrosesquippedaliophobia",
+    "hint": "7 o's, 6 p's, 4 i's, 3 s's, 2 a's, 2 e's, 2 h's, 2 t's"
+  },
+  {
+    "difficulty": 5,
+    "locale": "en",
+    "tags": [
+      "expert",
+      "longest"
+    ],
+    "word": "pneumonoultramicroscopicsilicovolcanoconiosis",
+    "hint": "9 o's, 6 c's, 6 i's, 4 n's, 4 s's, 3 l's, 2 a's, 2 m's, 2 p's, 2 r's, 2 u's"
+  }
+]

@@ -1,0 +1,307 @@
+[
+  {
+    "word": "Adieu",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "loanword-fr"
+    ],
+    "difficulty": 5,
+    "hint": "5 letters, starts with 'A'"
+  },
+  {
+    "word": "Allee",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "loanword-fr"
+    ],
+    "difficulty": 5,
+    "hint": "2 e's, 2 l's"
+  },
+  {
+    "word": "Hyäne",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "greek-y",
+      "umlaut"
+    ],
+    "difficulty": 5,
+    "hint": "5 letters, starts with 'H'"
+  },
+  {
+    "word": "Milieu",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "loanword-fr"
+    ],
+    "difficulty": 5,
+    "hint": "2 i's"
+  },
+  {
+    "word": "Niveau",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "loanword-fr"
+    ],
+    "difficulty": 5,
+    "hint": "6 letters, starts with 'N'"
+  },
+  {
+    "word": "Bravour",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "loanword-fr"
+    ],
+    "difficulty": 5,
+    "hint": "2 r's"
+  },
+  {
+    "word": "Delphin",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "ph"
+    ],
+    "difficulty": 5,
+    "hint": "7 letters, starts with 'D'"
+  },
+  {
+    "word": "Moschee",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "loanword"
+    ],
+    "difficulty": 5,
+    "hint": "2 e's"
+  },
+  {
+    "word": "Barriere",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "double-consonant"
+    ],
+    "difficulty": 5,
+    "hint": "3 r's, 2 e's"
+  },
+  {
+    "word": "Karriere",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "double-consonant"
+    ],
+    "difficulty": 5,
+    "hint": "3 r's, 2 e's"
+  },
+  {
+    "word": "Rhetorik",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "greek-rh"
+    ],
+    "difficulty": 5,
+    "hint": "2 r's"
+  },
+  {
+    "word": "Souvenir",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "loanword-fr"
+    ],
+    "difficulty": 5,
+    "hint": "8 letters, starts with 'S'"
+  },
+  {
+    "word": "Terrasse",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "double-consonant"
+    ],
+    "difficulty": 5,
+    "hint": "2 e's, 2 r's, 2 s's"
+  },
+  {
+    "word": "Zucchini",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "loanword"
+    ],
+    "difficulty": 5,
+    "hint": "2 c's, 2 i's"
+  },
+  {
+    "word": "aggressiv",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "double-consonant"
+    ],
+    "difficulty": 5,
+    "hint": "2 g's, 2 s's"
+  },
+  {
+    "word": "Exzellenz",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "x",
+      "z"
+    ],
+    "difficulty": 5,
+    "hint": "3 e's, 2 l's, 2 z's"
+  },
+  {
+    "word": "Parallele",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "double-consonant"
+    ],
+    "difficulty": 5,
+    "hint": "3 l's, 2 a's, 2 e's"
+  },
+  {
+    "word": "Apokalypse",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "greek-y"
+    ],
+    "difficulty": 5,
+    "hint": "2 a's, 2 p's"
+  },
+  {
+    "word": "Champignon",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "loanword-fr"
+    ],
+    "difficulty": 5,
+    "hint": "2 n's"
+  },
+  {
+    "word": "Engagement",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "loanword-fr"
+    ],
+    "difficulty": 5,
+    "hint": "3 e's, 2 g's, 2 n's"
+  },
+  {
+    "word": "Quarantäne",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "qu"
+    ],
+    "difficulty": 5,
+    "hint": "2 a's, 2 n's"
+  },
+  {
+    "word": "ästhetisch",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "greek",
+      "umlaut"
+    ],
+    "difficulty": 5,
+    "hint": "2 h's, 2 s's, 2 t's"
+  },
+  {
+    "word": "Arrangement",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "loanword-fr",
+      "double-consonant"
+    ],
+    "difficulty": 5,
+    "hint": "2 a's, 2 e's, 2 n's, 2 r's"
+  },
+  {
+    "word": "Cholesterin",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "ch"
+    ],
+    "difficulty": 5,
+    "hint": "2 e's"
+  },
+  {
+    "word": "exzentrisch",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "x",
+      "z"
+    ],
+    "difficulty": 5,
+    "hint": "2 e's"
+  },
+  {
+    "word": "Portemonnaie",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "loanword-fr"
+    ],
+    "difficulty": 5,
+    "hint": "2 e's, 2 n's, 2 o's"
+  },
+  {
+    "word": "Physiotherapie",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "greek"
+    ],
+    "difficulty": 5,
+    "hint": "2 e's, 2 h's, 2 i's, 2 p's"
+  },
+  {
+    "word": "Donaudampfschifffahrt",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "compound"
+    ],
+    "difficulty": 5,
+    "hint": "4 f's, 3 a's, 2 d's, 2 h's"
+  },
+  {
+    "word": "Rechtsschutzversicherung",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "compound"
+    ],
+    "difficulty": 5,
+    "hint": "3 c's, 3 e's, 3 h's, 3 r's, 3 s's, 2 t's, 2 u's"
+  },
+  {
+    "word": "Streichholzschächtelchen",
+    "locale": "de",
+    "tags": [
+      "expert",
+      "compound"
+    ],
+    "difficulty": 5,
+    "hint": "5 h's, 4 c's, 3 e's, 2 l's, 2 s's, 2 t's"
+  }
+]

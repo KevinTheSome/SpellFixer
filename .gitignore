@@ -1,0 +1,12 @@
+.playwright-mcp
+.env
+.env.local
+test-results/
+playwright-report/
+playwright/.cache/
+node_modules
+dist
+dist-ssr
+.DS_Store
+*.local
+*.log

@@ -1,0 +1,731 @@
+[
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "Fuß"
+    ],
+    "tags": [
+      "ss-ß"
+    ],
+    "word": "Fuß",
+    "hint": "3 letters, starts with 'F'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "für"
+    ],
+    "tags": [
+      "umlaut"
+    ],
+    "word": "für",
+    "hint": "3 letters, starts with 'f'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "Tür"
+    ],
+    "tags": [
+      "umlaut"
+    ],
+    "word": "Tür",
+    "hint": "3 letters, starts with 'T'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "groß"
+    ],
+    "tags": [
+      "ss-ß"
+    ],
+    "word": "groß",
+    "hint": "4 letters, starts with 'g'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "muss"
+    ],
+    "tags": [
+      "ss-ß",
+      "double-consonant"
+    ],
+    "word": "muss",
+    "hint": "2 s's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "über"
+    ],
+    "tags": [
+      "umlaut"
+    ],
+    "word": "über",
+    "hint": "4 letters, starts with 'ü'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "Brief"
+    ],
+    "tags": [
+      "ie-ei"
+    ],
+    "word": "Brief",
+    "hint": "5 letters, starts with 'B'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "Bäu",
+      "me"
+    ],
+    "tags": [
+      "umlaut"
+    ],
+    "word": "Bäume",
+    "hint": "5 letters, starts with 'B'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "Hän",
+      "de"
+    ],
+    "tags": [
+      "umlaut"
+    ],
+    "word": "Hände",
+    "hint": "5 letters, starts with 'H'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "Lie",
+      "be"
+    ],
+    "tags": [
+      "ie-ei"
+    ],
+    "word": "Liebe",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "schön"
+    ],
+    "tags": [
+      "umlaut",
+      "sch-ch"
+    ],
+    "word": "schön",
+    "hint": "5 letters, starts with 's'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "zwölf"
+    ],
+    "tags": [
+      "umlaut"
+    ],
+    "word": "zwölf",
+    "hint": "5 letters, starts with 'z'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "Äp",
+      "fel"
+    ],
+    "tags": [
+      "umlaut"
+    ],
+    "word": "Äpfel",
+    "hint": "5 letters, starts with 'Ä'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "bes",
+      "ser"
+    ],
+    "tags": [
+      "ss-ß",
+      "double-consonant"
+    ],
+    "word": "besser",
+    "hint": "2 e's, 2 s's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "Bü",
+      "cher"
+    ],
+    "tags": [
+      "umlaut",
+      "ch-sch"
+    ],
+    "word": "Bücher",
+    "hint": "6 letters, starts with 'B'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "dür",
+      "fen"
+    ],
+    "tags": [
+      "umlaut"
+    ],
+    "word": "dürfen",
+    "hint": "6 letters, starts with 'd'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "Freund"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "Freund",
+    "hint": "6 letters, starts with 'F'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "Häu",
+      "ser"
+    ],
+    "tags": [
+      "umlaut"
+    ],
+    "word": "Häuser",
+    "hint": "6 letters, starts with 'H'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "kom",
+      "men"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "kommen",
+    "hint": "2 m's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "kön",
+      "nen"
+    ],
+    "tags": [
+      "umlaut",
+      "double-consonant"
+    ],
+    "word": "können",
+    "hint": "3 n's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "Leh",
+      "rer"
+    ],
+    "tags": [
+      "silent-h"
+    ],
+    "word": "Lehrer",
+    "hint": "2 e's, 2 r's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "müs",
+      "sen"
+    ],
+    "tags": [
+      "umlaut",
+      "ss-ß"
+    ],
+    "word": "müssen",
+    "hint": "2 s's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "Schu",
+      "le"
+    ],
+    "tags": [
+      "sch-ch"
+    ],
+    "word": "Schule",
+    "hint": "6 letters, starts with 'S'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "Stüh",
+      "le"
+    ],
+    "tags": [
+      "umlaut"
+    ],
+    "word": "Stühle",
+    "hint": "6 letters, starts with 'S'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "Was",
+      "ser"
+    ],
+    "tags": [
+      "ss-ß",
+      "double-consonant"
+    ],
+    "word": "Wasser",
+    "hint": "2 s's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "zu",
+      "erst"
+    ],
+    "tags": [
+      "basic"
+    ],
+    "word": "zuerst",
+    "hint": "6 letters, starts with 'z'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "zu",
+      "rück"
+    ],
+    "tags": [
+      "umlaut"
+    ],
+    "word": "zurück",
+    "hint": "6 letters, starts with 'z'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "Bahn",
+      "hof"
+    ],
+    "tags": [
+      "silent-h"
+    ],
+    "word": "Bahnhof",
+    "hint": "2 h's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "Fahr",
+      "rad"
+    ],
+    "tags": [
+      "silent-h"
+    ],
+    "word": "Fahrrad",
+    "hint": "2 a's, 2 r's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "Mäd",
+      "chen"
+    ],
+    "tags": [
+      "umlaut",
+      "ch-sch"
+    ],
+    "word": "Mädchen",
+    "hint": "7 letters, starts with 'M'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "Schü",
+      "ler"
+    ],
+    "tags": [
+      "umlaut",
+      "sch-ch"
+    ],
+    "word": "Schüler",
+    "hint": "7 letters, starts with 'S'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "Bei",
+      "spiel"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "Beispiel",
+    "hint": "2 e's, 2 i's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "wirk",
+      "lich"
+    ],
+    "tags": [
+      "basic"
+    ],
+    "word": "wirklich",
+    "hint": "2 i's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "de",
+    "syllables": [
+      "zwi",
+      "schen"
+    ],
+    "tags": [
+      "sch-ch"
+    ],
+    "word": "zwischen",
+    "hint": "8 letters, starts with 'z'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "de",
+    "syllables": [
+      "dass"
+    ],
+    "tags": [
+      "das-dass",
+      "double-consonant"
+    ],
+    "word": "dass",
+    "hint": "2 s's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "de",
+    "syllables": [
+      "Grü",
+      "ße"
+    ],
+    "tags": [
+      "ss-ß",
+      "umlaut"
+    ],
+    "word": "Grüße",
+    "hint": "5 letters, starts with 'G'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "de",
+    "syllables": [
+      "Che",
+      "mie"
+    ],
+    "tags": [
+      "ch-sch"
+    ],
+    "word": "Chemie",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "de",
+    "syllables": [
+      "Näch",
+      "te"
+    ],
+    "tags": [
+      "umlaut",
+      "ch-sch"
+    ],
+    "word": "Nächte",
+    "hint": "6 letters, starts with 'N'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "de",
+    "syllables": [
+      "Phy",
+      "sik"
+    ],
+    "tags": [
+      "greek-ph"
+    ],
+    "word": "Physik",
+    "hint": "6 letters, starts with 'P'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "de",
+    "syllables": [
+      "Stra",
+      "ße"
+    ],
+    "tags": [
+      "ss-ß"
+    ],
+    "word": "Straße",
+    "hint": "6 letters, starts with 'S'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "de",
+    "syllables": [
+      "A",
+      "dres",
+      "se"
+    ],
+    "tags": [
+      "ss-ß",
+      "double-consonant"
+    ],
+    "word": "Adresse",
+    "hint": "2 e's, 2 s's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "de",
+    "syllables": [
+      "be",
+      "reits"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "bereits",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "de",
+    "syllables": [
+      "näm",
+      "lich"
+    ],
+    "tags": [
+      "umlaut"
+    ],
+    "word": "nämlich",
+    "hint": "7 letters, starts with 'n'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "de",
+    "syllables": [
+      "Bröt",
+      "chen"
+    ],
+    "tags": [
+      "umlaut"
+    ],
+    "word": "Brötchen",
+    "hint": "8 letters, starts with 'B'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "de",
+    "syllables": [
+      "Rhyth",
+      "mus"
+    ],
+    "tags": [
+      "silent-letter",
+      "greek-rh"
+    ],
+    "word": "Rhythmus",
+    "hint": "2 h's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "de",
+    "syllables": [
+      "Ruck",
+      "sack"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "Rucksack",
+    "hint": "2 c's, 2 k's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "de",
+    "syllables": [
+      "Cha",
+      "rak",
+      "ter"
+    ],
+    "tags": [
+      "ch-sch"
+    ],
+    "word": "Charakter",
+    "hint": "2 a's, 2 r's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "de",
+    "syllables": [
+      "Flug",
+      "ha",
+      "fen"
+    ],
+    "tags": [
+      "silent-h"
+    ],
+    "word": "Flughafen",
+    "hint": "2 f's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "de",
+    "syllables": [
+      "na",
+      "tür",
+      "lich"
+    ],
+    "tags": [
+      "umlaut"
+    ],
+    "word": "natürlich",
+    "hint": "9 letters, starts with 'n'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "de",
+    "syllables": [
+      "Ge",
+      "burts",
+      "tag"
+    ],
+    "tags": [
+      "basic"
+    ],
+    "word": "Geburtstag",
+    "hint": "2 g's, 2 t's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "de",
+    "syllables": [
+      "je",
+      "den",
+      "falls"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "jedenfalls",
+    "hint": "2 e's, 2 l's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "de",
+    "syllables": [
+      "viel",
+      "leicht"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "vielleicht",
+    "hint": "2 e's, 2 i's, 2 l's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "de",
+    "syllables": [
+      "in",
+      "te",
+      "res",
+      "sant"
+    ],
+    "tags": [
+      "ss-ß",
+      "double-consonant"
+    ],
+    "word": "interessant",
+    "hint": "2 e's, 2 n's, 2 s's, 2 t's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "de",
+    "syllables": [
+      "Kran",
+      "ken",
+      "haus"
+    ],
+    "tags": [
+      "basic"
+    ],
+    "word": "Krankenhaus",
+    "hint": "2 a's, 2 k's, 2 n's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "de",
+    "syllables": [
+      "Un",
+      "ter",
+      "schied"
+    ],
+    "tags": [
+      "sch-ch"
+    ],
+    "word": "Unterschied",
+    "hint": "2 e's"
+  }
+]

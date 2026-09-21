@@ -1,0 +1,431 @@
+[
+  {
+    "word": "búho",
+    "locale": "es",
+    "tags": [
+      "silent-h",
+      "accent"
+    ],
+    "difficulty": 3,
+    "hint": "4 letters, starts with 'b'"
+  },
+  {
+    "word": "huir",
+    "locale": "es",
+    "tags": [
+      "silent-h"
+    ],
+    "difficulty": 3,
+    "hint": "4 letters, starts with 'h'"
+  },
+  {
+    "word": "ágil",
+    "locale": "es",
+    "tags": [
+      "g-j",
+      "accent"
+    ],
+    "difficulty": 3,
+    "hint": "4 letters, starts with 'á'"
+  },
+  {
+    "word": "arroz",
+    "locale": "es",
+    "tags": [
+      "rr"
+    ],
+    "difficulty": 3,
+    "hint": "2 r's"
+  },
+  {
+    "word": "cazar",
+    "locale": "es",
+    "tags": [
+      "c-z"
+    ],
+    "difficulty": 3,
+    "hint": "2 a's"
+  },
+  {
+    "word": "censo",
+    "locale": "es",
+    "tags": [
+      "c-s"
+    ],
+    "difficulty": 3,
+    "hint": "5 letters, starts with 'c'"
+  },
+  {
+    "word": "cocer",
+    "locale": "es",
+    "tags": [
+      "c-z"
+    ],
+    "difficulty": 3,
+    "hint": "2 c's"
+  },
+  {
+    "word": "coser",
+    "locale": "es",
+    "tags": [
+      "c-s"
+    ],
+    "difficulty": 3,
+    "hint": "5 letters, starts with 'c'"
+  },
+  {
+    "word": "error",
+    "locale": "es",
+    "tags": [
+      "rr"
+    ],
+    "difficulty": 3,
+    "hint": "3 r's"
+  },
+  {
+    "word": "garra",
+    "locale": "es",
+    "tags": [
+      "rr"
+    ],
+    "difficulty": 3,
+    "hint": "2 a's, 2 r's"
+  },
+  {
+    "word": "hueso",
+    "locale": "es",
+    "tags": [
+      "silent-h"
+    ],
+    "difficulty": 3,
+    "hint": "5 letters, starts with 'h'"
+  },
+  {
+    "word": "huevo",
+    "locale": "es",
+    "tags": [
+      "silent-h"
+    ],
+    "difficulty": 3,
+    "hint": "5 letters, starts with 'h'"
+  },
+  {
+    "word": "magia",
+    "locale": "es",
+    "tags": [
+      "g-j"
+    ],
+    "difficulty": 3,
+    "hint": "2 a's"
+  },
+  {
+    "word": "frágil",
+    "locale": "es",
+    "tags": [
+      "g-j",
+      "accent"
+    ],
+    "difficulty": 3,
+    "hint": "6 letters, starts with 'f'"
+  },
+  {
+    "word": "horror",
+    "locale": "es",
+    "tags": [
+      "silent-h",
+      "rr"
+    ],
+    "difficulty": 3,
+    "hint": "3 r's, 2 o's"
+  },
+  {
+    "word": "zigzag",
+    "locale": "es",
+    "tags": [
+      "c-z"
+    ],
+    "difficulty": 3,
+    "hint": "2 g's, 2 z's"
+  },
+  {
+    "word": "alcohol",
+    "locale": "es",
+    "tags": [
+      "silent-h"
+    ],
+    "difficulty": 3,
+    "hint": "2 l's, 2 o's"
+  },
+  {
+    "word": "almohada",
+    "locale": "es",
+    "tags": [
+      "silent-h"
+    ],
+    "difficulty": 3,
+    "hint": "3 a's"
+  },
+  {
+    "word": "ascensor",
+    "locale": "es",
+    "tags": [
+      "c-s"
+    ],
+    "difficulty": 3,
+    "hint": "2 s's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "es",
+    "syllables": [
+      "ex",
+      "cep",
+      "ción"
+    ],
+    "tags": [
+      "c-z",
+      "accent"
+    ],
+    "word": "excepción",
+    "hint": "2 c's, 2 e's"
+  },
+  {
+    "word": "territorio",
+    "locale": "es",
+    "tags": [
+      "rr"
+    ],
+    "difficulty": 3,
+    "hint": "3 r's, 2 i's, 2 o's, 2 t's"
+  },
+  {
+    "word": "bujía",
+    "locale": "es",
+    "tags": [
+      "g-j",
+      "accent"
+    ],
+    "difficulty": 4,
+    "hint": "5 letters, starts with 'b'"
+  },
+  {
+    "word": "rayar",
+    "locale": "es",
+    "tags": [
+      "ll-y"
+    ],
+    "difficulty": 4,
+    "hint": "2 a's, 2 r's"
+  },
+  {
+    "word": "tejer",
+    "locale": "es",
+    "tags": [
+      "g-j"
+    ],
+    "difficulty": 4,
+    "hint": "2 e's"
+  },
+  {
+    "word": "arroyo",
+    "locale": "es",
+    "tags": [
+      "ll-y"
+    ],
+    "difficulty": 4,
+    "hint": "2 o's, 2 r's"
+  },
+  {
+    "word": "cereza",
+    "locale": "es",
+    "tags": [
+      "c-z"
+    ],
+    "difficulty": 4,
+    "hint": "2 e's"
+  },
+  {
+    "word": "crujir",
+    "locale": "es",
+    "tags": [
+      "g-j"
+    ],
+    "difficulty": 4,
+    "hint": "2 r's"
+  },
+  {
+    "word": "jinete",
+    "locale": "es",
+    "tags": [
+      "g-j"
+    ],
+    "difficulty": 4,
+    "hint": "2 e's"
+  },
+  {
+    "word": "pájaro",
+    "locale": "es",
+    "tags": [
+      "accent",
+      "j"
+    ],
+    "difficulty": 4,
+    "hint": "6 letters, starts with 'p'"
+  },
+  {
+    "word": "brújula",
+    "locale": "es",
+    "tags": [
+      "accent"
+    ],
+    "difficulty": 4,
+    "hint": "7 letters, starts with 'b'"
+  },
+  {
+    "word": "callado",
+    "locale": "es",
+    "tags": [
+      "ll-y"
+    ],
+    "difficulty": 4,
+    "hint": "2 a's, 2 l's"
+  },
+  {
+    "word": "herejía",
+    "locale": "es",
+    "tags": [
+      "silent-h",
+      "g-j"
+    ],
+    "difficulty": 4,
+    "hint": "2 e's"
+  },
+  {
+    "word": "máquina",
+    "locale": "es",
+    "tags": [
+      "accent"
+    ],
+    "difficulty": 4,
+    "hint": "7 letters, starts with 'm'"
+  },
+  {
+    "word": "quiosco",
+    "locale": "es",
+    "tags": [
+      "qu"
+    ],
+    "difficulty": 4,
+    "hint": "2 o's"
+  },
+  {
+    "word": "recoger",
+    "locale": "es",
+    "tags": [
+      "g-j"
+    ],
+    "difficulty": 4,
+    "hint": "2 e's, 2 r's"
+  },
+  {
+    "word": "exhausto",
+    "locale": "es",
+    "tags": [
+      "x"
+    ],
+    "difficulty": 4,
+    "hint": "8 letters, starts with 'e'"
+  },
+  {
+    "word": "prohibir",
+    "locale": "es",
+    "tags": [
+      "silent-h"
+    ],
+    "difficulty": 4,
+    "hint": "2 i's, 2 r's"
+  },
+  {
+    "word": "proteger",
+    "locale": "es",
+    "tags": [
+      "g-j"
+    ],
+    "difficulty": 4,
+    "hint": "2 e's, 2 r's"
+  },
+  {
+    "word": "exquisito",
+    "locale": "es",
+    "tags": [
+      "x"
+    ],
+    "difficulty": 4,
+    "hint": "2 i's"
+  },
+  {
+    "word": "vergüenza",
+    "locale": "es",
+    "tags": [
+      "dieresis"
+    ],
+    "difficulty": 4,
+    "hint": "2 e's"
+  },
+  {
+    "word": "zanahoria",
+    "locale": "es",
+    "tags": [
+      "c-z"
+    ],
+    "difficulty": 4,
+    "hint": "3 a's"
+  },
+  {
+    "word": "excéntrico",
+    "locale": "es",
+    "tags": [
+      "x",
+      "accent"
+    ],
+    "difficulty": 4,
+    "hint": "2 c's"
+  },
+  {
+    "word": "exuberante",
+    "locale": "es",
+    "tags": [
+      "x"
+    ],
+    "difficulty": 4,
+    "hint": "3 e's"
+  },
+  {
+    "word": "murciélago",
+    "locale": "es",
+    "tags": [
+      "accent",
+      "c-z"
+    ],
+    "difficulty": 4,
+    "hint": "10 letters, starts with 'm'"
+  },
+  {
+    "word": "enhorabuena",
+    "locale": "es",
+    "tags": [
+      "silent-h"
+    ],
+    "difficulty": 4,
+    "hint": "2 a's, 2 e's, 2 n's"
+  },
+  {
+    "word": "ferrocarril",
+    "locale": "es",
+    "tags": [
+      "rr"
+    ],
+    "difficulty": 4,
+    "hint": "4 r's"
+  }
+]

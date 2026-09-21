@@ -1,0 +1,305 @@
+[
+  {
+    "word": "argüir",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "dieresis"
+    ],
+    "difficulty": 5,
+    "hint": "2 r's"
+  },
+  {
+    "word": "prever",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "b-v"
+    ],
+    "difficulty": 5,
+    "hint": "2 e's, 2 r's"
+  },
+  {
+    "word": "ahuecar",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "silent-h"
+    ],
+    "difficulty": 5,
+    "hint": "2 a's"
+  },
+  {
+    "word": "cigüeña",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "dieresis"
+    ],
+    "difficulty": 5,
+    "hint": "7 letters, starts with 'c'"
+  },
+  {
+    "word": "proveer",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "b-v"
+    ],
+    "difficulty": 5,
+    "hint": "2 e's, 2 r's"
+  },
+  {
+    "word": "rehusar",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "silent-h"
+    ],
+    "difficulty": 5,
+    "hint": "2 r's"
+  },
+  {
+    "word": "absolver",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "b-v"
+    ],
+    "difficulty": 5,
+    "hint": "8 letters, starts with 'a'"
+  },
+  {
+    "word": "bilingüe",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "dieresis"
+    ],
+    "difficulty": 5,
+    "hint": "2 i's"
+  },
+  {
+    "word": "exégesis",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "x",
+      "g-j"
+    ],
+    "difficulty": 5,
+    "hint": "2 e's, 2 s's"
+  },
+  {
+    "word": "pingüino",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "dieresis"
+    ],
+    "difficulty": 5,
+    "hint": "2 i's, 2 n's"
+  },
+  {
+    "word": "ungüento",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "dieresis"
+    ],
+    "difficulty": 5,
+    "hint": "2 n's"
+  },
+  {
+    "word": "deshuesar",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "silent-h"
+    ],
+    "difficulty": 5,
+    "hint": "2 e's, 2 s's"
+  },
+  {
+    "word": "inherente",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "silent-h"
+    ],
+    "difficulty": 5,
+    "hint": "3 e's, 2 n's"
+  },
+  {
+    "word": "paragüero",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "dieresis"
+    ],
+    "difficulty": 5,
+    "hint": "2 a's, 2 r's"
+  },
+  {
+    "word": "xenofobia",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "x"
+    ],
+    "difficulty": 5,
+    "hint": "2 o's"
+  },
+  {
+    "word": "pseudónimo",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "ps"
+    ],
+    "difficulty": 5,
+    "hint": "10 letters, starts with 'p'"
+  },
+  {
+    "word": "psicología",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "ps"
+    ],
+    "difficulty": 5,
+    "hint": "2 o's"
+  },
+  {
+    "word": "subversivo",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "b-v"
+    ],
+    "difficulty": 5,
+    "hint": "2 s's, 2 v's"
+  },
+  {
+    "word": "zigzaguear",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "c-z",
+      "g-j"
+    ],
+    "difficulty": 5,
+    "hint": "2 a's, 2 g's, 2 z's"
+  },
+  {
+    "word": "lingüística",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "dieresis"
+    ],
+    "difficulty": 5,
+    "hint": "2 i's"
+  },
+  {
+    "word": "transgredir",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "g-j"
+    ],
+    "difficulty": 5,
+    "hint": "3 r's"
+  },
+  {
+    "word": "efervescencia",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "b-v",
+      "c-s"
+    ],
+    "difficulty": 5,
+    "hint": "4 e's, 2 c's"
+  },
+  {
+    "word": "idiosincrasia",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "c-s"
+    ],
+    "difficulty": 5,
+    "hint": "4 i's, 2 a's, 2 s's"
+  },
+  {
+    "word": "paralelepípedo",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "accent"
+    ],
+    "difficulty": 5,
+    "hint": "3 e's, 3 p's, 2 a's, 2 l's"
+  },
+  {
+    "word": "desoxirribonucleico",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "x"
+    ],
+    "difficulty": 5,
+    "hint": "3 i's, 3 o's, 2 c's, 2 e's, 2 r's"
+  },
+  {
+    "word": "otorrinolaringólogo",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "rr"
+    ],
+    "difficulty": 5,
+    "hint": "5 o's, 3 r's, 2 g's, 2 i's, 2 l's, 2 n's"
+  },
+  {
+    "word": "contrarrevolucionario",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "longest"
+    ],
+    "difficulty": 5,
+    "hint": "4 o's, 4 r's, 2 a's, 2 c's, 2 i's, 2 n's"
+  },
+  {
+    "word": "electroencefalografía",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "longest"
+    ],
+    "difficulty": 5,
+    "hint": "4 e's, 3 a's, 2 c's, 2 f's, 2 l's, 2 o's, 2 r's"
+  },
+  {
+    "word": "anticonstitucionalidad",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "longest"
+    ],
+    "difficulty": 5,
+    "hint": "4 i's, 3 a's, 3 n's, 3 t's, 2 c's, 2 d's, 2 o's"
+  },
+  {
+    "word": "esternocleidomastoideo",
+    "locale": "es",
+    "tags": [
+      "expert",
+      "longest"
+    ],
+    "difficulty": 5,
+    "hint": "4 e's, 4 o's, 2 d's, 2 i's, 2 s's, 2 t's"
+  }
+]

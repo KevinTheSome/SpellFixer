@@ -1,0 +1,486 @@
+[
+  {
+    "word": "Dieb",
+    "locale": "de",
+    "tags": [
+      "ie-ei"
+    ],
+    "difficulty": 3,
+    "hint": "4 letters, starts with 'D'"
+  },
+  {
+    "word": "Kuss",
+    "locale": "de",
+    "tags": [
+      "ss-ß"
+    ],
+    "difficulty": 3,
+    "hint": "2 s's"
+  },
+  {
+    "word": "Sieg",
+    "locale": "de",
+    "tags": [
+      "ie-ei"
+    ],
+    "difficulty": 3,
+    "hint": "4 letters, starts with 'S'"
+  },
+  {
+    "word": "Tipp",
+    "locale": "de",
+    "tags": [
+      "double-consonant"
+    ],
+    "difficulty": 3,
+    "hint": "2 p's"
+  },
+  {
+    "word": "Ziel",
+    "locale": "de",
+    "tags": [
+      "ie-ei"
+    ],
+    "difficulty": 3,
+    "hint": "4 letters, starts with 'Z'"
+  },
+  {
+    "word": "Fluss",
+    "locale": "de",
+    "tags": [
+      "ss-ß"
+    ],
+    "difficulty": 3,
+    "hint": "2 s's"
+  },
+  {
+    "word": "Lotto",
+    "locale": "de",
+    "tags": [
+      "double-consonant"
+    ],
+    "difficulty": 3,
+    "hint": "2 o's, 2 t's"
+  },
+  {
+    "word": "Effekt",
+    "locale": "de",
+    "tags": [
+      "double-consonant"
+    ],
+    "difficulty": 3,
+    "hint": "2 e's, 2 f's"
+  },
+  {
+    "word": "Genuss",
+    "locale": "de",
+    "tags": [
+      "ss-ß"
+    ],
+    "difficulty": 3,
+    "hint": "2 s's"
+  },
+  {
+    "word": "Kaffee",
+    "locale": "de",
+    "tags": [
+      "double-consonant"
+    ],
+    "difficulty": 3,
+    "hint": "2 e's, 2 f's"
+  },
+  {
+    "word": "Klasse",
+    "locale": "de",
+    "tags": [
+      "double-consonant"
+    ],
+    "difficulty": 3,
+    "hint": "2 s's"
+  },
+  {
+    "word": "Koffer",
+    "locale": "de",
+    "tags": [
+      "double-consonant"
+    ],
+    "difficulty": 3,
+    "hint": "2 f's"
+  },
+  {
+    "word": "Spinne",
+    "locale": "de",
+    "tags": [
+      "double-consonant"
+    ],
+    "difficulty": 3,
+    "hint": "2 n's"
+  },
+  {
+    "word": "Treppe",
+    "locale": "de",
+    "tags": [
+      "double-consonant"
+    ],
+    "difficulty": 3,
+    "hint": "2 e's, 2 p's"
+  },
+  {
+    "word": "Apparat",
+    "locale": "de",
+    "tags": [
+      "double-consonant"
+    ],
+    "difficulty": 3,
+    "hint": "3 a's, 2 p's"
+  },
+  {
+    "word": "Ballett",
+    "locale": "de",
+    "tags": [
+      "double-consonant"
+    ],
+    "difficulty": 3,
+    "hint": "2 l's, 2 t's"
+  },
+  {
+    "word": "Kompass",
+    "locale": "de",
+    "tags": [
+      "double-consonant"
+    ],
+    "difficulty": 3,
+    "hint": "2 s's"
+  },
+  {
+    "word": "Schloss",
+    "locale": "de",
+    "tags": [
+      "ss-ß"
+    ],
+    "difficulty": 3,
+    "hint": "3 s's"
+  },
+  {
+    "word": "Beschluss",
+    "locale": "de",
+    "tags": [
+      "ss-ß",
+      "double-consonant"
+    ],
+    "difficulty": 3,
+    "hint": "3 s's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "de",
+    "syllables": [
+      "emp",
+      "feh",
+      "len"
+    ],
+    "tags": [
+      "silent-h"
+    ],
+    "word": "empfehlen",
+    "hint": "3 e's"
+  },
+  {
+    "word": "Kommentar",
+    "locale": "de",
+    "tags": [
+      "double-consonant"
+    ],
+    "difficulty": 3,
+    "hint": "2 m's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "de",
+    "syllables": [
+      "Psy",
+      "cho",
+      "lo",
+      "gie"
+    ],
+    "tags": [
+      "greek-ph",
+      "silent-letter"
+    ],
+    "word": "Psychologie",
+    "hint": "2 o's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "de",
+    "syllables": [
+      "Ent",
+      "schei",
+      "dung"
+    ],
+    "tags": [
+      "sch-ch"
+    ],
+    "word": "Entscheidung",
+    "hint": "2 e's, 2 n's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "de",
+    "syllables": [
+      "kon",
+      "trol",
+      "lie",
+      "ren"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "kontrollieren",
+    "hint": "2 e's, 2 l's, 2 n's, 2 o's, 2 r's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "de",
+    "syllables": [
+      "Ent",
+      "schul",
+      "di",
+      "gung"
+    ],
+    "tags": [
+      "sch-ch"
+    ],
+    "word": "Entschuldigung",
+    "hint": "2 g's, 2 n's, 2 u's"
+  },
+  {
+    "word": "Text",
+    "locale": "de",
+    "tags": [
+      "x"
+    ],
+    "difficulty": 4,
+    "hint": "2 t's"
+  },
+  {
+    "word": "Etage",
+    "locale": "de",
+    "tags": [
+      "loanword-fr"
+    ],
+    "difficulty": 4,
+    "hint": "2 e's"
+  },
+  {
+    "word": "Ozean",
+    "locale": "de",
+    "tags": [
+      "z"
+    ],
+    "difficulty": 4,
+    "hint": "5 letters, starts with 'O'"
+  },
+  {
+    "word": "Aktion",
+    "locale": "de",
+    "tags": [
+      "-tion"
+    ],
+    "difficulty": 4,
+    "hint": "6 letters, starts with 'A'"
+  },
+  {
+    "word": "Garage",
+    "locale": "de",
+    "tags": [
+      "loanword-fr"
+    ],
+    "difficulty": 4,
+    "hint": "2 a's, 2 g's"
+  },
+  {
+    "word": "Friseur",
+    "locale": "de",
+    "tags": [
+      "loanword-fr"
+    ],
+    "difficulty": 4,
+    "hint": "2 r's"
+  },
+  {
+    "word": "Kontext",
+    "locale": "de",
+    "tags": [
+      "x"
+    ],
+    "difficulty": 4,
+    "hint": "2 t's"
+  },
+  {
+    "word": "Lektion",
+    "locale": "de",
+    "tags": [
+      "-tion"
+    ],
+    "difficulty": 4,
+    "hint": "7 letters, starts with 'L'"
+  },
+  {
+    "word": "Funktion",
+    "locale": "de",
+    "tags": [
+      "-tion"
+    ],
+    "difficulty": 4,
+    "hint": "2 n's"
+  },
+  {
+    "word": "Geschäft",
+    "locale": "de",
+    "tags": [
+      "dehnungs-h"
+    ],
+    "difficulty": 4,
+    "hint": "8 letters, starts with 'G'"
+  },
+  {
+    "word": "Chauffeur",
+    "locale": "de",
+    "tags": [
+      "loanword-fr",
+      "ch"
+    ],
+    "difficulty": 4,
+    "hint": "2 f's, 2 u's"
+  },
+  {
+    "word": "Explosion",
+    "locale": "de",
+    "tags": [
+      "x"
+    ],
+    "difficulty": 4,
+    "hint": "2 o's"
+  },
+  {
+    "word": "Gymnasium",
+    "locale": "de",
+    "tags": [
+      "greek-y"
+    ],
+    "difficulty": 4,
+    "hint": "2 m's"
+  },
+  {
+    "word": "Ingenieur",
+    "locale": "de",
+    "tags": [
+      "loanword-fr"
+    ],
+    "difficulty": 4,
+    "hint": "2 e's, 2 i's, 2 n's"
+  },
+  {
+    "word": "Zigarette",
+    "locale": "de",
+    "tags": [
+      "loanword"
+    ],
+    "difficulty": 4,
+    "hint": "2 e's, 2 t's"
+  },
+  {
+    "word": "Brennessel",
+    "locale": "de",
+    "tags": [
+      "double-consonant"
+    ],
+    "difficulty": 4,
+    "hint": "3 e's, 2 n's, 2 s's"
+  },
+  {
+    "word": "Journalist",
+    "locale": "de",
+    "tags": [
+      "loanword-fr"
+    ],
+    "difficulty": 4,
+    "hint": "10 letters, starts with 'J'"
+  },
+  {
+    "word": "rhythmisch",
+    "locale": "de",
+    "tags": [
+      "greek-y",
+      "rh"
+    ],
+    "difficulty": 4,
+    "hint": "3 h's"
+  },
+  {
+    "word": "Spezialist",
+    "locale": "de",
+    "tags": [
+      "z"
+    ],
+    "difficulty": 4,
+    "hint": "2 i's, 2 s's"
+  },
+  {
+    "word": "sympathisch",
+    "locale": "de",
+    "tags": [
+      "greek-y"
+    ],
+    "difficulty": 4,
+    "hint": "2 h's, 2 s's"
+  },
+  {
+    "word": "Eichhörnchen",
+    "locale": "de",
+    "tags": [
+      "umlaut",
+      "ch"
+    ],
+    "difficulty": 4,
+    "hint": "3 h's, 2 c's, 2 e's, 2 n's"
+  },
+  {
+    "word": "Gesellschaft",
+    "locale": "de",
+    "tags": [
+      "double-consonant"
+    ],
+    "difficulty": 4,
+    "hint": "2 e's, 2 l's, 2 s's"
+  },
+  {
+    "word": "gleichzeitig",
+    "locale": "de",
+    "tags": [
+      "-h-"
+    ],
+    "difficulty": 4,
+    "hint": "3 i's, 2 e's, 2 g's"
+  },
+  {
+    "word": "selbstständig",
+    "locale": "de",
+    "tags": [
+      "double-consonant"
+    ],
+    "difficulty": 4,
+    "hint": "3 s's, 2 t's"
+  },
+  {
+    "word": "Missverständnis",
+    "locale": "de",
+    "tags": [
+      "ss-ß",
+      "double-consonant"
+    ],
+    "difficulty": 4,
+    "hint": "4 s's, 2 i's, 2 n's"
+  }
+]

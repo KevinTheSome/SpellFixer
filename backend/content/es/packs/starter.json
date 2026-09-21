@@ -1,0 +1,802 @@
+[
+  {
+    "difficulty": 1,
+    "locale": "es",
+    "syllables": [
+      "luz"
+    ],
+    "tags": [
+      "c-z"
+    ],
+    "word": "luz",
+    "hint": "3 letters, starts with 'l'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "es",
+    "syllables": [
+      "vez"
+    ],
+    "tags": [
+      "c-z"
+    ],
+    "word": "vez",
+    "hint": "3 letters, starts with 'v'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "es",
+    "syllables": [
+      "voz"
+    ],
+    "tags": [
+      "c-z"
+    ],
+    "word": "voz",
+    "hint": "3 letters, starts with 'v'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "es",
+    "syllables": [
+      "a",
+      "zul"
+    ],
+    "tags": [
+      "c-z"
+    ],
+    "word": "azul",
+    "hint": "4 letters, starts with 'a'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "es",
+    "syllables": [
+      "ca",
+      "za"
+    ],
+    "tags": [
+      "c-z"
+    ],
+    "word": "caza",
+    "hint": "2 a's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "es",
+    "syllables": [
+      "ce",
+      "na"
+    ],
+    "tags": [
+      "c-z"
+    ],
+    "word": "cena",
+    "hint": "4 letters, starts with 'c'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "es",
+    "syllables": [
+      "cruz"
+    ],
+    "tags": [
+      "c-z"
+    ],
+    "word": "cruz",
+    "hint": "4 letters, starts with 'c'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "es",
+    "syllables": [
+      "e",
+      "cho"
+    ],
+    "tags": [
+      "echo-hecho"
+    ],
+    "word": "echo",
+    "hint": "4 letters, starts with 'e'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "es",
+    "syllables": [
+      "ta",
+      "za"
+    ],
+    "tags": [
+      "c-z"
+    ],
+    "word": "taza",
+    "hint": "2 a's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "es",
+    "syllables": [
+      "bra",
+      "zo"
+    ],
+    "tags": [
+      "c-z"
+    ],
+    "word": "brazo",
+    "hint": "5 letters, starts with 'b'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "es",
+    "syllables": [
+      "ca",
+      "lle"
+    ],
+    "tags": [
+      "ll-y"
+    ],
+    "word": "calle",
+    "hint": "2 l's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "es",
+    "syllables": [
+      "ca",
+      "rro"
+    ],
+    "tags": [
+      "r-rr"
+    ],
+    "word": "carro",
+    "hint": "2 r's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "es",
+    "syllables": [
+      "ha",
+      "cer"
+    ],
+    "tags": [
+      "silent-h",
+      "c-z"
+    ],
+    "word": "hacer",
+    "hint": "5 letters, starts with 'h'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "es",
+    "syllables": [
+      "he",
+      "cho"
+    ],
+    "tags": [
+      "silent-h",
+      "echo-hecho"
+    ],
+    "word": "hecho",
+    "hint": "2 h's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "es",
+    "syllables": [
+      "pe",
+      "rro"
+    ],
+    "tags": [
+      "r-rr"
+    ],
+    "word": "perro",
+    "hint": "2 r's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "es",
+    "syllables": [
+      "re",
+      "loj"
+    ],
+    "tags": [
+      "g-j"
+    ],
+    "word": "reloj",
+    "hint": "5 letters, starts with 'r'"
+  },
+  {
+    "difficulty": 1,
+    "locale": "es",
+    "syllables": [
+      "lla",
+      "mar"
+    ],
+    "tags": [
+      "ll-y"
+    ],
+    "word": "llamar",
+    "hint": "2 a's, 2 l's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "es",
+    "syllables": [
+      "llu",
+      "via"
+    ],
+    "tags": [
+      "ll-y"
+    ],
+    "word": "lluvia",
+    "hint": "2 l's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "es",
+    "syllables": [
+      "tie",
+      "rra"
+    ],
+    "tags": [
+      "r-rr"
+    ],
+    "word": "tierra",
+    "hint": "2 r's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "es",
+    "syllables": [
+      "za",
+      "pa",
+      "to"
+    ],
+    "tags": [
+      "c-z"
+    ],
+    "word": "zapato",
+    "hint": "2 a's"
+  },
+  {
+    "difficulty": 1,
+    "locale": "es",
+    "syllables": [
+      "ca",
+      "ba",
+      "llo"
+    ],
+    "tags": [
+      "ll-y",
+      "b-v"
+    ],
+    "word": "caballo",
+    "hint": "2 a's, 2 l's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "ca",
+      "ja"
+    ],
+    "tags": [
+      "g-j"
+    ],
+    "word": "caja",
+    "hint": "2 a's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "ha",
+      "ya"
+    ],
+    "tags": [
+      "silent-h",
+      "ll-y"
+    ],
+    "word": "haya",
+    "hint": "2 a's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "tu",
+      "bo"
+    ],
+    "tags": [
+      "b-v",
+      "tubo-tuvo"
+    ],
+    "word": "tubo",
+    "hint": "4 letters, starts with 't'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "tu",
+      "vo"
+    ],
+    "tags": [
+      "b-v",
+      "tubo-tuvo"
+    ],
+    "word": "tuvo",
+    "hint": "4 letters, starts with 't'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "va",
+      "ya"
+    ],
+    "tags": [
+      "ll-y",
+      "b-v"
+    ],
+    "word": "vaya",
+    "hint": "2 a's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "a",
+      "vión"
+    ],
+    "tags": [
+      "accent",
+      "b-v"
+    ],
+    "word": "avión",
+    "hint": "5 letters, starts with 'a'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "bo",
+      "tar"
+    ],
+    "tags": [
+      "b-v"
+    ],
+    "word": "botar",
+    "hint": "5 letters, starts with 'b'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "co",
+      "ger"
+    ],
+    "tags": [
+      "g-j"
+    ],
+    "word": "coger",
+    "hint": "5 letters, starts with 'c'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "fá",
+      "cil"
+    ],
+    "tags": [
+      "accent",
+      "c-z"
+    ],
+    "word": "fácil",
+    "hint": "5 letters, starts with 'f'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "gen",
+      "te"
+    ],
+    "tags": [
+      "g-j"
+    ],
+    "word": "gente",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "ha",
+      "ber"
+    ],
+    "tags": [
+      "silent-h",
+      "b-v"
+    ],
+    "word": "haber",
+    "hint": "5 letters, starts with 'h'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "lá",
+      "piz"
+    ],
+    "tags": [
+      "accent",
+      "c-z"
+    ],
+    "word": "lápiz",
+    "hint": "5 letters, starts with 'l'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "que",
+      "so"
+    ],
+    "tags": [
+      "que-qui"
+    ],
+    "word": "queso",
+    "hint": "5 letters, starts with 'q'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "quien"
+    ],
+    "tags": [
+      "que-qui"
+    ],
+    "word": "quien",
+    "hint": "5 letters, starts with 'q'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "va",
+      "lla"
+    ],
+    "tags": [
+      "ll-y",
+      "b-v"
+    ],
+    "word": "valla",
+    "hint": "2 a's, 2 l's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "via",
+      "je"
+    ],
+    "tags": [
+      "g-j"
+    ],
+    "word": "viaje",
+    "hint": "5 letters, starts with 'v'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "vo",
+      "tar"
+    ],
+    "tags": [
+      "b-v"
+    ],
+    "word": "votar",
+    "hint": "5 letters, starts with 'v'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "ár",
+      "bol"
+    ],
+    "tags": [
+      "accent",
+      "b-v"
+    ],
+    "word": "árbol",
+    "hint": "5 letters, starts with 'á'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "é",
+      "xi",
+      "to"
+    ],
+    "tags": [
+      "x-confusion",
+      "accent"
+    ],
+    "word": "éxito",
+    "hint": "5 letters, starts with 'é'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "a",
+      "rri",
+      "ba"
+    ],
+    "tags": [
+      "r-rr"
+    ],
+    "word": "arriba",
+    "hint": "2 a's, 2 r's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "ca",
+      "mión"
+    ],
+    "tags": [
+      "accent"
+    ],
+    "word": "camión",
+    "hint": "6 letters, starts with 'c'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "e",
+      "xa",
+      "men"
+    ],
+    "tags": [
+      "x-confusion"
+    ],
+    "word": "examen",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "gue",
+      "rra"
+    ],
+    "tags": [
+      "r-rr",
+      "gue-gui"
+    ],
+    "word": "guerra",
+    "hint": "2 r's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "ji",
+      "ra",
+      "fa"
+    ],
+    "tags": [
+      "g-j"
+    ],
+    "word": "jirafa",
+    "hint": "2 a's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "mú",
+      "si",
+      "ca"
+    ],
+    "tags": [
+      "accent",
+      "c-z"
+    ],
+    "word": "música",
+    "hint": "6 letters, starts with 'm'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "por",
+      "que"
+    ],
+    "tags": [
+      "porque-por-que"
+    ],
+    "word": "porque",
+    "hint": "6 letters, starts with 'p'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "que",
+      "rer"
+    ],
+    "tags": [
+      "que-qui"
+    ],
+    "word": "querer",
+    "hint": "2 e's, 2 r's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "cien",
+      "cia"
+    ],
+    "tags": [
+      "c-z"
+    ],
+    "word": "ciencia",
+    "hint": "2 c's, 2 i's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "co",
+      "ra",
+      "zón"
+    ],
+    "tags": [
+      "accent",
+      "c-z"
+    ],
+    "word": "corazón",
+    "hint": "7 letters, starts with 'c'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "des",
+      "pués"
+    ],
+    "tags": [
+      "accent"
+    ],
+    "word": "después",
+    "hint": "2 s's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "di",
+      "fí",
+      "cil"
+    ],
+    "tags": [
+      "accent",
+      "c-z"
+    ],
+    "word": "difícil",
+    "hint": "2 i's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "men",
+      "sa",
+      "je"
+    ],
+    "tags": [
+      "g-j"
+    ],
+    "word": "mensaje",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "tam",
+      "bién"
+    ],
+    "tags": [
+      "accent",
+      "b-v"
+    ],
+    "word": "también",
+    "hint": "7 letters, starts with 't'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "a",
+      "ten",
+      "ción"
+    ],
+    "tags": [
+      "accent"
+    ],
+    "word": "atención",
+    "hint": "2 n's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "es",
+      "ta",
+      "ción"
+    ],
+    "tags": [
+      "accent"
+    ],
+    "word": "estación",
+    "hint": "8 letters, starts with 'e'"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "gui",
+      "ta",
+      "rra"
+    ],
+    "tags": [
+      "r-rr",
+      "gue-gui"
+    ],
+    "word": "guitarra",
+    "hint": "2 a's, 2 r's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "con",
+      "cien",
+      "cia"
+    ],
+    "tags": [
+      "c-z"
+    ],
+    "word": "conciencia",
+    "hint": "3 c's, 2 i's, 2 n's"
+  },
+  {
+    "difficulty": 2,
+    "locale": "es",
+    "syllables": [
+      "ha",
+      "bi",
+      "ta",
+      "ción"
+    ],
+    "tags": [
+      "silent-h",
+      "b-v",
+      "accent"
+    ],
+    "word": "habitación",
+    "hint": "2 a's, 2 i's"
+  }
+]

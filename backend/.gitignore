@@ -1,0 +1,10 @@
+node_modules
+data/
+dist
+.env
+playwright-report/
+test-results/
+playwright/.cache/
+content/es/audio/
+content/en/audio/
+content/de/audio/

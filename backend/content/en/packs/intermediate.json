@@ -1,0 +1,1036 @@
+[
+  {
+    "difficulty": 3,
+    "locale": "en",
+    "syllables": [
+      "gauge"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "gauge",
+    "hint": "2 g's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "en",
+    "syllables": [
+      "siege"
+    ],
+    "tags": [
+      "ie-ei"
+    ],
+    "word": "siege",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "en",
+    "syllables": [
+      "har",
+      "ass"
+    ],
+    "tags": [
+      "double-consonant",
+      "single-vs-double"
+    ],
+    "word": "harass",
+    "hint": "2 a's, 2 s's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "en",
+    "syllables": [
+      "rhythm"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "rhythm",
+    "hint": "2 h's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "en",
+    "syllables": [
+      "pos",
+      "sess"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "possess",
+    "hint": "4 s's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "en",
+    "syllables": [
+      "pre",
+      "cede"
+    ],
+    "tags": [
+      "-cede-confusion"
+    ],
+    "word": "precede",
+    "hint": "3 e's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "en",
+    "syllables": [
+      "cem",
+      "e",
+      "ter",
+      "y"
+    ],
+    "tags": [
+      "-ery-vs-ary"
+    ],
+    "word": "cemetery",
+    "hint": "3 e's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "en",
+    "syllables": [
+      "e",
+      "quipped"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "equipped",
+    "hint": "2 e's, 2 p's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "en",
+    "syllables": [
+      "oc",
+      "curred"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "occurred",
+    "hint": "2 c's, 2 r's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "en",
+    "syllables": [
+      "par",
+      "al",
+      "lel"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "parallel",
+    "hint": "3 l's, 2 a's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "en",
+    "syllables": [
+      "con",
+      "scious"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "conscious",
+    "hint": "2 c's, 2 o's, 2 s's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "en",
+    "syllables": [
+      "em",
+      "bar",
+      "rass"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "embarrass",
+    "hint": "2 a's, 2 r's, 2 s's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "en",
+    "syllables": [
+      "guar",
+      "an",
+      "tee"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "guarantee",
+    "hint": "2 a's, 2 e's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "en",
+    "syllables": [
+      "in",
+      "ter",
+      "rupt"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "interrupt",
+    "hint": "2 r's, 2 t's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "en",
+    "syllables": [
+      "light",
+      "ning"
+    ],
+    "tags": [
+      "e-omission"
+    ],
+    "word": "lightning",
+    "hint": "2 g's, 2 i's, 2 n's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "en",
+    "syllables": [
+      "priv",
+      "i",
+      "lege"
+    ],
+    "tags": [
+      "unstressed-vowel"
+    ],
+    "word": "privilege",
+    "hint": "2 e's, 2 i's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "en",
+    "syllables": [
+      "ag",
+      "gres",
+      "sive"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "aggressive",
+    "hint": "2 e's, 2 g's, 2 s's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "en",
+    "syllables": [
+      "con",
+      "science"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "conscience",
+    "hint": "3 c's, 2 e's, 2 n's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "en",
+    "syllables": [
+      "ex",
+      "ag",
+      "ger",
+      "ate"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "exaggerate",
+    "hint": "3 e's, 2 a's, 2 g's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "en",
+    "syllables": [
+      "ac",
+      "com",
+      "mo",
+      "date"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "accommodate",
+    "hint": "2 a's, 2 c's, 2 m's, 2 o's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "en",
+    "syllables": [
+      "en",
+      "vi",
+      "ron",
+      "ment"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "environment",
+    "hint": "3 n's, 2 e's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "en",
+    "syllables": [
+      "im",
+      "me",
+      "di",
+      "ate",
+      "ly"
+    ],
+    "tags": [
+      "double-consonant"
+    ],
+    "word": "immediately",
+    "hint": "2 e's, 2 i's, 2 m's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "en",
+    "syllables": [
+      "in",
+      "de",
+      "pend",
+      "ent"
+    ],
+    "tags": [
+      "-ent-vs-ant"
+    ],
+    "word": "independent",
+    "hint": "3 e's, 3 n's, 2 d's"
+  },
+  {
+    "difficulty": 3,
+    "locale": "en",
+    "syllables": [
+      "in",
+      "tel",
+      "li",
+      "gence"
+    ],
+    "tags": [
+      "double-consonant",
+      "-ence-vs-ance"
+    ],
+    "word": "intelligence",
+    "hint": "3 e's, 2 i's, 2 l's, 2 n's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "faux"
+    ],
+    "tags": [
+      "french-loan",
+      "x-confusion"
+    ],
+    "word": "faux",
+    "hint": "4 letters, starts with 'f'"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "quay"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "quay",
+    "hint": "4 letters, starts with 'q'"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "beige"
+    ],
+    "tags": [
+      "french-loan",
+      "eige-confusion"
+    ],
+    "word": "beige",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "corps"
+    ],
+    "tags": [
+      "french-loan",
+      "silent-letter"
+    ],
+    "word": "corps",
+    "hint": "5 letters, starts with 'c'"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "kha",
+      "ki"
+    ],
+    "tags": [
+      "kh-confusion"
+    ],
+    "word": "khaki",
+    "hint": "2 k's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "mauve"
+    ],
+    "tags": [
+      "french-loan"
+    ],
+    "word": "mauve",
+    "hint": "5 letters, starts with 'm'"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "yacht"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "yacht",
+    "hint": "5 letters, starts with 'y'"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "asth",
+      "ma"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "asthma",
+    "hint": "2 a's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "de",
+      "bris"
+    ],
+    "tags": [
+      "french-loan",
+      "silent-letter"
+    ],
+    "word": "debris",
+    "hint": "6 letters, starts with 'd'"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "in",
+      "dict"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "indict",
+    "hint": "2 i's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "kib",
+      "osh"
+    ],
+    "tags": [
+      "unstressed-vowel"
+    ],
+    "word": "kibosh",
+    "hint": "6 letters, starts with 'k'"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "lar",
+      "ynx"
+    ],
+    "tags": [
+      "y-confusion"
+    ],
+    "word": "larynx",
+    "hint": "6 letters, starts with 'l'"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "oeu",
+      "vre"
+    ],
+    "tags": [
+      "french-loan"
+    ],
+    "word": "oeuvre",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "sa",
+      "chet"
+    ],
+    "tags": [
+      "french-loan"
+    ],
+    "word": "sachet",
+    "hint": "6 letters, starts with 's'"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "sheikh"
+    ],
+    "tags": [
+      "eikh-confusion"
+    ],
+    "word": "sheikh",
+    "hint": "2 h's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "col",
+      "o",
+      "nel"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "colonel",
+    "hint": "2 l's, 2 o's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "cro",
+      "chet"
+    ],
+    "tags": [
+      "french-loan"
+    ],
+    "word": "crochet",
+    "hint": "2 c's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "draught"
+    ],
+    "tags": [
+      "augh-confusion"
+    ],
+    "word": "draught",
+    "hint": "7 letters, starts with 'd'"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "ech",
+      "e",
+      "lon"
+    ],
+    "tags": [
+      "french-loan"
+    ],
+    "word": "echelon",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "li",
+      "ai",
+      "son"
+    ],
+    "tags": [
+      "french-loan",
+      "ai-confusion"
+    ],
+    "word": "liaison",
+    "hint": "2 i's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "phar",
+      "aoh"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "pharaoh",
+    "hint": "2 a's, 2 h's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "twelfth"
+    ],
+    "tags": [
+      "f-confusion"
+    ],
+    "word": "twelfth",
+    "hint": "2 t's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "wrought"
+    ],
+    "tags": [
+      "silent-letter",
+      "ough-confusion"
+    ],
+    "word": "wrought",
+    "hint": "7 letters, starts with 'w'"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "mne",
+      "mon",
+      "ic"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "mnemonic",
+    "hint": "2 m's, 2 n's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "par",
+      "a",
+      "digm"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "paradigm",
+    "hint": "2 a's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "ser",
+      "geant"
+    ],
+    "tags": [
+      "ea-confusion"
+    ],
+    "word": "sergeant",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "sub",
+      "poe",
+      "na"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "subpoena",
+    "hint": "8 letters, starts with 's'"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "boul",
+      "e",
+      "vard"
+    ],
+    "tags": [
+      "french-loan"
+    ],
+    "word": "boulevard",
+    "hint": "9 letters, starts with 'b'"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "bour",
+      "geois"
+    ],
+    "tags": [
+      "french-loan",
+      "ois-confusion"
+    ],
+    "word": "bourgeois",
+    "hint": "2 o's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "cham",
+      "pagne"
+    ],
+    "tags": [
+      "french-loan"
+    ],
+    "word": "champagne",
+    "hint": "2 a's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "char",
+      "la",
+      "tan"
+    ],
+    "tags": [
+      "unstressed-vowel"
+    ],
+    "word": "charlatan",
+    "hint": "3 a's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "dach",
+      "shund"
+    ],
+    "tags": [
+      "german-loan"
+    ],
+    "word": "dachshund",
+    "hint": "2 d's, 2 h's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "di",
+      "a",
+      "phragm"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "diaphragm",
+    "hint": "2 a's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "hi",
+      "er",
+      "ar",
+      "chy"
+    ],
+    "tags": [
+      "ie-ei"
+    ],
+    "word": "hierarchy",
+    "hint": "2 h's, 2 r's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "jux",
+      "ta",
+      "pose"
+    ],
+    "tags": [
+      "x-confusion"
+    ],
+    "word": "juxtapose",
+    "hint": "9 letters, starts with 'j'"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "cam",
+      "ou",
+      "flage"
+    ],
+    "tags": [
+      "french-loan"
+    ],
+    "word": "camouflage",
+    "hint": "2 a's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "chan",
+      "de",
+      "lier"
+    ],
+    "tags": [
+      "french-loan"
+    ],
+    "word": "chandelier",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "Fah",
+      "ren",
+      "heit"
+    ],
+    "tags": [
+      "ei-confusion"
+    ],
+    "word": "fahrenheit",
+    "hint": "2 e's, 2 h's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "hem",
+      "or",
+      "rhage"
+    ],
+    "tags": [
+      "silent-letter",
+      "rr-confusion"
+    ],
+    "word": "hemorrhage",
+    "hint": "2 e's, 2 h's, 2 r's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "in",
+      "sou",
+      "ci",
+      "ant"
+    ],
+    "tags": [
+      "french-loan"
+    ],
+    "word": "insouciant",
+    "hint": "2 i's, 2 n's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "rep",
+      "er",
+      "toire"
+    ],
+    "tags": [
+      "french-loan"
+    ],
+    "word": "repertoire",
+    "hint": "3 e's, 3 r's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "rhi",
+      "noc",
+      "er",
+      "os"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "rhinoceros",
+    "hint": "2 o's, 2 r's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "sil",
+      "hou",
+      "ette"
+    ],
+    "tags": [
+      "silent-letter",
+      "french-loan"
+    ],
+    "word": "silhouette",
+    "hint": "2 e's, 2 t's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "cam",
+      "a",
+      "ra",
+      "de",
+      "rie"
+    ],
+    "tags": [
+      "french-loan",
+      "unstressed-vowel"
+    ],
+    "word": "camaraderie",
+    "hint": "3 a's, 2 e's, 2 r's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "con",
+      "nois",
+      "seur"
+    ],
+    "tags": [
+      "double-consonant",
+      "french-loan"
+    ],
+    "word": "connoisseur",
+    "hint": "2 n's, 2 o's, 2 s's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "fluor",
+      "es",
+      "cent"
+    ],
+    "tags": [
+      "double-consonant",
+      "sc-confusion"
+    ],
+    "word": "fluorescent",
+    "hint": "2 e's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "en",
+      "tre",
+      "pre",
+      "neur"
+    ],
+    "tags": [
+      "french-loan",
+      "unstressed-vowel"
+    ],
+    "word": "entrepreneur",
+    "hint": "4 e's, 3 r's, 2 n's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "hand",
+      "ker",
+      "chief"
+    ],
+    "tags": [
+      "silent-letter"
+    ],
+    "word": "handkerchief",
+    "hint": "2 e's, 2 h's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "ka",
+      "lei",
+      "do",
+      "scope"
+    ],
+    "tags": [
+      "ei-confusion"
+    ],
+    "word": "kaleidoscope",
+    "hint": "2 e's, 2 o's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "sac",
+      "ri",
+      "le",
+      "gious"
+    ],
+    "tags": [
+      "ie-ei"
+    ],
+    "word": "sacrilegious",
+    "hint": "2 i's, 2 s's"
+  },
+  {
+    "difficulty": 4,
+    "locale": "en",
+    "syllables": [
+      "ques",
+      "tion",
+      "naire"
+    ],
+    "tags": [
+      "double-consonant",
+      "french-loan"
+    ],
+    "word": "questionnaire",
+    "hint": "2 e's, 2 i's, 2 n's"
+  }
+]
