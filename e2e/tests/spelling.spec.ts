@@ -21,6 +21,7 @@ test('health + guest drill + auth flow', async ({ page, request }) => {
 
   // register new user (random to avoid collisions)
   const user = `u_${Date.now()}_${Math.floor(Math.random()*1000)}`;
+  await page.getByRole('button', { name: 'Account', exact: true }).click();
   await page.locator('.authbar input[placeholder="username"]').fill(user);
   await page.locator('.authbar input[placeholder="password"]').fill('test1234');
   await page.getByRole('button', { name: 'Register' }).click();
@@ -39,6 +40,7 @@ test('health + guest drill + auth flow', async ({ page, request }) => {
   await expect(page.locator('.panel .chips').first()).toContainText('playwright');
 
   // logout -> back to guest
+  await page.getByRole('button', { name: 'Account', exact: true }).click();
   await page.getByRole('button', { name: 'Logout' }).click();
   await expect(page.locator('.authbar')).toContainText('Guest mode');
 });

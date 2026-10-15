@@ -39,7 +39,7 @@ export const api = {
   resetStats: ()=> req<{ok:boolean}>("/api/stats",{method:"DELETE"}),
   activity: (days=182, today?:string)=> req<Activity>(`/api/activity?days=${days}${today ? `&today=${encodeURIComponent(today)}` : ''}`),
   activityHourly: (date:string)=> req<{date:string, hourly:HourActivity[]}>(`/api/activity?date=${encodeURIComponent(date)}`),
-  leaderboard: (limit=10)=> req<LeaderEntry[]>(`/api/leaderboard?limit=${limit}`),
+  leaderboard: (limit=10,days=30,today='')=> req<LeaderEntry[]>(`/api/leaderboard?limit=${limit}&days=${days}&today=${encodeURIComponent(today)}`),
   getPacks: ()=> req<PackMeta[]>("/api/packs"),
   getPack: (locale:string, name:string)=> req<PackEntry[]>(`/api/packs/${encodeURIComponent(locale)}/${encodeURIComponent(name)}`),
   audioUrl: (locale:string, word:string)=> `${BASE}/api/audio/${encodeURIComponent(locale)}/${encodeURIComponent(word.trim().toLowerCase())}`,

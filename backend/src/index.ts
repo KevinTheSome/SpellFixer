@@ -192,6 +192,17 @@ Bun.serve({
     // leaderboard — public, top XP only (guest XP stays in localStorage, never listed)
     if (path === "/api/leaderboard" && req.method === "GET") {
       const n = Math.min(50, Math.max(1, Number(url.searchParams.get("limit")) || 10));
+      if (url.searchParams.has('days')) {
+        const days=Number(url.searchParams.get('days')), today=url.searchParams.get('today') || fmtDay(new Date());
+        if (![1,7,30].includes(days) || !/^\d{4}-\d{2}-\d{2}$/.test(today) || !Number.isFinite(Date.parse(today+'T12:00:00Z')) || new Date(today+'T12:00:00Z').toISOString().slice(0,10)!==today) return json({error:'invalid leaderboard period'},400);
+        const start=new Date(today+'T12:00:00Z');start.setUTCDate(start.getUTCDate()-days+1);
+        const rows=await sql`
+          SELECT u.username, COUNT(DISTINCT (a.word_id,a.day))*${XP_PER_CORRECT} AS xp
+          FROM users u JOIN words w ON w.user_id=u.id JOIN attempts a ON a.word_id=w.id
+          WHERE a.eligible AND a.exercise<>'test' AND a.correct=1 AND a.day>=${start.toISOString().slice(0,10)} AND a.day<=${today}
+          GROUP BY u.id ORDER BY xp DESC, u.username ASC LIMIT ${n}`;
+        return json(rows.map((r:any)=>({username:r.username,xp:num(r.xp)})));
+      }
       const rows = await sql`
         SELECT username, xp FROM users ORDER BY xp DESC, username ASC LIMIT ${n}`;
       return json((rows as any[]).map(r => ({ username: r.username, xp: num(r.xp) })));

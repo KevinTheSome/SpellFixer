@@ -89,6 +89,7 @@ What’s covered:
 | `tests/spelling.spec.ts` | Backend health, guest drill feedback, register/login/logout, word list management |
 | `tests/features.spec.ts` | Drill-mode picker + weakest-mode lock, hint skips scoring, stats grouped by language/difficulty, pack API serves hints |
 | `tests/audio.spec.ts` | `/api/audio` serves mp3 (incl. case-insensitive), 404 falls back to browser voice, Listen button actually plays backend audio |
+| `tests/wanted-features.spec.ts` | Dark themes, full-width responsive statistics, shared date filters, personal-word persistence and account isolation |
 
 `drill.spec.ts` seeds guest `localStorage` with a known word list and tracks the
 hidden current word via the `/api/audio/` request the Listen/Next buttons fire
@@ -139,6 +140,13 @@ Rebuild the backend image afterwards so the new files are served from docker.
 
 ## Important behaviors
 
+- **My words:** add words in English, German or Spanish; confirm unusual spellings.
+  Guest words stay on this device; account words are saved to the backend.
+  “Practice these words” switches from a pack to your saved list.
+- **Statistics:** the top Day / Week / Month control filters all sections, including
+  the leaderboard. Week and month mean the last 7 and 30 local calendar days.
+  The main header still shows lifetime progress; review status retains earlier learning evidence.
+- **Themes:** Settings includes Navy and Forest dark presets alongside the existing themes.
 - **Guest vs account:** guests store words/stats in `localStorage` only; logging
   in moves everything server-side (per-word seen/correct, per-day activity).
 - **Audio fallback:** missing mp3 → backend 404 → frontend uses the browser’s

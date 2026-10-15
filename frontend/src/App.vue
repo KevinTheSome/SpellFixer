@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { api, isLoggedIn, type PackMeta, type PackEntry, type Stats, type DayActivity, type LeaderEntry } from './api'
-import { levelForXp, xpProgress, XP_PER_CORRECT } from './xp'
+import { xpProgress, XP_PER_CORRECT } from './xp'
 import { normalize, wordKey, isCorrect, eligible, mergeAttempts, reviews, rankWords, patterns, align, buildLesson, type Attempt, type LearningWord, type SavedTest } from './learning'
 
 const DEFAULT_WORDS = ['because','beautiful','friend','necessary','accommodate','rhythm','definitely','separate','occasion','embarrass']
@@ -19,7 +19,7 @@ const LS_TEST_RESULTS = 'st-test-results'
 // --- i18n (no dep) ---
 const dict = {
   en: {
-    practice:'Practice', selfTest:'Test', statistics:'Statistics', settings:'Settings',
+    practice:'Practice', selfTest:'Test', statistics:'Statistics', settings:'Settings', myWords:'My words', practiceWords:'Practice these words', wordSaved:'Word saved.', wordRemoved:'Word removed.', duplicateWord:'This word is already saved.', invalidWord:'Use letters, spaces, apostrophes or hyphens (50 characters max).', periodXp:'XP earned', periodNote:'Applies to every section below. Week = last 7 days; month = last 30 days.',
     listen:'Listen', hint:'Click listen, then spell what you hear',
     typeph:'type spelling...', check:'Check', next:'Next →', retry:'Try again',
     correct:'Nice! 🎉', was:'It was', reveal:'Correct spelling:', hearAgain:'hear again',
@@ -36,7 +36,7 @@ const dict = {
     today:'Today', last7:'Last 7 days', last30:'Last 30 days', allTime:'All time', attempted:'Words attempted',
     wordsTyped:'Words typed', day:'Day', week:'Week', month:'Month', perHour:'per hour', perDay:'per day',
     wordDetails:'Per-word details', noData:'No data for this period yet.',
-    clearStats:'clear stats', login:'Login', register:'Register', logout:'Logout → guest', username:'username', password:'password',
+    clearStats:'clear stats', login:'Login', register:'Register', logout:'Logout → guest', username:'username', password:'password', account:'Account', close:'Close',
     empty:'empty', secondaryNote:'Used for borders & accents',
      packs:'Word packs', usePack:'Use pack', using:'Using', wordsLabel:'words', difficulty:'Difficulty', packsEmpty:'No packs found — is the backend running?', packsLoadFail:'Could not load packs.', loadingPacks:'Loading packs…', loadingPack:'Loading…',
      showHint:'Show hint 💡', hintUsedNote:'Hint used — this word is not scored', youWrote:'You wrote', remember:'Remember', practiceFocus:'Practice focus', reviewSoon:'This word will return soon.', mode:'Mode', seqMode:'In order', randMode:'Random', weakMode:'Weakest first', weakLocked:'Spell over half the pack to unlock weakest mode',
@@ -46,7 +46,7 @@ const dict = {
      dailyLesson:'Daily lesson', weakSpots:'Practice my weak spots', due:'Reviews due', learning:'Learning', retained:'Retained after a delay', startDaily:'Start daily lesson', continueReview:'Continue → review later', lessonComplete:'Lesson complete', leaveLesson:'End lesson', manual:'Practice saved words', nextReview:'Next review', independent:'Independent first attempts', assisted:'Assisted study', mistakes:'Practice my mistakes', saved:'Progress saved', unsaved:'Saved on this device · sync pending', saving:'Saving…', retrySave:'Retry sync', importGuest:'Import guest words, answers and tests when registering', importNote:'Matching language + spelling is merged; answer IDs prevent duplicates. Guest data stays on this device.', confirmWord:'Confirm this spelling (name or unusual word)', customLanguage:'Word language', recentWords:'Words to review', patternTitle:'Supported spelling patterns', noPatterns:'More independent answers are needed to identify a recurring pattern.', sample:'mistakes / opportunities', cover:'Cover and recall', studyNote:'Visible spelling is study, not independent recall.', recallNote:'Recall from memory. Correction retries do not count toward mastery.', contentGap:'No related words in this pack yet; reviewing your original words.', lessonNote:'Up to 10 questions · about five minutes · no account needed', recallSummary:'Independent successes', studySummary:'Study answers', answered:'Questions completed', reviewNeeded:'Need another review', errorMissing:'Missing', errorExtra:'Extra', errorSubstituted:'Changed', errorTransposed:'Reversed', patternNote:'Observed spelling differences, not an assumed cause. Use a meaning cue if the words sound alike.',
     },
   es: {
-    practice:'Práctica', selfTest:'Prueba', statistics:'Estadísticas', settings:'Ajustes',
+    practice:'Práctica', selfTest:'Prueba', statistics:'Estadísticas', settings:'Ajustes', myWords:'Mis palabras', practiceWords:'Practicar estas palabras', wordSaved:'Palabra guardada.', wordRemoved:'Palabra eliminada.', duplicateWord:'Esta palabra ya está guardada.', invalidWord:'Usa letras, espacios, apóstrofos o guiones (máximo 50 caracteres).', periodXp:'XP ganados', periodNote:'Se aplica a todas las secciones de abajo. Semana = últimos 7 días; mes = últimos 30 días.',
     listen:'Escuchar', hint:'Haz clic en escuchar y escribe lo que oyes',
     typeph:'escribe...', check:'Comprobar', next:'Siguiente →', retry:'Reintentar',
     correct:'¡Bien! 🎉', was:'Era', reveal:'Ortografía correcta:', hearAgain:'escuchar de nuevo',
@@ -63,7 +63,7 @@ const dict = {
     today:'Hoy', last7:'Últimos 7 días', last30:'Últimos 30 días', allTime:'Todo', attempted:'Intentos totales',
     wordsTyped:'Palabras escritas', day:'Día', week:'Semana', month:'Mes', perHour:'por hora', perDay:'por día',
     wordDetails:'Detalle por palabra', noData:'Sin datos en este periodo.',
-    clearStats:'borrar estadísticas', login:'Entrar', register:'Registrar', logout:'Salir → invitado', username:'usuario', password:'contraseña',
+    clearStats:'borrar estadísticas', login:'Entrar', register:'Registrar', logout:'Salir → invitado', username:'usuario', password:'contraseña', account:'Cuenta', close:'Cerrar',
     empty:'vacío', secondaryNote:'Usado para bordes y acentos',
      packs:'Paquetes', usePack:'Usar', using:'Usando', wordsLabel:'palabras', difficulty:'Dificultad', packsEmpty:'Sin paquetes — ¿backend activo?', packsLoadFail:'No se pudieron cargar.', loadingPacks:'Cargando…', loadingPack:'Cargando…',
      showHint:'Ver pista 💡', hintUsedNote:'Pista usada — esta palabra no cuenta', youWrote:'Escribiste', remember:'Recuerda', practiceFocus:'Practica', reviewSoon:'Esta palabra volverá pronto.', mode:'Modo', seqMode:'En orden', randMode:'Aleatorio', weakMode:'Más difíciles', weakLocked:'Deletrea más de la mitad para desbloquear',
@@ -87,6 +87,8 @@ const PRESETS: { id:string, label:string, theme:Theme }[] = [
   { id:'gray', label:'Gray', theme:{ primary:'#515154', secondary:'#d2d2d7', text:'#1d1d1f', bg:'#f5f5f7', font: APPLE_FONT } },
   { id:'black', label:'Black', theme:{ primary:'#0a84ff', secondary:'#38383a', text:'#f5f5f7', bg:'#1d1d1f', font: APPLE_FONT } },
   { id:'pitch', label:'Pitch Black', theme:{ primary:'#0a84ff', secondary:'#2c2c2e', text:'#ffffff', bg:'#000000', font: APPLE_FONT } },
+  { id:'navy', label:'Navy', theme:{ primary:'#79b8ff', secondary:'#394b65', text:'#e8eef7', bg:'#1c293c', font: APPLE_FONT } },
+  { id:'forest', label:'Forest', theme:{ primary:'#8dd6ae', secondary:'#3b574c', text:'#e5f0e9', bg:'#20372e', font: APPLE_FONT } },
   { id:'sage', label:'Sage', theme:{ primary:'#4c7c5c', secondary:'#d8e0d4', text:'#1c2520', bg:'#f2f4ef', font: APPLE_FONT } },
   { id:'peach', label:'Peach', theme:{ primary:'#d96c47', secondary:'#ecd9cc', text:'#33231a', bg:'#fdf6f0', font: APPLE_FONT } },
   { id:'lavender', label:'Lavender', theme:{ primary:'#7d7abf', secondary:'#dcd8f0', text:'#26244a', bg:'#f5f3ff', font: APPLE_FONT } },
@@ -108,6 +110,7 @@ const fonts = [APPLE_FONT, 'Georgia, serif', 'ui-monospace, Consolas, monospace'
 function applyTheme(th: Theme){
   const r = document.documentElement
   r.style.setProperty('--accent', th.primary)
+  r.style.setProperty('--on-accent', isDark(th.primary) ? '#ffffff' : '#1d1d1f')
   r.style.setProperty('--border', th.secondary)
   r.style.setProperty('--text-h', th.text)
   r.style.setProperty('--bg', th.bg)
@@ -142,13 +145,14 @@ const xpPct = computed(() => {
   return next > prev ? Math.min(100, Math.round((currentXp.value - prev) / (next - prev) * 100)) : 100
 })
 
-// --- leaderboard: top XP only, level derived client-side, hover shows XP ---
+// --- leaderboard: XP earned in the selected statistics period ---
 const board = ref<LeaderEntry[]>([])
 const boardLoading = ref(false)
 async function refreshBoard() {
   boardLoading.value = true
-  try { board.value = await api.leaderboard() }
-  catch { /* offline backend -> empty board */ }
+  const range = chartRange.value
+  try { const entries = await api.leaderboard(10, rangeDays.value, localDay()); if (chartRange.value===range) board.value = entries }
+  catch { board.value = [] }
   finally { boardLoading.value = false }
 }
 
@@ -178,7 +182,15 @@ const mode = ref<'guest'|'auth'>(isLoggedIn() ? 'auth' : 'guest')
 const authUser = ref<string>(localStorage.getItem('st-user')||'')
 const authForm = ref({ username: '', password: '', error: '' })
 const authLoading = ref(false)
-const view = ref<'practice'|'test'|'stats'|'settings'>('practice')
+const accountTrigger = ref<HTMLButtonElement|null>(null)
+const accountPanel = ref<HTMLElement|null>(null)
+function positionAccount() {
+  if (!accountTrigger.value || !accountPanel.value) return
+  const top=Math.min(accountTrigger.value.getBoundingClientRect().bottom+8,Math.max(16,window.innerHeight-256))
+  accountPanel.value.style.setProperty('--account-top',`${Math.max(8,top)}px`)
+}
+onUnmounted(()=>window.removeEventListener('resize',positionAccount))
+const view = ref<'practice'|'words'|'test'|'stats'|'settings'>('practice')
 
 const guestLanguages = ref<Record<string,string>>(JSON.parse(localStorage.getItem('st-word-languages') || '{}'))
 const guestExtraWords = ref<LearningWord[]>(JSON.parse(localStorage.getItem('st-extra-words') || '[]'))
@@ -197,6 +209,9 @@ const input = ref('')
 const feedback = ref<'idle'|'correct'|'wrong'>('idle')
 const newWord = ref('')
 const showList = ref(false)
+const wordError = ref('')
+const wordMessage = ref('')
+const wordSaving = ref(false)
 
 // --- word packs (served by backend, never hardcoded) ---
 const packs = ref<PackMeta[]>([])
@@ -409,13 +424,8 @@ watch(owner,key=>{if(!learningStores.value[key])learningStores.value[key]={attem
 const store = computed(()=>learningStores.value[owner.value]!)
 const attempts = computed(()=>store.value.attempts)
 const reviewRows = computed(()=>reviews(attempts.value))
-const rankedReviews = computed(()=>rankWords(reviewRows.value))
 const supportedPatterns = computed(()=>patterns(attempts.value).filter(p=>p.locale===contentLocale.value))
 const dueCount = computed(()=>reviewRows.value.filter(r=>r.locale===contentLocale.value && Date.parse(r.due)<=Date.now()).length)
-const retainedCount = computed(()=>reviewRows.value.filter(r=>r.retained).length)
-const independentAnswers = computed(()=>attempts.value.filter(eligible))
-const recentIndependent = computed(()=>independentAnswers.value.slice(-100))
-const recentAccuracy = computed(()=>recentIndependent.value.length?Math.round(recentIndependent.value.filter(a=>a.correct).length/recentIndependent.value.length*100):null)
 const importGuest = ref(true)
 const confirmCustom = ref(false)
 const customLocale = ref('en')
@@ -607,21 +617,35 @@ async function onSubmit() {
 }
 
 async function addWord() {
+  if (wordSaving.value) return
+  wordError.value='';wordMessage.value=''
   const w = normalize(newWord.value)
   if (!w) return
-  if(w.length>50 || !/^[\p{L}\p{M}’'\- ]+$/u.test(w)) {authForm.value.error='Use letters, spaces, apostrophes or hyphens (50 characters max).';return}
-  if(!wordMeta.value[wordKey({word:w,locale:customLocale.value})] && !confirmCustom.value) {authForm.value.error=t('confirmWord');return}
-  if (mode.value==='auth') {
-    try{ await api.addWord(w,customLocale.value,confirmCustom.value); backendWords.value = await api.getWords(); newWord.value=''; if(backendWords.value.length===1) idx.value=0 }
-    catch(e:any){ authForm.value.error=e.message }
-  } else {
-    if (savedWords.value.some(x=>wordKey(x)===wordKey({word:w,locale:customLocale.value}))) return
-    guestExtraWords.value.push({word:w,locale:customLocale.value});newWord.value=''
+  if(w.length>50 || !/^[\p{L}\p{M}’'\- ]+$/u.test(w)) {wordError.value=t('invalidWord');return}
+  if (savedWords.value.some(x=>wordKey(x)===wordKey({word:w,locale:customLocale.value}))) {wordError.value=t('duplicateWord');return}
+  if(!wordMeta.value[wordKey({word:w,locale:customLocale.value})] && !confirmCustom.value) {wordError.value=t('confirmWord');return}
+  wordSaving.value=true
+  try {
+    if (mode.value==='auth') {
+      await api.addWord(w,customLocale.value,confirmCustom.value)
+      backendWords.value = await api.getWords()
+    } else {
+      const list=[...guestExtraWords.value,{word:w,locale:customLocale.value}]
+      localStorage.setItem('st-extra-words',JSON.stringify(list))
+      guestExtraWords.value=list
+    }
+    newWord.value='';confirmCustom.value=false;wordMessage.value=t('wordSaved')
+    if (displayWords.value.length===1) idx.value=0
+  } catch(e:any) {
+    wordError.value=e.message
+  } finally {
+    wordSaving.value=false
   }
-  confirmCustom.value=false;authForm.value.error=''
 }
 
 async function removeWord(w: LearningWord) {
+  wordError.value='';wordMessage.value=''
+  try {
   if (mode.value==='auth') {
     const found = backendWords.value.find(x=>wordKey(x)===wordKey(w))
     if(found) { await api.deleteWord(found.id); backendWords.value = backendWords.value.filter(x=>x.id!==found.id) }
@@ -631,6 +655,8 @@ async function removeWord(w: LearningWord) {
   }
   if (idx.value >= displayWords.value.length) idx.value = 0
   feedback.value = 'idle'; input.value = ''
+  wordMessage.value=t('wordRemoved')
+  } catch(e:any) {wordError.value=e.message}
 }
 
 async function resetStats() {
@@ -664,9 +690,10 @@ async function register() {
 
 type Row = { word: string, seen: number, correct: number, acc: number, locale: string, difficulty: number | null }
 const perWordRows = computed<Row[]>(()=>{
-  const list = [...new Map([...savedWords.value,...reviewRows.value].map(w=>[wordKey(w),w])).values()]
+  const list = [...new Map([...savedWords.value,...periodReviews.value].map(w=>[wordKey(w),w])).values()]
   return list.map(w=>{
-    const s=getWStat(w.word,w.locale); const acc=s.seen? Math.round(s.correct/s.seen*100):0
+    const answers=periodPractice.value.filter(a=>wordKey(a)===wordKey(w))
+    const s={seen:answers.length,correct:answers.filter(a=>a.correct).length}; const acc=s.seen? Math.round(s.correct/s.seen*100):0
     const m = wordMeta.value[wordKey(w)]
     return { word:w.word, seen:s.seen, correct:s.correct, acc, locale: w.locale, difficulty: m?.difficulty ?? null }
   }).sort((a,b)=> a.acc-b.acc || b.seen-a.seen)
@@ -746,30 +773,36 @@ const heatDays = computed<DayActivity[]>(() => {
   }
   return out
 })
-// --- range accuracies: today / last 7 / last 30 / all time (from the same daily series) ---
-function sumRange(days: DayActivity[], n: number): { total:number, correct:number } {
-  const slice = days.slice(-n)
-  return { total: slice.reduce((a, d) => a + d.total, 0), correct: slice.reduce((a, d) => a + d.correct, 0) }
-}
 function accOf(total: number, correct: number): number | null {
   return total ? Math.round(correct / total * 100) : null
 }
-function practiceRange(n:number) {
-  const start=new Date();start.setDate(start.getDate()-n+1)
-  const list=attempts.value.filter(a=>eligible(a) && a.exercise!=='test' && a.day>=localDay(start))
-  return accOf(list.length,list.filter(a=>a.correct).length)
-}
-const accToday = computed(() => practiceRange(1))
-const acc7 = computed(() => practiceRange(7))
-const acc30 = computed(() => practiceRange(30))
-const rangeTotals = computed(() => ({
-  today: heatDays.value[heatDays.value.length - 1]?.total ?? 0,
-  w7: sumRange(heatDays.value, 7).total,
-  m30: sumRange(heatDays.value, 30).total,
-}))
 const fmtAcc = (a: number | null) => a == null ? '—' : `${a}%`
-// --- words-typed bar chart: month (30d) / week (7d) / day (24h) ---
+// One period drives the entire statistics page; the header keeps lifetime account progress.
 const chartRange = ref<'month'|'week'|'day'>('month')
+const rangeDays = computed(()=>chartRange.value==='day'?1:chartRange.value==='week'?7:30)
+const periodStart = computed(()=>{const d=new Date();d.setDate(d.getDate()-rangeDays.value+1);return localDay(d)})
+const periodAttempts = computed(()=>attempts.value.filter(a=>a.day>=periodStart.value && a.day<=localDay()))
+const periodIndependent = computed(()=>periodAttempts.value.filter(eligible))
+const periodPractice = computed(()=>periodIndependent.value.filter(a=>a.exercise!=='test'))
+const periodCorrect = computed(()=>periodPractice.value.filter(a=>a.correct).length)
+const periodAccuracy = computed(()=>accOf(periodPractice.value.length,periodCorrect.value))
+const periodReviews = computed(()=>{
+  const active=new Set(periodAttempts.value.map(wordKey))
+  return rankWords(reviewRows.value.filter(r=>active.has(r.key)).map(r=>{
+    const recent=r.recent.filter(a=>a.day>=periodStart.value && a.day<=localDay())
+    const mistakes=recent.filter(a=>!a.correct).length
+    return {...r,recent,mistakes,rate:recent.length?mistakes/recent.length:0}
+  }))
+})
+const periodPatterns = computed(()=>patterns(periodAttempts.value))
+const periodStreak = computed(()=>{
+  let current=0,best=0
+  for(const a of periodPractice.value) {current=a.correct?current+1:0;best=Math.max(best,current)}
+  return {current,best}
+})
+const periodDayStreak = computed(()=>streakOf(new Set(heatDays.value.slice(-rangeDays.value).filter(d=>d.total>0).map(d=>d.date))))
+const periodXp = computed(()=>new Set(periodPractice.value.filter(a=>a.correct).map(a=>`${a.day}:${wordKey(a)}`)).size*XP_PER_CORRECT)
+watch(chartRange,()=>{board.value=[];refreshBoard()})
 const serverHourly = ref<number[]>(Array(24).fill(0))
 async function refreshHourly() {
   if (mode.value !== 'auth' || chartRange.value !== 'day') return
@@ -785,13 +818,13 @@ const chartBars = computed<Bar[]>(() => {
     const arr = mode.value === 'auth' ? serverHourly.value : (hourStats.value[localDay()] ?? Array(24).fill(0))
     return arr.map((v, h) => ({ label: String(h), value: v, title: `${h}:00 — ${v} words` }))
   }
-  const n = chartRange.value === 'week' ? 7 : 30
-  return heatDays.value.slice(-n).map(d => ({ label: d.date.slice(5), value: d.total, title: `${d.date}: ${d.total} words` }))
+  return heatDays.value.slice(-rangeDays.value).map(d => ({ label: d.date.slice(5), value: d.total, title: `${d.date}: ${d.total} words` }))
 })
 const chartMax = computed(() => Math.max(1, ...chartBars.value.map(b => b.value)))
 const chartTotal = computed(() => chartBars.value.reduce((a, b) => a + b.value, 0))
 
 onMounted(async () => {
+  window.addEventListener('resize',positionAccount)
   applyTheme(theme.value)
   loadPacks()
   refreshBoard()
@@ -811,6 +844,7 @@ onMounted(async () => {
     <div class="brand">SpellingTeacher <span>beta</span> <span v-if="mode==='auth'" style="background:#22c55e22;color:#16a34a;border-color:#22c55e44">● {{ authUser }}</span><span v-else style="background:#64748b22;color:#64748b">guest</span></div>
     <nav class="nav">
       <button :class="{active: view==='practice'}" @click="view='practice'">{{ t('practice') }}</button>
+      <button :class="{active: view==='words'}" @click="view='words'">{{ t('myWords') }}</button>
       <button :class="{active: view==='test'}" @click="view='test'">{{ t('selfTest') }}</button>
       <button :class="{active: view==='stats'}" @click="view='stats'">{{ t('statistics') }}</button>
       <button :class="{active: view==='settings'}" @click="view='settings'">{{ t('settings') }}</button>
@@ -821,25 +855,33 @@ onMounted(async () => {
       <span title="streak">🔥 {{ stats.streak }} <em>{{ t('best') }} {{ stats.best }}</em></span>
       <span :title="t('dayStreak')">📅 {{ dayStreak }} <em>{{ t('best') }} {{ bestDayStreak }}</em></span>
       <span>{{ stats.correct }}/{{ stats.total }} <em>{{ accuracy }}%</em></span>
-      <button class="link" @click="resetStats" v-if="stats.total">{{ t('clearStats') }}</button>
+      <div class="header-actions">
+        <button class="link" @click="resetStats" v-if="stats.total">{{ t('clearStats') }}</button>
+        <button ref="accountTrigger" class="small account-trigger" popovertarget="account-panel" aria-haspopup="dialog" :aria-label="t('account')"><span>{{ mode==='guest' ? t('login') : authUser }}</span> <span aria-hidden="true">▾</span></button>
+      </div>
     </div>
   </header>
 
-  <div class="authbar" v-if="mode==='guest'">
-    <span class="muted">{{ t('guestNote') }}</span>
-    <div class="auth-row">
-      <input v-model="authForm.username" :placeholder="t('username')" autocomplete="username" class="add-input" style="width:120px" />
-      <input v-model="authForm.password" type="password" :placeholder="t('password')" autocomplete="current-password" class="add-input" style="width:120px" @keydown.enter="login" />
-      <button @click="login" :disabled="authLoading" class="small">{{ t('login') }}</button>
-      <button @click="register" :disabled="authLoading" class="small secondary">{{ t('register') }}</button>
+  <div id="account-panel" ref="accountPanel" popover class="authbar" role="dialog" :aria-label="t('account')" @beforetoggle="positionAccount">
+    <div class="account-heading"><strong>{{ t('account') }}</strong><button class="link" popovertarget="account-panel" popovertargetaction="hide" :aria-label="t('close')">×</button></div>
+    <template v-if="mode==='guest'">
+    <p class="muted">{{ t('guestNote') }}</p>
+    <form @submit.prevent="login" class="auth-row">
+      <label>{{ t('username') }}<input v-model="authForm.username" :placeholder="t('username')" autocomplete="username" class="add-input" autofocus /></label>
+      <label>{{ t('password') }}<input v-model="authForm.password" type="password" :placeholder="t('password')" autocomplete="current-password" class="add-input" /></label>
+      <div class="auth-actions">
+        <button type="submit" :disabled="authLoading" class="small">{{ t('login') }}</button>
+        <button type="button" @click="register" :disabled="authLoading" class="small secondary">{{ t('register') }}</button>
+      </div>
       <label class="import-choice"><input type="checkbox" v-model="importGuest" /> {{ t('importGuest') }}</label>
       <p class="muted">{{ t('importNote') }}</p>
-    </div>
-    <p v-if="authForm.error" class="err">{{ authForm.error }}</p>
-  </div>
-  <div class="authbar" v-else>
-    <span class="muted">{{ t('synced') }} <strong>{{ authUser }}</strong> — {{ t('wordsAndStats') }}</span>
-    <button @click="logout" class="small">{{ t('logout') }}</button>
+    </form>
+    </template>
+    <template v-else>
+      <p class="muted">{{ t('synced') }} <strong>{{ authUser }}</strong> — {{ t('wordsAndStats') }}</p>
+      <button @click="logout" class="small">{{ t('logout') }}</button>
+    </template>
+    <p v-if="authForm.error" class="err" role="alert">{{ authForm.error }}</p>
   </div>
 
   <div class="save-status" role="status" aria-live="polite">
@@ -848,7 +890,10 @@ onMounted(async () => {
   </div>
 
   <!-- PRACTICE -->
-  <main id="center" v-if="view==='practice'" style="gap:28px">
+  <main id="center" v-if="view==='practice' || view==='words'" :class="view==='practice' ? 'practice-view' : 'words-view'">
+    <div class="page-heading"><div><h2>{{ view==='practice' ? t('practice') : t('myWords') }}</h2><p class="muted">{{ view==='practice' ? t('hint') : mode==='auth' ? t('savedServer') : t('savedLocal') }}</p></div></div>
+    <template v-if="view==='practice'">
+    <div class="practice-workspace">
     <section class="panel learning-panel">
       <div class="lesson-heading"><div><h2>{{ t('dailyLesson') }}</h2><p class="muted">{{ langName(contentLocale) }} · {{ t('lessonNote') }}</p></div><strong>{{ dueCount }} {{ t('due') }}</strong></div>
       <div class="lesson-actions"><button class="small" @click="startLesson()" :disabled="!displayWords.length || !!lesson && !lesson.complete">{{ t('startDaily') }}</button><button class="small secondary" @click="startLesson(true)" :disabled="!displayWords.length || !!lesson && !lesson.complete">{{ t('weakSpots') }}</button><button class="link" @click="manualPractice">{{ t('manual') }}</button></div>
@@ -864,7 +909,7 @@ onMounted(async () => {
       <p>{{ t('nextReview') }}: {{ nextReview ? new Date(nextReview).toLocaleString(locale) : '—' }}</p>
       <button class="small" @click="manualPractice">{{ t('manual') }}</button>
     </section>
-    <template v-if="!lesson?.complete">
+    <section v-if="!lesson?.complete" class="panel practice-session">
     <div v-if="displayWords.length && !lesson" class="nav" :aria-label="t('mode')">
       <button :class="{active: drill==='seq'}" @click="drill='seq'">{{ t('seqMode') }}</button>
       <button :class="{active: drill==='rand'}" @click="drill='rand'">{{ t('randMode') }}</button>
@@ -911,33 +956,35 @@ onMounted(async () => {
       </div>
       <p v-if="feedback==='correct'" class="ok">{{ t('correct') }}</p>
     </template>
-    </template>
+    </section>
 
+    </div>
     <div class="list-toggle">
       <button class="link" @click="showList = !showList">{{ showList ? t('hide') : t('manage') }} {{ t('wordList') }} ({{ savedWords.length }})</button>
     </div>
-    <section v-if="showList" class="panel">
-      <div class="add-row">
-        <input v-model="newWord" :placeholder="t('addph')" @keydown.enter="addWord" class="add-input" />
-        <button @click="addWord" class="small">{{ t('add') }}</button>
-      </div>
-      <label>{{ t('customLanguage') }} <select v-model="customLocale" class="add-input"><option v-for="lang in ['en','de','es']" :key="lang" :value="lang">{{ langName(lang) }}</option></select></label>
+    </template>
+    <section v-if="showList || view==='words'" class="panel word-manager" :aria-label="t('myWords')">
+      <h2 v-if="view==='practice'">{{ t('myWords') }}</h2>
+      <p v-if="view==='practice'" class="muted">{{ mode==='auth' ? t('savedServer') : t('savedLocal') }}</p>
+      <form @submit.prevent="addWord" class="add-row">
+        <input v-model="newWord" :placeholder="t('addph')" :aria-label="t('addph')" maxlength="50" required autocomplete="off" class="add-input" />
+        <button type="submit" class="small" :disabled="wordSaving">{{ wordSaving ? t('saving') : t('add') }}</button>
+      </form>
+      <label>{{ t('customLanguage') }} <select v-model="customLocale" class="add-input" :disabled="wordSaving"><option v-for="lang in ['en','de','es']" :key="lang" :value="lang">{{ langName(lang) }}</option></select></label>
       <label class="import-choice"><input type="checkbox" v-model="confirmCustom" /> {{ t('confirmWord') }}</label>
-      <p v-if="authForm.error" class="err">{{ authForm.error }}</p>
+      <p v-if="wordError" class="err" role="alert">{{ wordError }}</p>
+      <p v-if="wordMessage" class="muted" role="status">{{ wordMessage }}</p>
       <div class="chips">
         <span v-for="w in savedWords" :key="wordKey(w)" class="chip">
           {{ w.word }} · {{ w.locale }} <button @click="removeWord(w)" :aria-label="`remove ${w.word} (${w.locale})`">×</button>
         </span>
-        <span v-if="!displayWords.length" class="muted">{{ t('empty') }}</span>
+        <span v-if="!savedWords.length" class="muted">{{ t('empty') }}</span>
       </div>
-      <p class="muted" style="margin-top:12px">{{ mode==='auth' ? t('savedServer') : t('savedLocal') }}</p>
-      <div v-if="mode==='auth'" class="chips" style="margin-top:10px">
-        <span v-for="w in backendWords" :key="w.id" class="chip" style="font-size:11px">{{ w.word }} {{ w.timesSeen }}× / {{ w.timesCorrect }}✓</span>
-      </div>
+      <button class="small" :disabled="!savedWords.length" @click="manualPractice(); showList=false; view='practice'">{{ t('practiceWords') }}</button>
     </section>
 
-    <section class="panel" style="width:min(560px,94vw)">
-      <h3 style="margin:0 0 4px; font-size:16px">{{ t('packs') }}</h3>
+    <section v-if="view==='practice'" class="panel word-packs">
+      <h3>{{ t('packs') }}</h3>
       <p v-if="activePackId" class="muted" style="margin:0 0 12px">{{ t('using') }}: <strong>{{ activePackId }}</strong></p>
       <p v-if="packsLoading" class="muted">{{ t('loadingPacks') }}</p>
       <p v-else-if="packsError" class="muted">{{ packsError }}</p>
@@ -958,11 +1005,9 @@ onMounted(async () => {
 
   <!-- SELF TEST -->
   <main id="center" v-else-if="view==='test'" class="test-view">
+    <div class="page-heading"><div><h2>{{ t('testTitle') }}</h2><p class="muted">{{ t('testIntro') }}</p></div></div>
+    <section class="panel test-session">
     <template v-if="!testWords.length">
-      <div>
-        <h2>{{ t('testTitle') }}</h2>
-        <p class="muted test-intro">{{ t('testIntro') }}</p>
-      </div>
       <div class="nav test-levels" :aria-label="t('lang')">
         <button v-for="lang in testLocales" :key="lang" :class="{active: testLocale===lang}" @click="testLocale=lang">{{ langName(lang) }}</button>
       </div>
@@ -1008,6 +1053,7 @@ onMounted(async () => {
       <button v-if="testAnswers.some(a=>!a.correct)" class="small secondary" @click="practiceTestMistakes(store.tests[0])">{{ t('mistakes') }}</button>
     </template>
 
+    </section>
     <section class="panel test-history">
       <h3>{{ t('pastResults') }}</h3>
       <p v-if="!visibleTestResults.length" class="muted">{{ t('noTestResults') }}</p>
@@ -1022,61 +1068,61 @@ onMounted(async () => {
   </main>
 
   <!-- STATISTICS -->
-  <main id="center" v-else-if="view==='stats'" style="gap:16px; padding:24px; align-items:stretch; max-width:720px; width:100%; margin:0 auto; box-sizing:border-box">
-    <h2 style="text-align:center; margin:0">{{ t('statistics') }}</h2>
-    <section class="panel learning-panel">
+  <main id="center" v-else-if="view==='stats'" class="stats-view">
+    <div class="page-heading">
+      <div><h2>{{ t('statistics') }}</h2><p class="muted">{{ t('periodNote') }}</p></div>
+      <div class="nav period-filter" role="group" :aria-label="t('statistics')">
+        <button v-for="range in (['month','week','day'] as const)" :key="range" :class="{active:chartRange===range}" :aria-pressed="chartRange===range" @click="chartRange=range">{{ t(range) }}</button>
+      </div>
+    </div>
+    <div class="stat-cards period-summary" aria-live="polite">
+      <div class="stat-card"><span class="muted">{{ t('accuracy') }}</span><strong>{{ fmtAcc(periodAccuracy) }}</strong><em>{{ periodCorrect }}/{{ periodPractice.length }}✓</em></div>
+      <div class="stat-card"><span class="muted">{{ t('attempted') }}</span><strong>{{ periodPractice.length }}</strong><em>{{ t('independent') }}</em></div>
+      <div class="stat-card"><span class="muted">{{ t('wordsTyped') }}</span><strong>{{ chartTotal }}</strong><em>{{ t('total') }}</em></div>
+      <div class="stat-card"><span class="muted">{{ t('assisted') }}</span><strong>{{ periodAttempts.filter(a=>!eligible(a)).length }}</strong><em>{{ t('total') }}</em></div>
+      <div class="stat-card"><span class="muted">{{ t('periodXp') }}</span><strong>{{ periodXp }}</strong><em>{{ t('xp') }}</em></div>
+    </div>
+    <section class="panel learning-panel statistics-learning">
       <h3>{{ t('independent') }}</h3>
-      <div class="retention-cards"><div><strong>{{ fmtAcc(recentAccuracy) }}</strong><span>{{ recentIndependent.length }} {{ t('total') }}</span></div><div><strong>{{ dueCount }}</strong><span>{{ t('due') }}</span></div><div><strong>{{ reviewRows.filter(r=>!r.retained).length }}</strong><span>{{ t('learning') }}</span></div><div><strong>{{ retainedCount }}</strong><span>{{ t('retained') }}</span></div></div>
-      <p class="muted">{{ attempts.filter(a=>!eligible(a)).length }} {{ t('assisted') }} · {{ t('recallNote') }}</p>
+      <div class="retention-cards"><div><strong>{{ fmtAcc(accOf(periodIndependent.length,periodIndependent.filter(a=>a.correct).length)) }}</strong><span>{{ periodIndependent.length }} {{ t('total') }}</span></div><div><strong>{{ periodReviews.filter(r=>Date.parse(r.due)<=Date.now()).length }}</strong><span>{{ t('due') }}</span></div><div><strong>{{ periodReviews.filter(r=>!r.retained).length }}</strong><span>{{ t('learning') }}</span></div><div><strong>{{ periodReviews.filter(r=>r.retained).length }}</strong><span>{{ t('retained') }}</span></div></div>
+      <p class="muted">{{ periodAttempts.filter(a=>!eligible(a)).length }} {{ t('assisted') }} · {{ t('recallNote') }}</p>
       <h3>{{ t('recentWords') }}</h3>
-      <div v-for="r in rankedReviews.slice(0,10)" :key="r.key" class="review-row"><strong>{{ r.word }} <small>{{ r.locale }}</small></strong><span>{{ r.mistakes }}/{{ r.recent.length }} {{ t('wrongLabel') }} · {{ t('nextReview') }} {{ new Date(r.due).toLocaleDateString(locale) }}</span></div>
+      <p v-if="!periodReviews.length" class="muted">{{ t('noData') }}</p>
+      <div v-for="r in periodReviews.slice(0,10)" :key="r.key" class="review-row"><strong>{{ r.word }} <small>{{ r.locale }}</small></strong><span>{{ r.mistakes }}/{{ r.recent.length }} {{ t('wrongLabel') }} · {{ t('nextReview') }} {{ new Date(r.due).toLocaleDateString(locale) }}</span></div>
       <button class="small" @click="startLesson(true)">{{ t('weakSpots') }}</button>
       <h3>{{ t('patternTitle') }}</h3>
-      <p v-if="!supportedPatterns.length" class="muted">{{ t('noPatterns') }}</p>
-      <div v-for="p in supportedPatterns.slice(0,2)" :key="p.key" class="review-row"><strong>{{ p.expected }} → {{ p.typed || '∅' }} · {{ p.position }}</strong><span>{{ p.failures }}/{{ p.opportunities }} {{ t('sample') }} ({{ Math.round(p.rate*100) }}%) · {{ p.words.join(', ') }}</span></div>
-      <details v-if="attempts.length"><summary>{{ t('assisted') }} / {{ t('independent') }} · {{ t('allTime') }}</summary><div v-for="a in attempts.slice(-20).reverse()" :key="a.id" class="review-row"><strong>{{ a.word }} ← {{ a.submitted }} ({{ a.locale }})</strong><span>{{ a.exercise }} · {{ a.assistance }} · {{ new Date(a.date).toLocaleString(locale) }}</span></div></details>
+      <p v-if="!periodPatterns.length" class="muted">{{ t('noPatterns') }}</p>
+      <div v-for="p in periodPatterns.slice(0,2)" :key="p.key" class="review-row"><strong>{{ p.expected }} → {{ p.typed || '∅' }} · {{ p.position }}</strong><span>{{ p.failures }}/{{ p.opportunities }} {{ t('sample') }} ({{ Math.round(p.rate*100) }}%) · {{ p.words.join(', ') }}</span></div>
+      <details v-if="periodAttempts.length"><summary>{{ t('assisted') }} / {{ t('independent') }} · {{ t(chartRange) }}</summary><div v-for="a in periodAttempts.slice(-20).reverse()" :key="a.id" class="review-row"><strong>{{ a.word }} ← {{ a.submitted }} ({{ a.locale }})</strong><span>{{ a.exercise }} · {{ a.assistance }} · {{ new Date(a.date).toLocaleString(locale) }}</span></div></details>
     </section>
-    <p class="muted" style="text-align:center">🔥 {{ stats.streak }} ({{ t('best') }} {{ stats.best }}) · 📅 {{ dayStreak }} {{ t('dayStreak') }} ({{ t('best') }} {{ bestDayStreak }})</p>
-    <p style="text-align:center; margin:0">⭐ {{ t('level') }} {{ levelInfo.level }} · {{ currentXp }} {{ t('xp') }} <span class="muted">({{ currentXp - levelInfo.prev }}/{{ levelInfo.next - levelInfo.prev }} {{ t('toNext') }})</span></p>
-    <!-- leaderboard: levels derived client-side from XP, hover a row for its XP -->
-    <div class="panel" style="width:100%; padding:16px">
-      <h3 style="margin:0 0 4px; font-size:14px">{{ t('leaderboard') }} <span class="muted">· {{ t('topLevels') }}</span></h3>
+    <div class="sidebar statistics-sidebar">
+    <p class="muted period-streak">🔥 {{ periodStreak.current }} ({{ t('best') }} {{ periodStreak.best }}) · 📅 {{ periodDayStreak.cur }} {{ t('dayStreak') }} ({{ t('best') }} {{ periodDayStreak.best }})</p>
+    <div class="panel statistics-board">
+      <h3>{{ t('leaderboard') }} <span class="muted">· {{ t('periodXp') }}</span></h3>
       <p v-if="mode==='guest'" class="muted" style="margin:0 0 8px">{{ t('guestBoardNote') }}</p>
       <ol v-if="board.length" class="board">
         <li v-for="(e, i) in board" :key="e.username" :title="`${e.xp} ${t('xp')}`" :class="{ me: e.username === authUser }">
-          <span>#{{ i + 1 }} {{ e.username }}</span><strong>{{ t('level') }} {{ levelForXp(e.xp) }}</strong>
+          <span>#{{ i + 1 }} {{ e.username }}</span><strong>{{ e.xp }} {{ t('xp') }}</strong>
         </li>
       </ol>
       <p v-else class="muted" style="margin:8px 0 0">{{ boardLoading ? '…' : t('noScores') }}</p>
     </div>
-    <!-- accuracy cards: today / 7d / 30d / all time + total attempted -->
-    <div class="stat-cards">
-      <div class="stat-card"><span class="muted">{{ t('today') }}</span><strong>{{ fmtAcc(accToday) }}</strong><em>{{ rangeTotals.today }} {{ t('total') }}</em></div>
-      <div class="stat-card"><span class="muted">{{ t('last7') }}</span><strong>{{ fmtAcc(acc7) }}</strong><em>{{ rangeTotals.w7 }} {{ t('total') }}</em></div>
-      <div class="stat-card"><span class="muted">{{ t('last30') }}</span><strong>{{ fmtAcc(acc30) }}</strong><em>{{ rangeTotals.m30 }} {{ t('total') }}</em></div>
-      <div class="stat-card"><span class="muted">{{ t('allTime') }}</span><strong>{{ accuracy }}%</strong><em>{{ stats.correct }}/{{ stats.total }}✓</em></div>
-      <div class="stat-card"><span class="muted">{{ t('attempted') }}</span><strong>{{ stats.total }}</strong><em>{{ t('total') }}</em></div>
-    </div>
-    <!-- words-typed bar chart with month/week/day switch (day = per hour) -->
-    <div class="panel" style="width:100%; padding:16px">
+    <!-- Day uses hourly bars; week and month use daily bars. -->
+    <div class="panel statistics-chart">
       <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:10px">
-        <h3 style="margin:0; font-size:14px">{{ t('wordsTyped') }} <span class="muted">· {{ chartRange==='day' ? t('perHour') : t('perDay') }} · {{ chartTotal }}</span></h3>
-        <div class="nav">
-          <button :class="{active: chartRange==='month'}" @click="chartRange='month'">{{ t('month') }}</button>
-          <button :class="{active: chartRange==='week'}" @click="chartRange='week'">{{ t('week') }}</button>
-          <button :class="{active: chartRange==='day'}" @click="chartRange='day'">{{ t('day') }}</button>
-        </div>
+        <h3>{{ t('wordsTyped') }} <span class="muted">· {{ chartRange==='day' ? t('perHour') : t('perDay') }} · {{ chartTotal }}</span></h3>
       </div>
       <div v-if="!chartTotal" class="muted">{{ t('noData') }}</div>
       <div v-else class="bars">
         <div v-for="(b, i) in chartBars" :key="i" class="bar-col" :title="b.title">
-          <div class="bar" :style="{ height: Math.max(3, Math.round(b.value / chartMax * 100)) + '%' }" />
+          <div class="bar" :style="{ height: (b.value ? Math.max(3, Math.round(b.value / chartMax * 100)) : 0) + '%' }" />
           <span v-if="chartRange==='day' ? i % 3 === 0 : chartBars.length <= 8 || i % Math.ceil(chartBars.length / 8) === 0" class="bar-label">{{ b.label }}</span>
         </div>
       </div>
     </div>
+    </div>
     <!-- per-word list kept at the bottom, collapsed by default -->
-    <details class="panel" style="width:100%; padding:0">
+    <details class="panel statistics-words" style="width:100%; padding:0">
       <summary style="padding:12px; font-size:14px; font-weight:700; cursor:pointer">{{ t('wordDetails') }} <span class="muted">· {{ perWordRows.length }}</span></summary>
       <details v-for="(l, li) in statTree" :key="l.key" style="border-top:0.5px solid var(--border)" :open="li===0">
         <summary style="padding:10px 12px 10px 24px; font-size:13px; font-weight:600; cursor:pointer">{{ l.title }} <span class="muted">· {{ l.avg == null ? '—' : l.avg + '%' }} {{ t('avgAcc') }}</span></summary>
@@ -1097,10 +1143,10 @@ onMounted(async () => {
   </main>
 
   <!-- SETTINGS -->
-  <main id="center" v-else style="gap:20px; padding:24px; align-items:stretch; max-width:640px; width:100%; margin:0 auto; box-sizing:border-box">
-    <h2 style="text-align:center; margin:0">{{ t('settings') }}</h2>
-    <section class="panel theme-panel" style="width:100%">
-      <h3 style="margin:0 0 4px; font-size:17px; letter-spacing:-0.02em">{{ t('theme') }}</h3>
+  <main id="center" v-else class="settings-view">
+    <div class="page-heading"><div><h2>{{ t('settings') }}</h2><p class="muted">{{ t('theme') }} · {{ t('lang') }} · {{ t('defSettings') }}</p></div></div>
+    <section class="panel theme-panel">
+      <h3>{{ t('theme') }}</h3>
       <p class="muted" style="margin:0 0 12px">{{ t('preset') }}</p>
       <div class="presets">
         <button
@@ -1129,18 +1175,20 @@ onMounted(async () => {
       </div>
       <button class="small" @click="resetTheme" style="margin-top:12px">{{ t('resetTheme') }}</button>
     </section>
-    <section class="panel" style="width:100%">
-      <h3 style="margin:0 0 12px; font-size:16px">{{ t('lang') }}</h3>
+    <div class="sidebar settings-sidebar">
+    <section class="panel">
+      <h3>{{ t('lang') }}</h3>
       <p class="muted" style="margin-bottom:8px">{{ t('appLangNote') }}</p>
       <div style="display:flex; gap:8px">
-        <button :class="['small', locale==='en' ? '' : 'secondary']" @click="locale='en'" :style="locale==='en'? 'background:var(--accent);color:#fff;border-color:var(--accent)':''">English</button>
-        <button :class="['small', locale==='es' ? '' : 'secondary']" @click="locale='es'" :style="locale==='es'? 'background:var(--accent);color:#fff;border-color:var(--accent)':''">Español</button>
+        <button :class="['small', locale==='en' ? '' : 'secondary']" @click="locale='en'" :style="locale==='en'? 'background:var(--accent);color:var(--on-accent);border-color:var(--accent)':''">English</button>
+        <button :class="['small', locale==='es' ? '' : 'secondary']" @click="locale='es'" :style="locale==='es'? 'background:var(--accent);color:var(--on-accent);border-color:var(--accent)':''">Español</button>
       </div>
     </section>
-    <section class="panel" style="width:100%">
-      <h3 style="margin:0 0 12px; font-size:16px">{{ t('defSettings') }}</h3>
+    <section class="panel">
+      <h3>{{ t('defSettings') }}</h3>
       <button class="small" @click="resetAll">{{ t('resetAll') }}</button>
     </section>
+    </div>
   </main>
 
   <footer class="foot">{{ mode==='auth' ? t('synced')+' · ' : t('offline') }}{{ t('noTracking') }}</footer>
@@ -1162,15 +1210,27 @@ onMounted(async () => {
 .nav button { padding:7px 16px; border-radius:var(--radius-full); border:none; background:transparent; color:var(--text-h); cursor:pointer; font-weight:600; font-size:13px; transition: all var(--duration-fast) var(--easing); min-height:32px; }
 .nav button.active { background:color-mix(in srgb, var(--bg) 92%, transparent); color:var(--text-h); box-shadow:var(--shadow-sm); }
 .nav button:disabled { opacity:0.4; cursor:not-allowed; }
-.stats { display:flex; gap:14px; align-items:center; font-family:var(--mono); font-size:13px; color:var(--text-h); }
+.stats { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:14px; align-items:center; max-width:100%; font-family:var(--mono); font-size:13px; color:var(--text-h); }
 .stats em { color:var(--text); font-style:normal; font-size:11px; }
-.authbar { display:flex; gap:12px; align-items:center; justify-content:space-between; padding:10px 20px; border-bottom:0.5px solid var(--border); background:var(--social-bg); flex-wrap:wrap; }
-.auth-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.header-actions { display:flex; align-items:center; gap:8px; margin-left:auto; }
+.header-actions > .link { white-space:nowrap; }
+.account-trigger { display:flex; align-items:center; gap:8px; min-height:44px; }
+.account-trigger > span:first-child { max-width:14ch; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.authbar { position:fixed; inset:var(--account-top,72px) 16px auto auto; width:min(360px,calc(100vw - 32px)); max-height:calc(100dvh - var(--account-top,72px) - 16px); overflow-y:auto; box-sizing:border-box; padding:20px; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--bg); color:var(--text-h); box-shadow:var(--shadow-lg); text-align:left; }
+.authbar:popover-open { display:flex; flex-direction:column; gap:16px; }
+.account-heading, .auth-actions { display:flex; align-items:center; gap:8px; }
+.account-heading { justify-content:space-between; }
+.account-heading .link { min-width:44px; min-height:44px; font-size:24px; }
+.auth-row { display:flex; flex-direction:column; gap:12px; }
+.auth-row > label:not(.import-choice) { display:flex; flex-direction:column; gap:6px; font-size:13px; }
+.auth-row .add-input { width:100%; min-width:0; box-sizing:border-box; font-size:16px; }
+.auth-actions > button { flex:1; min-height:44px; }
+.authbar p, .authbar label { overflow-wrap:anywhere; }
 .secondary { background:var(--accent-bg)!important; color:var(--accent)!important; border-color:transparent!important; }
 .err { color:#ff3b30; font-size:13px; margin:4px 0 0; width:100%; }
 .speak {
   font-size:22px; padding:20px 44px; border-radius:24px; border:none;
-  background:var(--accent); color:#fff; cursor:pointer; font-weight:700; letter-spacing:-0.02em;
+  background:var(--accent); color:var(--on-accent); cursor:pointer; font-weight:700; letter-spacing:-0.02em;
   box-shadow:var(--shadow-lg); transition: transform var(--duration-fast) var(--easing), box-shadow var(--duration-normal) var(--easing), filter var(--duration-fast);
 }
 .speak:hover { transform:translateY(-1px); filter:brightness(1.06); box-shadow:var(--shadow-lg); }
@@ -1185,9 +1245,9 @@ onMounted(async () => {
   margin: 0;
   user-select: all;
 }
-.form { display:flex; gap:10px; width:min(440px, 92vw); }
+.form { display:flex; gap:10px; width:min(440px, 100%); }
 .spell {
-  flex:1; font-size:20px; padding:14px 18px; border-radius:var(--radius-md);
+  flex:1; min-width:0; font-size:20px; padding:14px 18px; border-radius:var(--radius-md);
   border:1.5px solid var(--border); background:color-mix(in srgb, var(--bg) 85%, transparent);
   color:var(--text-h); outline:none; text-align:center; letter-spacing:-0.01em;
   transition: border-color var(--duration-fast) var(--easing), box-shadow var(--duration-fast) var(--easing);
@@ -1206,11 +1266,20 @@ onMounted(async () => {
 .link { background:none; border:none; color:var(--accent); cursor:pointer; font-size:13px; min-height:32px; }
 .link:hover { text-decoration:underline; text-underline-offset:3px; }
 .panel {
-  width:min(560px, 94vw); box-sizing:border-box; text-align:left; border:0.5px solid var(--border);
+  width:100%; min-width:0; box-sizing:border-box; text-align:left; border:0.5px solid var(--border);
   border-radius:var(--radius-lg); padding:20px; background:var(--social-bg);
   box-shadow:var(--shadow-sm);
 }
+.panel h3 { margin:0 0 12px; font-size:16px; color:var(--text-h); }
+.sidebar, .practice-workspace { display:flex; flex-direction:column; gap:16px; min-width:0; }
+.practice-session, .test-session { display:flex; flex-direction:column; align-items:center; gap:20px; padding-block:28px; text-align:center; }
+.practice-session > .nav { max-width:100%; flex-wrap:wrap; justify-content:center; }
 .add-row { display:flex; gap:8px; }
+.word-manager > .add-row { margin:16px 0 12px; max-width:560px; }
+.word-manager > .small { margin-top:16px; }
+.word-manager .add-input { min-width:0; }
+.word-manager .chip { overflow-wrap:anywhere; }
+.word-manager .chip button { min-width:44px; min-height:44px; }
 .add-input { flex:1; padding:10px 14px; border-radius:var(--radius-sm); border:0.5px solid var(--border); background:color-mix(in srgb, var(--bg) 85%, transparent); color:var(--text-h); font-size:15px; }
 .small { padding:9px 16px; border-radius:var(--radius-full); border:0.5px solid var(--border); background:color-mix(in srgb, var(--bg) 85%, transparent); cursor:pointer; font-weight:600; font-size:13px; color:var(--accent); transition: all var(--duration-fast) var(--easing); min-height:36px; }
 .small:hover { background:var(--accent-bg); border-color:transparent; }
@@ -1226,9 +1295,9 @@ onMounted(async () => {
 .stat-card strong { font-size:22px; color:var(--text-h); letter-spacing:-0.02em; }
 .stat-card em { font-style:normal; font-size:11px; color:var(--text); }
 .bars { display:flex; align-items:flex-end; gap:4px; height:140px; overflow-x:auto; padding-top:8px; }
-.bar-col { flex:1; min-width:14px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:4px; height:100%; }
+.bar-col { flex:1; min-width:14px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; position:relative; padding-bottom:18px; box-sizing:border-box; }
 .bar { width:100%; max-width:22px; border-radius:4px 4px 2px 2px; background:var(--accent); opacity:0.85; }
-.bar-label { font-size:9px; color:var(--text); }
+.bar-label { font-size:9px; color:var(--text); position:absolute; bottom:0; white-space:nowrap; }
 /* Presets */
 .presets { display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; }
 .preset {
@@ -1245,7 +1314,6 @@ onMounted(async () => {
 }
 .swatch .dot { width:12px; height:12px; border-radius:50%; }
 .swatch .dot-txt { width:16px; height:6px; border-radius:3px; opacity:0.85; }
-.theme-panel { background:color-mix(in srgb, var(--bg) 70%, transparent); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); }
 .stat-table { width:100%; border-collapse:separate; border-spacing:0; font-size:14px; }
 .stat-table th, .stat-table td { padding:10px 12px; border-bottom:0.5px solid var(--border); text-align:left; }
 .xpbar { width:64px; height:6px; border-radius:3px; background:var(--fill); overflow:hidden; }
@@ -1258,11 +1326,9 @@ onMounted(async () => {
 .settings-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
 .settings-grid label { display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:600; color:var(--text-h); }
 .settings-grid input[type="color"] { height:40px; border-radius:var(--radius-sm); border:0.5px solid var(--border); padding:3px; width:100%; background:var(--bg); cursor:pointer; }
-.test-view { justify-content:flex-start!important; }
-.test-intro { max-width:460px; margin-top:6px; font-size:14px; }
 .test-levels { width:min(420px, 100%); }
 .test-levels button { min-height:44px; }
-.test-progress { width:min(440px, 92vw); display:grid; grid-template-columns:1fr auto; gap:6px; text-align:left; font-size:13px; color:var(--text); }
+.test-progress { width:min(440px, 100%); display:grid; grid-template-columns:1fr auto; gap:6px; text-align:left; font-size:13px; color:var(--text); }
 .test-progress strong { color:var(--text-h); }
 .test-progress-bar { grid-column:1/-1; height:7px; overflow:hidden; border-radius:var(--radius-full); background:var(--fill); }
 .test-progress-bar span { display:block; height:100%; border-radius:inherit; background:var(--accent); transition:width var(--duration-normal) var(--easing); }
@@ -1270,12 +1336,9 @@ onMounted(async () => {
 .test-score strong { font-size:64px; line-height:1; color:var(--text-h); letter-spacing:-0.05em; }
 .test-score span { margin-top:8px; color:var(--text); }
 .test-summary { width:min(420px, 100%); grid-template-columns:repeat(2, 1fr); }
-.test-history { margin-top:20px; width:100%; box-sizing:border-box; }
-.test-history h3 { margin:0 0 12px; font-size:16px; }
 .test-history-list { display:flex; flex-direction:column; gap:8px; }
 .test-history-list .pack-row { justify-content:space-between; }
 .save-status { display:flex; align-items:center; justify-content:center; gap:8px; font-size:12px; padding:4px 16px; color:var(--text); }
-.learning-panel { box-sizing:border-box; width:min(600px,100%); }
 .learning-panel h3 { margin:16px 0 8px; font-size:16px; }
 .lesson-heading { display:flex; flex-direction:column; gap:12px; }
 .lesson-heading > strong { color:var(--accent); font-size:14px; }
@@ -1294,16 +1357,42 @@ onMounted(async () => {
 .review-row strong { font-size:14px; color:var(--text-h); }
 .review-row span { font-size:12px; }
 .correction { max-width:560px; }
+.page-heading { display:flex; flex-direction:column; gap:16px; text-align:left; grid-column:1/-1; }
+.page-heading h2 { margin:0; }
+.page-heading p { margin-top:6px; max-width:75ch; }
+.period-filter { align-self:start; }
+.period-filter button { min-height:44px; }
+.period-streak { text-align:center; }
+.statistics-words { overflow-x:auto; }
+.statistics-words td:first-child { overflow-wrap:anywhere; }
+.statistics-board .board li { gap:12px; overflow-wrap:anywhere; }
+@media (min-width:1000px) {
+  #center.practice-view, #center.test-view, #center.settings-view, #center.stats-view { grid-template-columns:minmax(0,3fr) minmax(0,2fr); }
+  .page-heading { flex-direction:row; justify-content:space-between; align-items:center; }
+  .practice-workspace { grid-column:1; grid-row:2; }
+  .word-packs { grid-column:2; grid-row:2; }
+  .list-toggle, .word-manager { grid-column:1/-1; }
+  .test-session { grid-column:1; }
+  .test-history { grid-column:2; }
+  .theme-panel { grid-column:1; }
+  .settings-sidebar { grid-column:2; }
+  #center.stats-view { grid-template-areas:'heading heading' 'summary summary' 'learning sidebar' 'words words'; }
+  .stats-view > .page-heading { grid-area:heading; }
+  .period-summary { grid-area:summary; }
+  .statistics-learning { grid-area:learning; }
+  .statistics-sidebar { grid-area:sidebar; }
+  .statistics-words { grid-area:words; }
+}
 @media (min-width:600px) { .lesson-heading { flex-direction:row; align-items:center; justify-content:space-between; } .retention-cards {grid-template-columns:repeat(4,1fr);} }
 @media (max-width:700px){
   .form{ flex-direction:column } .top{ flex-direction:column; gap:10px; padding:12px 16px }
   .nav{ width:100%; } .nav button{ flex:1; min-height:44px; }
   .small, .link { min-height:44px; }
   .add-input { min-width:0; font-size:16px; }
-  .authbar{ flex-direction:column; align-items:stretch }
   .settings-grid{ grid-template-columns:1fr } .presets{ grid-template-columns:repeat(4, 1fr); }
   .speak{ width:100%; }
   .stat-cards{ grid-template-columns:repeat(2, 1fr); }
   .top > .nav button{ padding-inline:8px; font-size:12px; min-height:44px; }
+  .top > .nav { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); border-radius:var(--radius-md); }
 }
 </style>

@@ -42,6 +42,7 @@ test('packs do not replace saved words and language follows audio for guests and
   await page.getByRole('button',{name:/manage word list/}).click();
   await expect(page.locator('.chips').first().locator('.chip')).toHaveCount(10);
   const user=`learning_${crypto.randomUUID().slice(0,8)}`;
+  await page.getByRole('button',{name:'Account',exact:true}).click();
   await page.getByPlaceholder('username',{exact:true}).fill(user);await page.getByPlaceholder('password',{exact:true}).fill('test12345');
   await page.getByRole('button',{name:'Register',exact:true}).click();
   await expect(page.locator('.authbar')).toContainText(user);
@@ -60,6 +61,7 @@ test('packs do not replace saved words and language follows audio for guests and
 test('guest import, failed-save retry, idempotent sync and cross-device test history',async({page,browser,request})=>{
   await page.goto('/');await answer(page,'becaus');
   const user=`sync_${crypto.randomUUID().slice(0,8)}`;
+  await page.getByRole('button',{name:'Account',exact:true}).click();
   await page.getByPlaceholder('username',{exact:true}).fill(user);await page.getByPlaceholder('password',{exact:true}).fill('test12345');
   await page.getByRole('button',{name:'Register',exact:true}).click();
   await expect(page.locator('.authbar')).toContainText(`Synced as ${user}`);
@@ -81,7 +83,7 @@ test('guest import, failed-save retry, idempotent sync and cross-device test his
   const result={id:crypto.randomUUID(),date:a.date,level:'starter',locale:'en',correct:1,total:1,answers:[a]};
   expect((await request.post('http://localhost:3000/api/learning',{headers,data:{attempts:[a],tests:[result]}})).ok()).toBeTruthy();
   const other=await browser.newContext();const second=await other.newPage();
-  await second.goto('/');await second.getByPlaceholder('username',{exact:true}).fill(user);await second.getByPlaceholder('password',{exact:true}).fill('test12345');await second.getByRole('button',{name:'Login',exact:true}).click();
+  await second.goto('/');await second.getByRole('button',{name:'Account',exact:true}).click();await second.getByPlaceholder('username',{exact:true}).fill(user);await second.getByPlaceholder('password',{exact:true}).fill('test12345');await second.getByRole('button',{name:'Login',exact:true}).click();
   await second.getByRole('button',{name:'Test',exact:true}).click();await expect(second.locator('.test-history')).toContainText('1/1');
   await other.close();
   expect((await request.get('http://localhost:3000/api/learning')).status()).toBe(401);
