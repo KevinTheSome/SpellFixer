@@ -2,6 +2,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { api, isLoggedIn, type PackMeta, type PackEntry, type Stats, type DayActivity, type LeaderEntry } from './api'
 import { levelForXp, xpProgress, XP_PER_CORRECT } from './xp'
+import { normalize, wordKey, isCorrect, eligible, mergeAttempts, reviews, rankWords, patterns, align, buildLesson, type Attempt, type LearningWord, type SavedTest } from './learning'
 
 const DEFAULT_WORDS = ['because','beautiful','friend','necessary','accommodate','rhythm','definitely','separate','occasion','embarrass']
 const LS_WORDS = 'st-words'
@@ -13,11 +14,12 @@ const LS_HOURS = 'st-hours'
 const LS_WSTATS = 'st-wstats'
 const LS_THEME = 'st-theme'
 const LS_LOCALE = 'st-locale'
+const LS_TEST_RESULTS = 'st-test-results'
 
 // --- i18n (no dep) ---
 const dict = {
   en: {
-    practice:'Practice', statistics:'Statistics', settings:'Settings',
+    practice:'Practice', selfTest:'Test', statistics:'Statistics', settings:'Settings',
     listen:'Listen', hint:'Click listen, then spell what you hear',
     typeph:'type spelling...', check:'Check', next:'Next →', retry:'Try again',
     correct:'Nice! 🎉', was:'It was', reveal:'Correct spelling:', hearAgain:'hear again',
@@ -37,12 +39,14 @@ const dict = {
     clearStats:'clear stats', login:'Login', register:'Register', logout:'Logout → guest', username:'username', password:'password',
     empty:'empty', secondaryNote:'Used for borders & accents',
      packs:'Word packs', usePack:'Use pack', using:'Using', wordsLabel:'words', difficulty:'Difficulty', packsEmpty:'No packs found — is the backend running?', packsLoadFail:'Could not load packs.', loadingPacks:'Loading packs…', loadingPack:'Loading…',
-     showHint:'Show hint 💡', hintUsedNote:'Hint used — this word is not scored', mode:'Mode', seqMode:'In order', randMode:'Random', weakMode:'Weakest first', weakLocked:'Spell over half the pack to unlock weakest mode',
+     showHint:'Show hint 💡', hintUsedNote:'Hint used — this word is not scored', youWrote:'You wrote', remember:'Remember', practiceFocus:'Practice focus', reviewSoon:'This word will return soon.', mode:'Mode', seqMode:'In order', randMode:'Random', weakMode:'Weakest first', weakLocked:'Spell over half the pack to unlock weakest mode',
      byLang:'Language', byDiff:'Difficulty', avgAcc:'avg', otherLang:'Other',      easyBand:'Starter ★1–2', medBand:'Intermediate ★3–4', hardBand:'Expert ★5', unsorted:'Unsorted',
      level:'Level', xp:'XP', toNext:'to next', leaderboard:'Leaderboard', topLevels:'Top levels', noScores:'No scores yet — be the first!', guestBoardNote:'Guest XP is local only — login to join the board.',
+     testTitle:'Self test', testIntro:'Choose a language and difficulty. Each test has 10 random words, mostly from that level.', startTest:'Start test', starter:'Starter', intermediate:'Intermediate', expert:'Expert', testProgress:'Progress', finish:'Finish', testComplete:'Test complete', right:'right', wrongLabel:'wrong', pastResults:'Past test results', noTestResults:'No tests completed yet.', testAgain:'Test again',
+     dailyLesson:'Daily lesson', weakSpots:'Practice my weak spots', due:'Reviews due', learning:'Learning', retained:'Retained after a delay', startDaily:'Start daily lesson', continueReview:'Continue → review later', lessonComplete:'Lesson complete', leaveLesson:'End lesson', manual:'Practice saved words', nextReview:'Next review', independent:'Independent first attempts', assisted:'Assisted study', mistakes:'Practice my mistakes', saved:'Progress saved', unsaved:'Saved on this device · sync pending', saving:'Saving…', retrySave:'Retry sync', importGuest:'Import guest words, answers and tests when registering', importNote:'Matching language + spelling is merged; answer IDs prevent duplicates. Guest data stays on this device.', confirmWord:'Confirm this spelling (name or unusual word)', customLanguage:'Word language', recentWords:'Words to review', patternTitle:'Supported spelling patterns', noPatterns:'More independent answers are needed to identify a recurring pattern.', sample:'mistakes / opportunities', cover:'Cover and recall', studyNote:'Visible spelling is study, not independent recall.', recallNote:'Recall from memory. Correction retries do not count toward mastery.', contentGap:'No related words in this pack yet; reviewing your original words.', lessonNote:'Up to 10 questions · about five minutes · no account needed', recallSummary:'Independent successes', studySummary:'Study answers', answered:'Questions completed', reviewNeeded:'Need another review', errorMissing:'Missing', errorExtra:'Extra', errorSubstituted:'Changed', errorTransposed:'Reversed', patternNote:'Observed spelling differences, not an assumed cause. Use a meaning cue if the words sound alike.',
     },
   es: {
-    practice:'Práctica', statistics:'Estadísticas', settings:'Ajustes',
+    practice:'Práctica', selfTest:'Prueba', statistics:'Estadísticas', settings:'Ajustes',
     listen:'Escuchar', hint:'Haz clic en escuchar y escribe lo que oyes',
     typeph:'escribe...', check:'Comprobar', next:'Siguiente →', retry:'Reintentar',
     correct:'¡Bien! 🎉', was:'Era', reveal:'Ortografía correcta:', hearAgain:'escuchar de nuevo',
@@ -62,9 +66,11 @@ const dict = {
     clearStats:'borrar estadísticas', login:'Entrar', register:'Registrar', logout:'Salir → invitado', username:'usuario', password:'contraseña',
     empty:'vacío', secondaryNote:'Usado para bordes y acentos',
      packs:'Paquetes', usePack:'Usar', using:'Usando', wordsLabel:'palabras', difficulty:'Dificultad', packsEmpty:'Sin paquetes — ¿backend activo?', packsLoadFail:'No se pudieron cargar.', loadingPacks:'Cargando…', loadingPack:'Cargando…',
-     showHint:'Ver pista 💡', hintUsedNote:'Pista usada — esta palabra no cuenta', mode:'Modo', seqMode:'En orden', randMode:'Aleatorio', weakMode:'Más difíciles', weakLocked:'Deletrea más de la mitad para desbloquear', 
+     showHint:'Ver pista 💡', hintUsedNote:'Pista usada — esta palabra no cuenta', youWrote:'Escribiste', remember:'Recuerda', practiceFocus:'Practica', reviewSoon:'Esta palabra volverá pronto.', mode:'Modo', seqMode:'En orden', randMode:'Aleatorio', weakMode:'Más difíciles', weakLocked:'Deletrea más de la mitad para desbloquear',
      byLang:'Idioma', byDiff:'Dificultad', avgAcc:'prom', otherLang:'Otras',      easyBand:'Inicial ★1–2', medBand:'Intermedio ★3–4', hardBand:'Experto ★5', unsorted:'Sin clasificar',
      level:'Nivel', xp:'XP', toNext:'al siguiente', leaderboard:'Clasificación', topLevels:'Mejores niveles', noScores:'Sin puntuaciones — ¡sé el primero!', guestBoardNote:'Tu XP de invitado es solo local — entra para unirte.',
+     testTitle:'Prueba personal', testIntro:'Elige un idioma y una dificultad. Cada prueba tiene 10 palabras al azar, principalmente de ese nivel.', startTest:'Empezar prueba', starter:'Inicial', intermediate:'Intermedio', expert:'Experto', testProgress:'Progreso', finish:'Terminar', testComplete:'Prueba completada', right:'correctas', wrongLabel:'incorrectas', pastResults:'Resultados anteriores', noTestResults:'Aún no hay pruebas completadas.', testAgain:'Otra prueba',
+     dailyLesson:'Lección diaria', weakSpots:'Practicar mis dificultades', due:'Repasos pendientes', learning:'En aprendizaje', retained:'Recordadas tras un plazo', startDaily:'Empezar lección diaria', continueReview:'Continuar → repasar después', lessonComplete:'Lección completada', leaveLesson:'Terminar lección', manual:'Practicar palabras guardadas', nextReview:'Próximo repaso', independent:'Primeros intentos sin ayuda', assisted:'Estudio con ayuda', mistakes:'Practicar mis errores', saved:'Progreso guardado', unsaved:'Guardado en este dispositivo · sincronización pendiente', saving:'Guardando…', retrySave:'Reintentar sincronización', importGuest:'Importar palabras, respuestas y pruebas al registrarse', importNote:'Se combinan idioma y palabra; los identificadores evitan duplicados. Los datos de invitado permanecen aquí.', confirmWord:'Confirmar esta ortografía (nombre o palabra inusual)', customLanguage:'Idioma de la palabra', recentWords:'Palabras para repasar', patternTitle:'Patrones con evidencia', noPatterns:'Se necesitan más respuestas sin ayuda para identificar un patrón recurrente.', sample:'errores / oportunidades', cover:'Ocultar y recordar', studyNote:'La palabra visible es estudio, no recuerdo independiente.', recallNote:'Recuerda de memoria. Los reintentos no cuentan para el dominio.', contentGap:'No hay palabras relacionadas en este paquete; repasaremos las originales.', lessonNote:'Hasta 10 preguntas · unos cinco minutos · sin cuenta', recallSummary:'Aciertos sin ayuda', studySummary:'Respuestas de estudio', answered:'Preguntas completadas', reviewNeeded:'Necesitan otro repaso', errorMissing:'Falta', errorExtra:'Sobra', errorSubstituted:'Cambio', errorTransposed:'Inversión', patternNote:'Diferencias observadas, sin suponer su causa. Usa el significado si las palabras suenan igual.',
     }
 } as const
 type Locale = keyof typeof dict
@@ -167,14 +173,24 @@ function ensureWStats(list:string[]){
 }
 ensureWStats(words.value)
 
-const backendWords = ref<{id:number,word:string,timesSeen:number,timesCorrect:number}[]>([])
+const backendWords = ref<{id:number,word:string,locale:string,timesSeen:number,timesCorrect:number}[]>([])
 const mode = ref<'guest'|'auth'>(isLoggedIn() ? 'auth' : 'guest')
 const authUser = ref<string>(localStorage.getItem('st-user')||'')
 const authForm = ref({ username: '', password: '', error: '' })
 const authLoading = ref(false)
-const view = ref<'practice'|'stats'|'settings'>('practice')
+const view = ref<'practice'|'test'|'stats'|'settings'>('practice')
 
-const displayWords = computed(() => mode.value==='auth' ? backendWords.value.map(w=>w.word) : words.value)
+const guestLanguages = ref<Record<string,string>>(JSON.parse(localStorage.getItem('st-word-languages') || '{}'))
+const guestExtraWords = ref<LearningWord[]>(JSON.parse(localStorage.getItem('st-extra-words') || '[]'))
+watch(guestLanguages,v=>localStorage.setItem('st-word-languages',JSON.stringify(v)),{deep:true})
+watch(guestExtraWords,v=>localStorage.setItem('st-extra-words',JSON.stringify(v)),{deep:true})
+const savedWords = computed<LearningWord[]>(() => mode.value==='auth' ? backendWords.value : [...words.value.map(word=>({word,locale:guestLanguages.value[word]??'en'})),...guestExtraWords.value])
+const activeWords = ref<LearningWord[]|null>(JSON.parse(localStorage.getItem('st-active-words') || 'null'))
+type Lesson = {kind:'daily'|'weak';items:(LearningWord & {retry?:boolean})[];position:number;session:string;complete:boolean;focus:string}
+const lesson=ref<Lesson|null>(null)
+watch(activeWords,v=>localStorage.setItem('st-active-words',JSON.stringify(v)),{deep:true})
+const practiceWords = computed(() => lesson.value ? [lesson.value.items[lesson.value.position] ?? lesson.value.items.at(-1)!] : activeWords.value ?? savedWords.value)
+const displayWords = computed(() => practiceWords.value.map(w=>w.word))
 
 const idx = ref(Math.floor(Math.random() * displayWords.value.length))
 const input = ref('')
@@ -187,6 +203,7 @@ const packs = ref<PackMeta[]>([])
 const packsLoading = ref(false)
 const packsError = ref('')
 const packApplying = ref('')
+const packEntries = ref<Record<string, PackEntry[]>>({})
 const activePackId = ref(localStorage.getItem(LS_PACK) || '')
 const contentLocale = ref(localStorage.getItem(LS_CONTENT_LOCALE) || 'en')
 watch(contentLocale, v => localStorage.setItem(LS_CONTENT_LOCALE, v))
@@ -211,10 +228,11 @@ async function loadPacks() {
   // ponytail: one fetch per pack, cached for stats grouping + hints
   for (const p of packs.value) {
     try {
-      const entries: PackEntry[] = await api.getPack(p.locale, p.name)
+       const entries: PackEntry[] = await api.getPack(p.locale, p.name)
+       packEntries.value[p.id] = entries
       for (const e of entries) {
-        const k = e.word.toLowerCase()
-        if (!wordMeta.value[k]) wordMeta.value[k] = { locale: e.locale, difficulty: e.difficulty ?? null, hint: e.hint }
+        const k = wordKey(e)
+        if (!wordMeta.value[k]) wordMeta.value[k] = { locale: e.locale, difficulty: e.difficulty ?? null, hint: e.hint, tags: e.tags }
       }
     } catch {}
   }
@@ -227,13 +245,10 @@ async function usePack(p: PackMeta) {
     if (!list.length) return
     contentLocale.value = p.locale
     activePackId.value = p.id
-    if (mode.value === 'auth') {
-      for (const w of list) { try { await api.addWord(w) } catch {} }
-      backendWords.value = await api.getWords()
-    } else {
-      words.value = list
-      ensureWStats(list)
-    }
+    lesson.value=null; reviewQueue.value=[]
+    sessionId.value=crypto.randomUUID()
+    activeWords.value = entries
+    covered.value=false; retrying.value=false
     idx.value = Math.floor(Math.random() * list.length); input.value = ''; feedback.value = 'idle'; hintShown.value = false
     speak()
   } finally { packApplying.value = '' }
@@ -245,34 +260,124 @@ watch(view, v => { if (v === 'stats') { refreshActivity(); refreshHourly(); refr
 watch(wstats, v => localStorage.setItem(LS_WSTATS, JSON.stringify(v)), { deep:true })
 
 const current = computed(() => displayWords.value[idx.value] ?? '')
+const currentWord = computed<LearningWord>(()=>practiceWords.value[idx.value] ?? {word:'',locale:contentLocale.value})
 const accuracy = computed(() => stats.value.total ? Math.round(stats.value.correct / stats.value.total * 100) : 0)
 
-function getWStat(word:string): WStat {
-  if(mode.value==='auth'){
-    const b = backendWords.value.find(x=>x.word===word)
-    if(b) return { seen:b.timesSeen, correct:b.timesCorrect }
+// --- self tests: browser-local history, separate from practice scoring ---
+type TestLevel = 'starter'|'intermediate'|'expert'
+type TestWord = LearningWord
+type TestResult = SavedTest
+const testLevel = ref<TestLevel>('starter')
+const testLocale = ref(contentLocale.value)
+const testWords = ref<TestWord[]>([])
+const testIndex = ref(0)
+const testInput = ref('')
+const testFeedback = ref<'idle'|'correct'|'wrong'>('idle')
+const testCorrect = ref(0)
+const testAnswers = ref<Attempt[]>([])
+const testSession = ref(crypto.randomUUID())
+const testLoading = ref(false)
+const testResults = ref<TestResult[]>(JSON.parse(localStorage.getItem(LS_TEST_RESULTS) || '[]'))
+const testOwner = computed(() => mode.value === 'auth' ? authUser.value : 'guest')
+const visibleTestResults = computed(() => store.value.tests)
+const testLocales = computed(() => [...new Set(packs.value.map(p => p.locale))].sort())
+const testCurrent = computed(() => testWords.value[testIndex.value])
+const testFinished = computed(() => testWords.value.length > 0 && testIndex.value >= testWords.value.length)
+const testPercent = computed(() => testWords.value.length ? Math.round(testCorrect.value / testWords.value.length * 100) : 0)
+watch(testResults, v => localStorage.setItem(LS_TEST_RESULTS, JSON.stringify(v)), { deep:true })
+
+function shuffled<T>(list: T[]): T[] {
+  const out = [...list]
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[out[i], out[j]] = [out[j], out[i]]
   }
-  return wstats.value[word] ?? { seen:0, correct:0 }
+  return out
 }
-// --- word meta (locale/difficulty/hint per word, from packs) ---
-const wordMeta = ref<Record<string, { locale: string, difficulty: number | null, hint?: string }>>({})
+
+async function startSelfTest() {
+  testLoading.value = true
+  try {
+    const localPacks = packs.value.filter(p => p.locale === testLocale.value && ['starter','intermediate','expert'].includes(p.name))
+    for (const p of localPacks) if (!packEntries.value[p.id]) packEntries.value[p.id] = await api.getPack(p.locale, p.name)
+    const chosen = localPacks.find(p => p.name === testLevel.value)
+    if (!chosen) return
+    const primary = packEntries.value[chosen.id] ?? []
+    const primaryWords = new Set(primary.map(e => e.word.toLowerCase()))
+    const mixed = localPacks.filter(p => p.id !== chosen.id).flatMap(p => packEntries.value[p.id] ?? []).filter(e => !primaryWords.has(e.word.toLowerCase()))
+    const entries = [...shuffled(primary).slice(0, 8), ...shuffled(mixed).slice(0, 2)]
+    testWords.value = shuffled(entries)
+    testAnswers.value=[]; testSession.value=crypto.randomUUID()
+    testIndex.value = 0; testCorrect.value = 0; testInput.value = ''; testFeedback.value = 'idle'
+    if (testCurrent.value) speak(false, testCurrent.value.word, testCurrent.value.locale)
+  } finally { testLoading.value = false }
+}
+
+function submitTestAnswer() {
+  const currentWord = testCurrent.value
+  if (!currentWord || !testInput.value.trim()) return
+  if (testFeedback.value === 'idle') {
+    const ok = isCorrect(currentWord,testInput.value)
+    const a=recordAnswer(currentWord,testInput.value,'test','none',testSession.value)
+    testAnswers.value.push(a)
+    if (ok) testCorrect.value++
+    testFeedback.value = ok ? 'correct' : 'wrong'
+    return
+  }
+  testIndex.value++
+  if (testFinished.value) {
+    const result:SavedTest={id:crypto.randomUUID(),owner:testOwner.value, date:new Date().toISOString(), level:testLevel.value, locale:testLocale.value, correct:testCorrect.value, total:testWords.value.length,answers:[...testAnswers.value]}
+    store.value.tests.unshift(result); store.value.pendingTests.push(result.id); persistLearning(); syncLearning()
+  } else {
+    testInput.value = ''; testFeedback.value = 'idle'
+    speak(false, testCurrent.value.word, testCurrent.value.locale)
+  }
+}
+
+function resetSelfTest() {
+  testWords.value = []; testIndex.value = 0; testInput.value = ''; testFeedback.value = 'idle'; testCorrect.value = 0
+}
+
+function getWStat(word:string,lang=contentLocale.value): WStat {
+  if(mode.value==='auth'){
+    const b = backendWords.value.find(x=>x.word===word && x.locale===lang)
+    if(b) return { seen:b.timesSeen, correct:b.timesCorrect }
+    const local=attempts.value.filter(a=>a.locale===lang && normalize(a.word)===normalize(word) && eligible(a) && a.exercise!=='test')
+    return {seen:local.length,correct:local.filter(a=>a.correct).length}
+  }
+  return wstats.value[`${lang}:${normalize(word)}`] ?? (lang==='en' ? wstats.value[word] : null) ?? { seen:0, correct:0 }
+}
+// --- word meta (locale/difficulty/teaching cues per word, from packs) ---
+const wordMeta = ref<Record<string, { locale: string, difficulty: number | null, hint?: string, tags?: string[] }>>({})
 const hintShown = ref(false)
-const hintText = computed(() => wordMeta.value[current.value.toLowerCase()]?.hint ?? '')
+const retrying = ref(false)
+const covered = ref(false)
+const submitted = ref('')
+const currentMeta = computed(() => wordMeta.value[wordKey(currentWord.value)])
+const hintText = computed(() => currentMeta.value?.hint ?? '')
+const practiceFocus = computed(() => currentMeta.value?.tags?.map(tag => tag.replaceAll('-', ' ').trim()).join(', ') ?? '')
 
 // --- drill mode: sequential (all words) | random | weakest (unlocks past half) ---
 const LS_DRILL = 'st-drill'
-const drill = ref<'seq'|'rand'|'weak'>((localStorage.getItem(LS_DRILL) as any) || 'rand')
-watch(drill, v => localStorage.setItem(LS_DRILL, v))
+const drill = ref<'seq'|'rand'|'weak'|'repeat'>((localStorage.getItem(LS_DRILL) as any) || 'rand')
+watch(drill, v => {localStorage.setItem(LS_DRILL, v); covered.value=false; if(feedback.value==='idle'){input.value=''} })
 const seenCount = computed(() => displayWords.value.filter(w => getWStat(w).seen > 0).length)
 const weakUnlocked = computed(() => displayWords.value.length > 0 && seenCount.value > displayWords.value.length / 2)
+const reviewQueue = ref<{ word:string, locale:string, wait:number }[]>([])
+
+function scheduleReview(word: string) {
+  const queued = reviewQueue.value.find(item => item.word === word && item.locale===currentWord.value.locale)
+  if (queued) queued.wait = 2
+  else reviewQueue.value.push({ word, locale:currentWord.value.locale, wait:2 })
+}
 
 function weightedPick(){
   const list = displayWords.value
   if(!list.length) return 0
   // weighted by difficulty: misses + low accuracy get higher weight (ponytail: simple linear weight)
   const weights = list.map(w=>{
-    const s=getWStat(w); const acc=s.seen? s.correct/s.seen:0; const misses=s.seen-s.correct
-    return 1 + misses*2 + (1-acc)*2
+    const r=reviewRows.value.find(r=>r.key===wordKey(practiceWords.value[list.indexOf(w)]))
+    return 1 + (r?.rate??0)*4 + Number(r && Date.parse(r.due)<=Date.now())*3
   })
   const total = weights.reduce((a,b)=>a+b,0)
   let r = Math.random()*total
@@ -281,23 +386,140 @@ function weightedPick(){
 }
 
 function pickNext() {
+  if(lesson.value) { advanceLesson(); return }
   const list = displayWords.value
-  if (list.length <= 1) { input.value=''; feedback.value='idle'; hintShown.value=false; return }
-  if (drill.value==='seq') idx.value = (idx.value + 1) % list.length
+  retrying.value=false; covered.value=false
+  if (list.length <= 1) { input.value=''; feedback.value='idle'; hintShown.value=false; retrying.value=true; return }
+  const due = reviewQueue.value.findIndex(item => item.wait === 0 && practiceWords.value.some(w=>wordKey(w)===wordKey(item)))
+  if (due >= 0) {const item=reviewQueue.value.splice(due, 1)[0]; idx.value = practiceWords.value.findIndex(w=>wordKey(w)===wordKey(item));retrying.value=true}
+  else if (drill.value==='seq') idx.value = (idx.value + 1) % list.length
   else if (drill.value==='weak' && weakUnlocked.value) idx.value = weightedPick()
   else { let n = idx.value; while (n === idx.value) n = Math.floor(Math.random() * list.length); idx.value = n }
+  for (const item of reviewQueue.value) item.wait = Math.max(0, item.wait - 1)
   input.value = ''
   feedback.value = 'idle'
   hintShown.value = false
 }
 
-function browserSpeak(text: string) {
+// The guest ledger is independent of account caches; logging out always restores guest progress.
+type LearningStore = {attempts:Attempt[];tests:SavedTest[];pending:string[];pendingTests:string[]}
+const learningStores = ref<Record<string,LearningStore>>(JSON.parse(localStorage.getItem('st-learning') || '{}'))
+const owner = computed(()=>mode.value==='auth'?`account:${authUser.value}`:'guest')
+watch(owner,key=>{if(!learningStores.value[key])learningStores.value[key]={attempts:[],tests:[],pending:[],pendingTests:[]}},{immediate:true,flush:'sync'})
+const store = computed(()=>learningStores.value[owner.value]!)
+const attempts = computed(()=>store.value.attempts)
+const reviewRows = computed(()=>reviews(attempts.value))
+const rankedReviews = computed(()=>rankWords(reviewRows.value))
+const supportedPatterns = computed(()=>patterns(attempts.value).filter(p=>p.locale===contentLocale.value))
+const dueCount = computed(()=>reviewRows.value.filter(r=>r.locale===contentLocale.value && Date.parse(r.due)<=Date.now()).length)
+const retainedCount = computed(()=>reviewRows.value.filter(r=>r.retained).length)
+const independentAnswers = computed(()=>attempts.value.filter(eligible))
+const recentIndependent = computed(()=>independentAnswers.value.slice(-100))
+const recentAccuracy = computed(()=>recentIndependent.value.length?Math.round(recentIndependent.value.filter(a=>a.correct).length/recentIndependent.value.length*100):null)
+const importGuest = ref(true)
+const confirmCustom = ref(false)
+const customLocale = ref('en')
+const saveState = ref<'saved'|'pending'|'saving'|'failed'>('saved')
+const sessionId = ref(crypto.randomUUID())
+const pendingCount = computed(()=>store.value.pending.length+store.value.pendingTests.length)
+function persistLearning() {
+  try {localStorage.setItem('st-learning',JSON.stringify(learningStores.value)); saveState.value=mode.value==='auth' && pendingCount.value?'pending':'saved'}
+  catch {saveState.value='failed'}
+}
+let syncing = false
+async function syncLearning() {
+  if(mode.value!=='auth' || !authUser.value || syncing) return
+  const key=owner.value, user=authUser.value, data=store.value
+  syncing=true;saveState.value='saving'
+  let success=false
+  try {
+    // Also migrate existing browser-local self-test summaries, without inventing answer text.
+    for(const old of testResults.value.filter(r=>r.owner===user)) {
+      if(!old.id) old.id=crypto.randomUUID()
+      if(!data.tests.some(r=>r.id===old.id)) {data.tests.push(old);data.pendingTests.push(old.id)}
+    }
+    localStorage.setItem(LS_TEST_RESULTS,JSON.stringify(testResults.value))
+    while(data.pending.length || data.pendingTests.length) {
+      if(owner.value!==key) return
+      const ids=data.pending.slice(0,500)
+      const tests=data.pending.length>500?[]:data.pendingTests.slice(0,100)
+      await api.syncLearning(data.attempts.filter(a=>ids.includes(a.id)),data.tests.filter(r=>tests.includes(r.id)))
+      data.pending=data.pending.filter(id=>!ids.includes(id));data.pendingTests=data.pendingTests.filter(id=>!tests.includes(id))
+      persistLearning()
+    }
+    if(owner.value!==key) return
+    const remote=await api.learning()
+    data.attempts=mergeAttempts(data.attempts,remote.attempts)
+    data.tests=[...new Map([...data.tests,...remote.tests].map(r=>[r.id,r])).values()].sort((a,b)=>b.date.localeCompare(a.date))
+    persistLearning()
+    if(owner.value===key) {stats.value=await api.stats();backendWords.value=await api.getWords();await refreshActivity()}
+    success=true
+  } catch {if(owner.value===key) saveState.value='pending'}
+  finally {syncing=false;if(success && pendingCount.value || owner.value!==key && mode.value==='auth') syncLearning()}
+}
+window.addEventListener('online',()=>syncLearning())
+function recordAnswer(w:LearningWord,answer:string,exercise:Attempt['exercise'],assistance:Attempt['assistance'],session:string=sessionId.value):Attempt {
+  const a:Attempt={id:crypto.randomUUID(),word:w.word,locale:w.locale,submitted:answer.normalize('NFC').trim(),date:new Date().toISOString(),day:localDay(),hour:new Date().getHours(),session,exercise,assistance,correct:isCorrect(w,answer),standard:'default'}
+  const rewarded=attempts.value.some(x=>wordKey(x)===wordKey(a) && x.day===a.day && x.correct && eligible(x) && x.exercise!=='test')
+  store.value.attempts.push(a)
+  if(mode.value==='auth') store.value.pending.push(a.id)
+  else {
+    const d=dayStats.value[a.day]??(dayStats.value[a.day]={total:0,correct:0});d.total++;if(a.correct)d.correct++
+    bumpHour(a.day,a.hour)
+    if(eligible(a) && exercise!=='test') {
+      stats.value.total++
+      if(a.correct) {stats.value.correct++;stats.value.streak++;stats.value.best=Math.max(stats.value.best,stats.value.streak);if(!rewarded)guestXp.value+=XP_PER_CORRECT}
+      else stats.value.streak=0
+      const s=wstats.value[wordKey(a)]??(wstats.value[wordKey(a)]={seen:0,correct:0});s.seen++;if(a.correct)s.correct++
+    }
+  }
+  persistLearning();syncLearning()
+  return a
+}
+const lessonAnswers=computed(()=>lesson.value?attempts.value.filter(a=>a.session===lesson.value!.session):[])
+const lessonFirsts=computed(()=>lessonAnswers.value.filter(eligible))
+const lessonTransfer=computed(()=>lessonFirsts.value.filter(a=>a.correct && !attempts.value.some(old=>old.session!==a.session && wordKey(old)===wordKey(a))))
+const lessonDelayed=computed(()=>lessonFirsts.value.filter(a=>a.correct && reviewRows.value.some(r=>r.key===wordKey(a) && r.stage>=2 && r.last===a.date)))
+const lessonNeedsReview=computed(()=>reviewRows.value.filter(r=>lessonAnswers.value.some(a=>wordKey(a)===r.key) && !r.recent.at(-1)?.correct))
+const nextReview=computed(()=>reviewRows.value.filter(r=>!lesson.value || lessonAnswers.value.some(a=>wordKey(a)===r.key)).map(r=>r.due).sort()[0])
+function manualPractice() {
+  sessionId.value=crypto.randomUUID()
+  lesson.value=null;activeWords.value=null;activePackId.value='';reviewQueue.value=[];idx.value=0;input.value='';feedback.value='idle';hintShown.value=false;retrying.value=false;covered.value=false
+}
+function startLesson(weak=false,list?:LearningWord[]) {
+  const selected=activeWords.value??savedWords.value.filter(w=>w.locale===contentLocale.value)
+  const ceiling=activeWords.value?Math.max(...activeWords.value.map(w=>w.difficulty??3)):3
+  const bundled=Object.values(packEntries.value).flat().filter(w=>w.locale===contentLocale.value && (w.difficulty??3)<=ceiling)
+  const pool=[...new Map([...selected,...bundled].map(w=>[wordKey(w),w])).values()]
+  const items=shuffled(list??buildLesson(attempts.value,pool,contentLocale.value,weak))
+  if(!items.length) return
+  const p=supportedPatterns.value[0]
+  const focus=p?(locale.value==='es'?`Has escrito «${p.typed || '∅'}» en lugar de «${p.expected}» (${p.position}). Repasaremos esa diferencia.`:`You have sometimes typed “${p.typed || '∅'}” instead of “${p.expected}” (${p.position}). Let's review this spelling difference.`)+` ${p.failures}/${p.opportunities}.`:''
+  lesson.value={kind:weak?'weak':'daily',items,position:0,session:crypto.randomUUID(),complete:false,focus}
+  view.value='practice';idx.value=0;input.value='';feedback.value='idle';hintShown.value=false;retrying.value=false;covered.value=false;reviewQueue.value=[];speak()
+}
+function advanceLesson() {
+  const l=lesson.value
+  if(!l) return
+  l.position++
+  if(l.position>=l.items.length) {l.complete=true;return}
+  idx.value=0;input.value='';feedback.value='idle';hintShown.value=false;covered.value=false;retrying.value=!!l.items[l.position].retry
+}
+function retryWord() {retrying.value=true;covered.value=true;input.value='';feedback.value='idle';hintShown.value=false;speak()}
+function continueWord() {pickNext();if(!lesson.value?.complete)speak()}
+function practiceTestMistakes(result:SavedTest) {
+  const missed=result.answers?.filter(a=>!a.correct)??[]
+  contentLocale.value=result.locale
+  startLesson(true,[...new Map(missed.map(a=>[wordKey(a),{word:a.word,locale:a.locale}])).values()])
+}
+const correctionSpans=computed(()=>align(current.value,submitted.value).spans)
+function browserSpeak(text: string,wordLocale:string) {
   try {
     speechSynthesis.cancel()
     speechSynthesis.resume() // autoplay policy can leave it paused -> silence
     const u = new SpeechSynthesisUtterance(text)
-    u.lang = contentLocale.value
-    const v = speechSynthesis.getVoices().find(v => v.lang.startsWith(contentLocale.value))
+    u.lang = wordLocale
+    const v = speechSynthesis.getVoices().find(v => v.lang.startsWith(wordLocale))
     if (v) u.voice = v
     u.rate = 0.8
     speechSynthesis.speak(u)
@@ -308,18 +530,18 @@ function browserSpeak(text: string) {
 // ponytail: static per-word file, browser caches it; missing file -> browser voice
 let audioEl: HTMLAudioElement | null = null
 const audioLoading = ref(false)
-async function speak(autoplay = false) {
-  if (!current.value) return
-  const text = current.value
+async function speak(autoplay = false, word = current.value, wordLocale = currentWord.value.locale) {
+  if (!word) return
+  const text = word
   audioLoading.value = true
   // ponytail: onerror + play() rejection both fire for a missing file; fall back once
   // (second browserSpeak cancels the first -> clipped silence). Autoplay has no
   // user gesture, so skip the voice fallback there instead of wedging speechSynthesis paused.
   let fellBack = false
-  const fallback = () => { if (!fellBack) { fellBack = true; if (!autoplay) browserSpeak(text) } }
+  const fallback = () => { if (!fellBack) { fellBack = true; if (!autoplay) browserSpeak(text,wordLocale) } }
   try {
     audioEl?.pause()
-    audioEl = new Audio(api.audioUrl(contentLocale.value, text))
+    audioEl = new Audio(api.audioUrl(wordLocale, text))
     audioEl.onerror = fallback
     await audioEl.play()
   } catch {
@@ -339,16 +561,14 @@ async function logout() {
   hourStats.value = JSON.parse(localStorage.getItem(LS_HOURS) || 'null') ?? {}
   ensureWStats(words.value)
   idx.value=0
+  lesson.value=null; reviewQueue.value=[]; retrying.value=false; covered.value=false; feedback.value='idle';input.value='';resetSelfTest()
 }
 async function refreshAuthData() {
   if (mode.value !== 'auth') return
   try {
+    await syncLearning()
     const [w, s] = await Promise.all([api.getWords(), api.stats()])
     backendWords.value = w
-    if (w.length===0) {
-      for(const word of DEFAULT_WORDS) { try{ await api.addWord(word)}catch{} }
-      backendWords.value = await api.getWords()
-    }
     stats.value = s
     await refreshActivity()
     idx.value = 0
@@ -361,71 +581,53 @@ async function refreshAuthData() {
 }
 
 async function check() {
-  if (!input.value.trim() || !current.value) return
-  const ok = input.value.trim().toLowerCase() === current.value.toLowerCase()
-  if (drill.value === 'repeat' && !ok) {
-    feedback.value = 'wrong';
-    setTimeout(() => { input.value = ''; feedback.value = 'idle'; }, 1000);
-  } else {
-    feedback.value = ok ? 'correct' : 'wrong'
-  }
-  // ponytail: hint used -> show feedback but record nothing (neither pass nor fail)
-  if (hintShown.value) return
-  if (mode.value==='auth') {
-    const w = backendWords.value.find(x=>x.word===current.value)
-    if (w) try{ await api.attempt(w.id, ok, localDay(), new Date().getHours()) }catch{}
-    try{ stats.value = await api.stats(); await refreshActivity(); }catch{}
-    if(w){ w.timesSeen++; if(ok) w.timesCorrect++ }
-  } else {
-    stats.value.total++
-    if (ok) { stats.value.correct++; stats.value.streak++; stats.value.best = Math.max(stats.value.best, stats.value.streak); guestXp.value += XP_PER_CORRECT }
-    else stats.value.streak = 0
-    const day = dayStats.value[localDay()] ?? (dayStats.value[localDay()] = { total:0, correct:0 })
-    day.total++; if(ok) day.correct++
-    bumpHour(localDay(), new Date().getHours())
-    const s = wstats.value[current.value] ?? (wstats.value[current.value]={seen:0,correct:0})
-    s.seen++; if(ok) s.correct++
+  if (feedback.value!=='idle' || !input.value.trim() || !current.value) return
+  submitted.value=input.value.trim()
+  const repeated=attempts.value.some(a=>a.session===(lesson.value?.session??sessionId.value) && wordKey(a)===wordKey(currentWord.value))
+  const visible=showList.value && savedWords.value.some(w=>wordKey(w)===wordKey(currentWord.value))
+  const assistance=hintShown.value?'hint':retrying.value || repeated?'retry':visible || drill.value==='repeat' && !covered.value && !lesson.value?'copy':'none'
+  const a=recordAnswer(currentWord.value,input.value,lesson.value?.kind??'practice',assistance,lesson.value?.session??sessionId.value)
+  feedback.value=a.correct?'correct':'wrong'
+  if(!a.correct) {
+    if(lesson.value) {
+      const l=lesson.value, place=l.position+3
+      if(place<10 && place<=l.items.length && !l.items.slice(l.position+1).some(w=>wordKey(w)===wordKey(a))) {
+        const retry={word:a.word,locale:a.locale,retry:true}
+        if(l.items.length<10) l.items.splice(place,0,retry)
+        else l.items[place]=retry
+      }
+    } else scheduleReview(current.value)
   }
 }
 
 async function onSubmit() {
-  document.title = 'BT:start'
-  if (feedback.value !== 'idle') {
-    document.title = 'BT:notIdle'
-    if (drill.value === 'repeat' && feedback.value === 'wrong') {
-      input.value = '';
-      feedback.value = 'idle';
-      return;
-    }
-    document.title = 'BT:pickNext1';
-    pickNext();
-    if (displayWords.value.length) setTimeout(speak, 300);
-    return;
-  }
-  document.title = 'BT:beforeCheck';
-  check()
-  document.title = 'BT:afterCheck';
+  if(feedback.value==='wrong') retryWord()
+  else if(feedback.value==='correct') continueWord()
+  else check()
 }
 
 async function addWord() {
-  const w = newWord.value.trim().toLowerCase()
+  const w = normalize(newWord.value)
   if (!w) return
+  if(w.length>50 || !/^[\p{L}\p{M}’'\- ]+$/u.test(w)) {authForm.value.error='Use letters, spaces, apostrophes or hyphens (50 characters max).';return}
+  if(!wordMeta.value[wordKey({word:w,locale:customLocale.value})] && !confirmCustom.value) {authForm.value.error=t('confirmWord');return}
   if (mode.value==='auth') {
-    try{ await api.addWord(w); backendWords.value = await api.getWords(); newWord.value=''; if(backendWords.value.length===1) idx.value=0 }
+    try{ await api.addWord(w,customLocale.value,confirmCustom.value); backendWords.value = await api.getWords(); newWord.value=''; if(backendWords.value.length===1) idx.value=0 }
     catch(e:any){ authForm.value.error=e.message }
   } else {
-    if (words.value.includes(w)) return
-    words.value.push(w); wstats.value[w]={seen:0,correct:0}; newWord.value=''; if (words.value.length===1) idx.value=0
+    if (savedWords.value.some(x=>wordKey(x)===wordKey({word:w,locale:customLocale.value}))) return
+    guestExtraWords.value.push({word:w,locale:customLocale.value});newWord.value=''
   }
+  confirmCustom.value=false;authForm.value.error=''
 }
 
-async function removeWord(w: string) {
+async function removeWord(w: LearningWord) {
   if (mode.value==='auth') {
-    const found = backendWords.value.find(x=>x.word===w)
+    const found = backendWords.value.find(x=>wordKey(x)===wordKey(w))
     if(found) { await api.deleteWord(found.id); backendWords.value = backendWords.value.filter(x=>x.id!==found.id) }
   } else {
-    words.value = words.value.filter(x => x !== w)
-    delete wstats.value[w]
+    words.value = words.value.filter(x => x !== w.word || (guestLanguages.value[x]??'en')!==w.locale)
+    guestExtraWords.value=guestExtraWords.value.filter(x=>wordKey(x)!==wordKey(w))
   }
   if (idx.value >= displayWords.value.length) idx.value = 0
   feedback.value = 'idle'; input.value = ''
@@ -434,6 +636,7 @@ async function removeWord(w: string) {
 async function resetStats() {
   if (mode.value==='auth') { await api.resetStats(); stats.value = await api.stats(); await refreshActivity(); await refreshBoard(); }
   else { stats.value = migrateStats({}); guestXp.value = 0; dayStats.value = {}; hourStats.value = {}; for(const k of Object.keys(wstats.value)) wstats.value[k]={seen:0,correct:0} }
+  learningStores.value[owner.value]={attempts:[],tests:[],pending:[],pendingTests:[]};testResults.value=testResults.value.filter(r=>r.owner!==testOwner.value);persistLearning();reviewQueue.value=[];lesson.value=null
 }
 function resetTheme(){ theme.value={...defaultTheme}; }
 function resetAll(){ resetTheme(); locale.value='en'; resetStats(); }
@@ -442,24 +645,30 @@ async function login() {
   authForm.value.error=''; authLoading.value=true
   try{
     const r = await api.login(authForm.value.username, authForm.value.password)
-    api.setToken(r.token); authUser.value=r.username; mode.value='auth'; await refreshAuthData(); await refreshBoard()
+    api.setToken(r.token); authUser.value=r.username; mode.value='auth';resetSelfTest();lesson.value=null;sessionId.value=crypto.randomUUID(); await refreshAuthData(); await refreshBoard()
   } catch(e:any){ authForm.value.error=e.message } finally{ authLoading.value=false }
 }
 async function register() {
   authForm.value.error=''; authLoading.value=true
   try{
+    const guest=learningStores.value.guest, guestWords=[...savedWords.value]
     const r = await api.register(authForm.value.username, authForm.value.password)
-    api.setToken(r.token); authUser.value=r.username; mode.value='auth'; await refreshAuthData(); await refreshBoard()
+    api.setToken(r.token); authUser.value=r.username; mode.value='auth';resetSelfTest();lesson.value=null;sessionId.value=crypto.randomUUID()
+    if(importGuest.value) {
+      if(guest) {store.value.attempts=mergeAttempts(store.value.attempts,guest.attempts);store.value.pending=[...new Set([...store.value.pending,...guest.attempts.map(a=>a.id)])];const tests=guest.tests.map(t=>({...t,owner:r.username}));store.value.tests=[...store.value.tests,...tests];store.value.pendingTests.push(...tests.map(t=>t.id));persistLearning()}
+      for(const w of guestWords) try{await api.addWord(w.word,w.locale,true)}catch(e:any){if(!e.message.includes('already exists'))authForm.value.error=e.message}
+    } else for(const word of DEFAULT_WORDS) await api.addWord(word)
+    await refreshAuthData(); await refreshBoard()
   } catch(e:any){ authForm.value.error=e.message } finally{ authLoading.value=false }
 }
 
 type Row = { word: string, seen: number, correct: number, acc: number, locale: string, difficulty: number | null }
 const perWordRows = computed<Row[]>(()=>{
-  const list = displayWords.value
+  const list = [...new Map([...savedWords.value,...reviewRows.value].map(w=>[wordKey(w),w])).values()]
   return list.map(w=>{
-    const s=getWStat(w); const acc=s.seen? Math.round(s.correct/s.seen*100):0
-    const m = wordMeta.value[w.toLowerCase()]
-    return { word:w, seen:s.seen, correct:s.correct, acc, locale: m?.locale ?? '', difficulty: m?.difficulty ?? null }
+    const s=getWStat(w.word,w.locale); const acc=s.seen? Math.round(s.correct/s.seen*100):0
+    const m = wordMeta.value[wordKey(w)]
+    return { word:w.word, seen:s.seen, correct:s.correct, acc, locale: w.locale, difficulty: m?.difficulty ?? null }
   }).sort((a,b)=> a.acc-b.acc || b.seen-a.seen)
 })
 function sectionAvg(rows: Row[]): number | null {
@@ -545,9 +754,14 @@ function sumRange(days: DayActivity[], n: number): { total:number, correct:numbe
 function accOf(total: number, correct: number): number | null {
   return total ? Math.round(correct / total * 100) : null
 }
-const accToday = computed(() => { const d = heatDays.value[heatDays.value.length - 1]; return d ? accOf(d.total, d.correct) : null })
-const acc7 = computed(() => { const s = sumRange(heatDays.value, 7); return accOf(s.total, s.correct) })
-const acc30 = computed(() => { const s = sumRange(heatDays.value, 30); return accOf(s.total, s.correct) })
+function practiceRange(n:number) {
+  const start=new Date();start.setDate(start.getDate()-n+1)
+  const list=attempts.value.filter(a=>eligible(a) && a.exercise!=='test' && a.day>=localDay(start))
+  return accOf(list.length,list.filter(a=>a.correct).length)
+}
+const accToday = computed(() => practiceRange(1))
+const acc7 = computed(() => practiceRange(7))
+const acc30 = computed(() => practiceRange(30))
 const rangeTotals = computed(() => ({
   today: heatDays.value[heatDays.value.length - 1]?.total ?? 0,
   w7: sumRange(heatDays.value, 7).total,
@@ -581,6 +795,8 @@ onMounted(async () => {
   applyTheme(theme.value)
   loadPacks()
   refreshBoard()
+  for(const old of testResults.value.filter(r=>r.owner===testOwner.value)) {if(!old.id)old.id=crypto.randomUUID();if(!store.value.tests.some(r=>r.id===old.id)){store.value.tests.push(old);if(mode.value==='auth')store.value.pendingTests.push(old.id)}}
+  persistLearning()
   try { speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices() } catch {} // ponytail: warm async voice list for fallback
   if(mode.value==='auth' && authUser.value) await refreshAuthData()
   if (displayWords.value.length){
@@ -595,6 +811,7 @@ onMounted(async () => {
     <div class="brand">SpellingTeacher <span>beta</span> <span v-if="mode==='auth'" style="background:#22c55e22;color:#16a34a;border-color:#22c55e44">● {{ authUser }}</span><span v-else style="background:#64748b22;color:#64748b">guest</span></div>
     <nav class="nav">
       <button :class="{active: view==='practice'}" @click="view='practice'">{{ t('practice') }}</button>
+      <button :class="{active: view==='test'}" @click="view='test'">{{ t('selfTest') }}</button>
       <button :class="{active: view==='stats'}" @click="view='stats'">{{ t('statistics') }}</button>
       <button :class="{active: view==='settings'}" @click="view='settings'">{{ t('settings') }}</button>
     </nav>
@@ -615,6 +832,8 @@ onMounted(async () => {
       <input v-model="authForm.password" type="password" :placeholder="t('password')" autocomplete="current-password" class="add-input" style="width:120px" @keydown.enter="login" />
       <button @click="login" :disabled="authLoading" class="small">{{ t('login') }}</button>
       <button @click="register" :disabled="authLoading" class="small secondary">{{ t('register') }}</button>
+      <label class="import-choice"><input type="checkbox" v-model="importGuest" /> {{ t('importGuest') }}</label>
+      <p class="muted">{{ t('importNote') }}</p>
     </div>
     <p v-if="authForm.error" class="err">{{ authForm.error }}</p>
   </div>
@@ -623,15 +842,36 @@ onMounted(async () => {
     <button @click="logout" class="small">{{ t('logout') }}</button>
   </div>
 
+  <div class="save-status" role="status" aria-live="polite">
+    {{ saveState==='failed' ? 'Could not save on this device. Keep this page open and free browser storage.' : saveState==='saving' ? t('saving') : mode==='auth' && pendingCount ? t('unsaved') : t('saved') }}
+    <button v-if="mode==='auth'" class="link" @click="syncLearning" :disabled="saveState==='saving'">{{ t('retrySave') }}</button>
+  </div>
+
   <!-- PRACTICE -->
   <main id="center" v-if="view==='practice'" style="gap:28px">
-    <div v-if="displayWords.length" class="nav" :aria-label="t('mode')">
+    <section class="panel learning-panel">
+      <div class="lesson-heading"><div><h2>{{ t('dailyLesson') }}</h2><p class="muted">{{ langName(contentLocale) }} · {{ t('lessonNote') }}</p></div><strong>{{ dueCount }} {{ t('due') }}</strong></div>
+      <div class="lesson-actions"><button class="small" @click="startLesson()" :disabled="!displayWords.length || !!lesson && !lesson.complete">{{ t('startDaily') }}</button><button class="small secondary" @click="startLesson(true)" :disabled="!displayWords.length || !!lesson && !lesson.complete">{{ t('weakSpots') }}</button><button class="link" @click="manualPractice">{{ t('manual') }}</button></div>
+      <p v-if="lesson && !lesson.complete" class="lesson-progress" role="status">{{ lesson.position+1 }} / {{ lesson.items.length }} <button class="link" @click="manualPractice">{{ t('leaveLesson') }}</button></p>
+      <p v-if="lesson?.focus && !lesson.complete" class="muted">{{ t('practiceFocus') }}: {{ lesson.focus }} · {{ t('patternNote') }}</p>
+    </section>
+    <section v-if="lesson?.complete" class="panel lesson-summary" role="status">
+      <h2>{{ t('lessonComplete') }}</h2>
+      <p>{{ lesson.items.length }} {{ t('answered') }} · {{ lessonFirsts.filter(a=>a.correct).length }}/{{ lessonFirsts.length }} {{ t('recallSummary') }} · {{ lessonAnswers.filter(a=>!eligible(a)).length }} {{ t('studySummary') }}</p>
+      <p>{{ t('reviewNeeded') }}: {{ lessonNeedsReview.map(r=>r.word).join(', ') || '—' }}</p>
+      <p>{{ locale==='es' ? 'Recuerdo con retraso' : 'Delayed recall' }}: {{ lessonDelayed.map(a=>a.word).join(', ') || '—' }}</p>
+      <p>{{ locale==='es' ? 'Primer recuerdo de palabras nuevas' : 'First recall of new words' }}: {{ lessonTransfer.map(a=>a.word).join(', ') || '—' }}</p>
+      <p>{{ t('nextReview') }}: {{ nextReview ? new Date(nextReview).toLocaleString(locale) : '—' }}</p>
+      <button class="small" @click="manualPractice">{{ t('manual') }}</button>
+    </section>
+    <template v-if="!lesson?.complete">
+    <div v-if="displayWords.length && !lesson" class="nav" :aria-label="t('mode')">
       <button :class="{active: drill==='seq'}" @click="drill='seq'">{{ t('seqMode') }}</button>
       <button :class="{active: drill==='rand'}" @click="drill='rand'">{{ t('randMode') }}</button>
       <button :class="{active: drill==='weak'}" @click="drill='weak'" :disabled="!weakUnlocked" :title="weakUnlocked ? '' : t('weakLocked')">{{ t('weakMode') }}</button>
       <button :class="{active: drill==='repeat'}" @click="drill='repeat'">{{ t('repeatMode') }}</button>
     </div>
-    <p v-if="!weakUnlocked" class="muted" style="font-size:13px">{{ t('weakLocked') }} ({{ seenCount }}/{{ displayWords.length }})</p>
+    <p v-if="!weakUnlocked && !lesson" class="muted" style="font-size:13px">{{ t('weakLocked') }} ({{ seenCount }}/{{ displayWords.length }})</p>
     <div v-if="!displayWords.length" class="empty">
       <p>{{ t('noWords') }}</p>
     </div>
@@ -643,13 +883,15 @@ onMounted(async () => {
       <button v-if="hintText && !hintShown" class="small secondary" @click="hintShown = true">{{ t('showHint') }}</button>
       <p v-if="hintShown && hintText" style="font-size:15px">💡 {{ hintText }}</p>
       <p v-if="hintShown" class="muted" style="font-size:12px; margin-top:-8px">{{ t('hintUsedNote') }}</p>
-      <p v-if="drill==='repeat' && current" class="repeat-word">{{ current }}</p>
+      <p v-if="drill==='repeat' && current && !covered && !retrying && !lesson" class="repeat-word">{{ current }}</p>
+      <template v-if="drill==='repeat' && !lesson && !covered && !retrying"><p class="muted">{{ t('studyNote') }}</p><button class="small" @click="covered=true; input=''">{{ t('cover') }}</button></template>
+      <p v-if="retrying" class="muted">{{ t('recallNote') }}</p>
       <form @submit.prevent="onSubmit" class="form">
         <input
           v-model="input"
           :placeholder="feedback==='idle' ? t('typeph') : feedback==='correct' ? t('correct') : `${t('was')}: ${current}`"
           :class="['spell', feedback]"
-          :disabled="drill==='repeat' ? false : feedback==='correct'"
+          :readonly="feedback!=='idle'" maxlength="200" aria-label="Your spelling"
           autocomplete="off" autocapitalize="off" spellcheck="false"
           @paste="(e) => { if (drill === 'repeat') e.preventDefault() }"
           @keydown.meta.v="(e) => { if (drill === 'repeat') e.preventDefault() }"
@@ -659,21 +901,32 @@ onMounted(async () => {
           {{ feedback==='idle' ? t('check') : feedback==='correct' ? t('next') : t('retry') }}
         </button>
       </form>
-      <p v-if="feedback==='wrong'" class="reveal">{{ t('reveal') }} <strong>{{ current }}</strong> <button class="link" @click="() => speak()">{{ t('hearAgain') }}</button></p>
+      <button v-if="feedback==='wrong'" class="small secondary" @click="continueWord">{{ t('continueReview') }}</button>
+      <div v-if="feedback==='wrong'" class="reveal correction" role="status">
+        <p>{{ t('youWrote') }}: <s>{{ submitted }}</s> · {{ t('reveal') }} <strong>{{ current }}</strong> <button class="link" @click="() => speak()">{{ t('hearAgain') }}</button></p>
+        <p class="changed-spans"><span v-for="(span,i) in correctionSpans" :key="i">{{ t(({missing:'errorMissing',extra:'errorExtra',substituted:'errorSubstituted',transposed:'errorTransposed'} as const)[span.kind]) }}: <mark>{{ span.expected || '∅' }}</mark> → <s>{{ span.typed || '∅' }}</s> <small>({{ span.position }})</small></span></p>
+        <p v-if="hintText"><strong>{{ t('remember') }}:</strong> {{ hintText }}</p>
+        <p v-if="practiceFocus" class="muted"><strong>{{ t('practiceFocus') }}:</strong> {{ practiceFocus }}</p>
+        <p class="muted">{{ t('reviewSoon') }}</p>
+      </div>
       <p v-if="feedback==='correct'" class="ok">{{ t('correct') }}</p>
+    </template>
     </template>
 
     <div class="list-toggle">
-      <button class="link" @click="showList = !showList">{{ showList ? t('hide') : t('manage') }} {{ t('wordList') }} ({{ displayWords.length }})</button>
+      <button class="link" @click="showList = !showList">{{ showList ? t('hide') : t('manage') }} {{ t('wordList') }} ({{ savedWords.length }})</button>
     </div>
     <section v-if="showList" class="panel">
       <div class="add-row">
         <input v-model="newWord" :placeholder="t('addph')" @keydown.enter="addWord" class="add-input" />
         <button @click="addWord" class="small">{{ t('add') }}</button>
       </div>
+      <label>{{ t('customLanguage') }} <select v-model="customLocale" class="add-input"><option v-for="lang in ['en','de','es']" :key="lang" :value="lang">{{ langName(lang) }}</option></select></label>
+      <label class="import-choice"><input type="checkbox" v-model="confirmCustom" /> {{ t('confirmWord') }}</label>
+      <p v-if="authForm.error" class="err">{{ authForm.error }}</p>
       <div class="chips">
-        <span v-for="w in displayWords" :key="w" class="chip">
-          {{ w }} <button @click="removeWord(w)" aria-label="remove">×</button>
+        <span v-for="w in savedWords" :key="wordKey(w)" class="chip">
+          {{ w.word }} · {{ w.locale }} <button @click="removeWord(w)" :aria-label="`remove ${w.word} (${w.locale})`">×</button>
         </span>
         <span v-if="!displayWords.length" class="muted">{{ t('empty') }}</span>
       </div>
@@ -695,9 +948,74 @@ onMounted(async () => {
             <strong>{{ langName(p.locale) }}</strong>
             <span class="muted"> · {{ p.name }} · {{ p.count }} {{ t('wordsLabel') }} · {{ t('difficulty') }} {{ diffLabel(p) }}</span>
           </div>
-          <button class="small" @click="usePack(p)" :disabled="packApplying===p.id || activePackId===p.id">
+          <button class="small" @click="usePack(p)" :disabled="packApplying===p.id || activePackId===p.id && !lesson">
             {{ packApplying===p.id ? t('loadingPack') : t('usePack') }}
           </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- SELF TEST -->
+  <main id="center" v-else-if="view==='test'" class="test-view">
+    <template v-if="!testWords.length">
+      <div>
+        <h2>{{ t('testTitle') }}</h2>
+        <p class="muted test-intro">{{ t('testIntro') }}</p>
+      </div>
+      <div class="nav test-levels" :aria-label="t('lang')">
+        <button v-for="lang in testLocales" :key="lang" :class="{active: testLocale===lang}" @click="testLocale=lang">{{ langName(lang) }}</button>
+      </div>
+      <div class="nav test-levels" :aria-label="t('difficulty')">
+        <button v-for="level in (['starter','intermediate','expert'] as TestLevel[])" :key="level" :class="{active: testLevel===level}" @click="testLevel=level">{{ t(level) }}</button>
+      </div>
+      <button class="cta" @click="startSelfTest" :disabled="testLoading || packsLoading">
+        {{ testLoading || packsLoading ? t('loadingPack') : t('startTest') }}
+      </button>
+    </template>
+
+    <template v-else-if="!testFinished">
+      <div class="test-progress">
+        <span>{{ t('testProgress') }}</span>
+        <strong>{{ testIndex + 1 }} / {{ testWords.length }}</strong>
+        <span class="test-progress-bar"><span :style="{ width: ((testIndex + 1) / testWords.length * 100) + '%' }" /></span>
+      </div>
+      <button class="speak" @click="speak(false, testCurrent?.word, testCurrent?.locale)" aria-label="Speak test word">
+        <span class="speak-icon">🔊</span> {{ t('listen') }}
+      </button>
+      <p class="hint">{{ t('hint') }}</p>
+      <form @submit.prevent="submitTestAnswer" class="form">
+        <input v-model="testInput" :placeholder="testFeedback==='idle' ? t('typeph') : testFeedback==='correct' ? t('correct') : `${t('was')}: ${testCurrent?.word}`" :class="['spell', testFeedback]" :disabled="testFeedback==='correct'" autocomplete="off" autocapitalize="off" spellcheck="false" />
+        <button :class="['cta', testFeedback]" type="submit">
+          {{ testFeedback==='idle' ? t('check') : testIndex===testWords.length-1 ? t('finish') : t('next') }}
+        </button>
+      </form>
+      <p v-if="testFeedback==='wrong'" class="reveal" role="status">{{ t('reveal') }} <strong>{{ testCurrent?.word }}</strong> <button class="link" @click="speak(false, testCurrent?.word, testCurrent?.locale)">{{ t('hearAgain') }}</button></p>
+      <p v-if="testFeedback==='correct'" class="ok" role="status">{{ t('correct') }}</p>
+    </template>
+
+    <template v-else>
+      <h2>{{ t('testComplete') }}</h2>
+      <div class="test-score" aria-live="polite">
+        <strong>{{ testPercent }}%</strong>
+        <span>{{ testCorrect }}/{{ testWords.length }} {{ t('right') }}</span>
+      </div>
+      <div class="stat-cards test-summary">
+        <div class="stat-card"><span class="muted">{{ t('right') }}</span><strong>{{ testPercent }}%</strong><em>{{ testCorrect }} {{ t('wordsLabel') }}</em></div>
+        <div class="stat-card"><span class="muted">{{ t('wrongLabel') }}</span><strong>{{ 100 - testPercent }}%</strong><em>{{ testWords.length - testCorrect }} {{ t('wordsLabel') }}</em></div>
+      </div>
+      <button class="small" @click="resetSelfTest">{{ t('testAgain') }}</button>
+      <button v-if="testAnswers.some(a=>!a.correct)" class="small secondary" @click="practiceTestMistakes(store.tests[0])">{{ t('mistakes') }}</button>
+    </template>
+
+    <section class="panel test-history">
+      <h3>{{ t('pastResults') }}</h3>
+      <p v-if="!visibleTestResults.length" class="muted">{{ t('noTestResults') }}</p>
+      <div v-else class="test-history-list">
+        <div v-for="r in visibleTestResults" :key="r.date" class="pack-row">
+          <div><strong>{{ langName(r.locale) }} · {{ t(r.level) }}</strong><span class="muted"> · {{ new Date(r.date).toLocaleDateString(locale) }}</span></div>
+          <strong>{{ Math.round(r.correct / r.total * 100) }}% <span class="muted">{{ r.correct }}/{{ r.total }}</span></strong>
+          <button v-if="r.answers?.some(a=>!a.correct)" class="small" @click="practiceTestMistakes(r)">{{ t('mistakes') }}</button>
         </div>
       </div>
     </section>
@@ -706,6 +1024,18 @@ onMounted(async () => {
   <!-- STATISTICS -->
   <main id="center" v-else-if="view==='stats'" style="gap:16px; padding:24px; align-items:stretch; max-width:720px; width:100%; margin:0 auto; box-sizing:border-box">
     <h2 style="text-align:center; margin:0">{{ t('statistics') }}</h2>
+    <section class="panel learning-panel">
+      <h3>{{ t('independent') }}</h3>
+      <div class="retention-cards"><div><strong>{{ fmtAcc(recentAccuracy) }}</strong><span>{{ recentIndependent.length }} {{ t('total') }}</span></div><div><strong>{{ dueCount }}</strong><span>{{ t('due') }}</span></div><div><strong>{{ reviewRows.filter(r=>!r.retained).length }}</strong><span>{{ t('learning') }}</span></div><div><strong>{{ retainedCount }}</strong><span>{{ t('retained') }}</span></div></div>
+      <p class="muted">{{ attempts.filter(a=>!eligible(a)).length }} {{ t('assisted') }} · {{ t('recallNote') }}</p>
+      <h3>{{ t('recentWords') }}</h3>
+      <div v-for="r in rankedReviews.slice(0,10)" :key="r.key" class="review-row"><strong>{{ r.word }} <small>{{ r.locale }}</small></strong><span>{{ r.mistakes }}/{{ r.recent.length }} {{ t('wrongLabel') }} · {{ t('nextReview') }} {{ new Date(r.due).toLocaleDateString(locale) }}</span></div>
+      <button class="small" @click="startLesson(true)">{{ t('weakSpots') }}</button>
+      <h3>{{ t('patternTitle') }}</h3>
+      <p v-if="!supportedPatterns.length" class="muted">{{ t('noPatterns') }}</p>
+      <div v-for="p in supportedPatterns.slice(0,2)" :key="p.key" class="review-row"><strong>{{ p.expected }} → {{ p.typed || '∅' }} · {{ p.position }}</strong><span>{{ p.failures }}/{{ p.opportunities }} {{ t('sample') }} ({{ Math.round(p.rate*100) }}%) · {{ p.words.join(', ') }}</span></div>
+      <details v-if="attempts.length"><summary>{{ t('assisted') }} / {{ t('independent') }} · {{ t('allTime') }}</summary><div v-for="a in attempts.slice(-20).reverse()" :key="a.id" class="review-row"><strong>{{ a.word }} ← {{ a.submitted }} ({{ a.locale }})</strong><span>{{ a.exercise }} · {{ a.assistance }} · {{ new Date(a.date).toLocaleString(locale) }}</span></div></details>
+    </section>
     <p class="muted" style="text-align:center">🔥 {{ stats.streak }} ({{ t('best') }} {{ stats.best }}) · 📅 {{ dayStreak }} {{ t('dayStreak') }} ({{ t('best') }} {{ bestDayStreak }})</p>
     <p style="text-align:center; margin:0">⭐ {{ t('level') }} {{ levelInfo.level }} · {{ currentXp }} {{ t('xp') }} <span class="muted">({{ currentXp - levelInfo.prev }}/{{ levelInfo.next - levelInfo.prev }} {{ t('toNext') }})</span></p>
     <!-- leaderboard: levels derived client-side from XP, hover a row for its XP -->
@@ -876,7 +1206,7 @@ onMounted(async () => {
 .link { background:none; border:none; color:var(--accent); cursor:pointer; font-size:13px; min-height:32px; }
 .link:hover { text-decoration:underline; text-underline-offset:3px; }
 .panel {
-  width:min(560px, 94vw); text-align:left; border:0.5px solid var(--border);
+  width:min(560px, 94vw); box-sizing:border-box; text-align:left; border:0.5px solid var(--border);
   border-radius:var(--radius-lg); padding:20px; background:var(--social-bg);
   box-shadow:var(--shadow-sm);
 }
@@ -928,12 +1258,52 @@ onMounted(async () => {
 .settings-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
 .settings-grid label { display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:600; color:var(--text-h); }
 .settings-grid input[type="color"] { height:40px; border-radius:var(--radius-sm); border:0.5px solid var(--border); padding:3px; width:100%; background:var(--bg); cursor:pointer; }
+.test-view { justify-content:flex-start!important; }
+.test-intro { max-width:460px; margin-top:6px; font-size:14px; }
+.test-levels { width:min(420px, 100%); }
+.test-levels button { min-height:44px; }
+.test-progress { width:min(440px, 92vw); display:grid; grid-template-columns:1fr auto; gap:6px; text-align:left; font-size:13px; color:var(--text); }
+.test-progress strong { color:var(--text-h); }
+.test-progress-bar { grid-column:1/-1; height:7px; overflow:hidden; border-radius:var(--radius-full); background:var(--fill); }
+.test-progress-bar span { display:block; height:100%; border-radius:inherit; background:var(--accent); transition:width var(--duration-normal) var(--easing); }
+.test-score { display:flex; flex-direction:column; align-items:center; }
+.test-score strong { font-size:64px; line-height:1; color:var(--text-h); letter-spacing:-0.05em; }
+.test-score span { margin-top:8px; color:var(--text); }
+.test-summary { width:min(420px, 100%); grid-template-columns:repeat(2, 1fr); }
+.test-history { margin-top:20px; width:100%; box-sizing:border-box; }
+.test-history h3 { margin:0 0 12px; font-size:16px; }
+.test-history-list { display:flex; flex-direction:column; gap:8px; }
+.test-history-list .pack-row { justify-content:space-between; }
+.save-status { display:flex; align-items:center; justify-content:center; gap:8px; font-size:12px; padding:4px 16px; color:var(--text); }
+.learning-panel { box-sizing:border-box; width:min(600px,100%); }
+.learning-panel h3 { margin:16px 0 8px; font-size:16px; }
+.lesson-heading { display:flex; flex-direction:column; gap:12px; }
+.lesson-heading > strong { color:var(--accent); font-size:14px; }
+.lesson-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
+.lesson-actions button, .import-choice { min-height:44px; }
+.lesson-progress { margin-top:12px; font-weight:600; }
+.lesson-summary { display:flex; flex-direction:column; gap:12px; box-sizing:border-box; }
+.import-choice { display:flex; align-items:center; gap:8px; font-size:13px; }
+.changed-spans { display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin:8px 0; }
+.changed-spans mark { background:var(--accent-bg); color:var(--text-h); padding:2px 5px; border-radius:4px; font-weight:700; }
+.retention-cards { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:12px 0; }
+.retention-cards > div { display:flex; flex-direction:column; gap:4px; }
+.retention-cards strong { font-size:28px; color:var(--text-h); }
+.retention-cards span { font-size:13px; }
+.review-row { display:flex; flex-direction:column; gap:3px; padding:10px 0; border-top:1px solid var(--border); overflow-wrap:anywhere; }
+.review-row strong { font-size:14px; color:var(--text-h); }
+.review-row span { font-size:12px; }
+.correction { max-width:560px; }
+@media (min-width:600px) { .lesson-heading { flex-direction:row; align-items:center; justify-content:space-between; } .retention-cards {grid-template-columns:repeat(4,1fr);} }
 @media (max-width:700px){
   .form{ flex-direction:column } .top{ flex-direction:column; gap:10px; padding:12px 16px }
-  .nav{ width:100%; } .nav button{ flex:1; }
+  .nav{ width:100%; } .nav button{ flex:1; min-height:44px; }
+  .small, .link { min-height:44px; }
+  .add-input { min-width:0; font-size:16px; }
   .authbar{ flex-direction:column; align-items:stretch }
   .settings-grid{ grid-template-columns:1fr } .presets{ grid-template-columns:repeat(4, 1fr); }
   .speak{ width:100%; }
   .stat-cards{ grid-template-columns:repeat(2, 1fr); }
+  .top > .nav button{ padding-inline:8px; font-size:12px; min-height:44px; }
 }
 </style>

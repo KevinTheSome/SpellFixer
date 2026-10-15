@@ -32,6 +32,7 @@ test('health + guest drill + auth flow', async ({ page, request }) => {
 
   // add a word via auth
   await page.locator('.panel input[placeholder="add word..."]').fill('playwright');
+  await page.getByRole('checkbox', {name:'Confirm this spelling (name or unusual word)'}).check();
   await page.locator('.panel button', { hasText: 'Add' }).click();
   await expect(page.locator('.panel .chips').first().locator('.chip', { hasText: 'playwright' })).toBeVisible();
 

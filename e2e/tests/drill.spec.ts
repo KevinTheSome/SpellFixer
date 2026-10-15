@@ -98,3 +98,24 @@ test('statistics record correct and wrong attempts', async ({ page }) => {
   await expect(page.locator('main')).toContainText('50%');
   await expect(page.locator('main')).toContainText(w0);
 });
+
+test('a mistake explains the pattern and returns after two other words', async ({ page }) => {
+  const words = ['accommodate', 'bridge', 'cactus', 'dolphin'];
+  await seedAndGoto(page, words, 'seq');
+  await expect(page.getByRole('button', { name: 'Show hint' })).toBeVisible();
+
+  await answer(page, 'acommodate');
+  await expect(page.locator('.correction')).toContainText('You wrote: acommodate');
+  await expect(page.locator('.correction')).toContainText("2 c's, 2 m's");
+  await expect(page.locator('.correction')).toContainText('Practice focus: double consonant');
+  await expect(page.locator('.correction')).toContainText('This word will return soon.');
+
+  for (const word of ['bridge', 'cactus']) {
+    const next = await spokenWord(page, () => page.getByRole('button', {name:word==='bridge'?'Continue → review later':'Next →',exact:true}).click(), w => w === word);
+    await answer(page, next);
+    await expect(page.locator('.ok')).toBeVisible();
+  }
+
+  const review = await spokenWord(page, () => page.locator('button.cta').click(), w => w === 'accommodate');
+  expect(review).toBe('accommodate');
+});

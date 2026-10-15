@@ -8,7 +8,7 @@ import { XP_PER_CORRECT, xpProgress } from "./xp.ts";
 const PORT = Number(process.env.PORT || 3000);
 const CONTENT_DIR = process.env.CONTENT_DIR || join(dirname(fileURLToPath(import.meta.url)), "../content");
 
-type PackEntry = { word: string; locale: string; syllables?: string[]; tags?: string[]; difficulty?: number; hint?: string };
+type PackEntry = { word: string; locale: string; syllables?: string[]; tags?: string[]; difficulty?: number; hint?: string; variants?:string[] };
 type PackMeta = { id: string; locale: string; name: string; count: number; minDifficulty: number | null; maxDifficulty: number | null };
 
 // ponytail: directory scan, new pack = new folder/file, no code change
@@ -200,31 +200,91 @@ Bun.serve({
     // protected routes (guest = no backend call, so 401 is correct for unauthenticated)
     const user = await getAuth(req);
     if (!user) {
-      if (path.startsWith("/api/words") || path.startsWith("/api/attempts") || path.startsWith("/api/stats") || path.startsWith("/api/activity")) {
+      if (path.startsWith("/api/words") || path.startsWith("/api/attempts") || path.startsWith("/api/stats") || path.startsWith("/api/activity") || path.startsWith("/api/learning")) {
         return json({ error: "unauthorized - login or use guest mode (local)" }, 401);
       }
+    }
+
+    // Append-only, idempotent sync. A guest can import the same history without double counting.
+    if (path === '/api/learning' && req.method === 'GET') {
+      const attempts = await sql`SELECT payload FROM learning_attempts WHERE user_id=${user!.id}`;
+      const tests = await sql`SELECT payload FROM learning_tests WHERE user_id=${user!.id}`;
+      return json({ attempts:attempts.map((r:any)=>r.payload), tests:tests.map((r:any)=>({...r.payload,owner:user!.username})) });
+    }
+    if (path === '/api/learning' && req.method === 'POST') {
+      const data = await body<any>(req);
+      const uuid = (v:unknown) => typeof v==='string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
+      const text = (v:unknown,max:number) => typeof v==='string' && v.length>0 && v.length<=max;
+      if (!Array.isArray(data.attempts) || !Array.isArray(data.tests) || data.attempts.length>500 || data.tests.length>100) return json({error:'invalid sync batch'},400);
+      const normalized:any[]=[];
+      const content=new Map(listPacks().flatMap(p=>loadPack(p.locale,p.name)??[]).map(e=>[`${e.locale}:${e.word.normalize('NFC').toLowerCase()}`,e]));
+      for (const a of data.attempts) {
+        if (!a || !uuid(a.id) || !uuid(a.session) || !text(a.word,50) || !/^[\p{L}\p{M}’'\- ]+$/u.test(a.word) || !text(a.submitted,200) || !['en','de','es'].includes(a.locale) || !['practice','test','daily','weak'].includes(a.exercise) || !['none','hint','copy','retry'].includes(a.assistance) || !text(a.date,40) || !Number.isFinite(Date.parse(a.date)) || Date.parse(a.date)>Date.now()+300000 || !/^\d{4}-\d{2}-\d{2}$/.test(a.day) || !Number.isInteger(a.hour) || a.hour<0 || a.hour>23 || !['default','US','UK'].includes(a.standard)) return json({error:'invalid learning answer'},400);
+        const word=a.word.normalize('NFC').trim().toLowerCase(), submitted=a.submitted.normalize('NFC').trim();
+        const entry=content.get(`${a.locale}:${word}`);
+        const correct=[word,...(entry?.variants??[])].some(w=>w.normalize('NFC').toLowerCase()===submitted.toLowerCase());
+        normalized.push({id:a.id,session:a.session,word,submitted,locale:a.locale,date:new Date(a.date).toISOString(),day:a.day,hour:a.hour,exercise:a.exercise,assistance:a.assistance,standard:a.standard,correct});
+      }
+      for (const r of data.tests) if (!r || !uuid(r.id) || !text(r.date,40) || !Number.isFinite(Date.parse(r.date)) || !['en','de','es'].includes(r.locale) || !['starter','intermediate','expert'].includes(r.level) || !Number.isInteger(r.total) || r.total<1 || r.total>10 || !Number.isInteger(r.correct) || r.correct<0 || r.correct>r.total || (r.answers && (!Array.isArray(r.answers) || r.answers.length!==r.total || r.answers.some((a:any)=>!uuid(a?.id))))) return json({error:'invalid test result'},400);
+      await sql.begin(async tx => {
+        // Serialize XP awards per learner, including simultaneous retries of the same sync batch.
+        await tx`SELECT id FROM users WHERE id=${user!.id} FOR UPDATE`;
+        for (const a of normalized) {
+          if(a.assistance==='none') {
+            const prior=await tx`SELECT 1 FROM learning_attempts WHERE user_id=${user!.id} AND id<>${a.id} AND payload->>'session'=${a.session} AND payload->>'word'=${a.word} AND payload->>'locale'=${a.locale} LIMIT 1`;
+            if(prior.length) a.assistance='retry';
+          }
+          const inserted=await tx`INSERT INTO learning_attempts(user_id,id,payload) VALUES (${user!.id},${a.id},${a}::jsonb) ON CONFLICT DO NOTHING RETURNING id`;
+          if (!inserted.length) continue;
+          const independent=a.assistance==='none';
+          const practice=independent && a.exercise!=='test';
+          // Keep activity and legacy statistics, but only independent practice contributes to accuracy.
+          const w=await tx`INSERT INTO words(user_id,word,locale,saved) VALUES (${user!.id},${a.word},${a.locale},FALSE) ON CONFLICT(user_id,locale,word) DO UPDATE SET word=EXCLUDED.word RETURNING id`;
+          await tx`INSERT INTO attempts(word_id,correct,day,hour,eligible,exercise) VALUES (${w[0].id},${a.correct?1:0},${a.day},${a.hour},${practice},${a.exercise})`;
+          if (practice && a.correct) {
+            const prior=await tx`SELECT 1 FROM learning_attempts WHERE user_id=${user!.id} AND id<>${a.id} AND payload->>'word'=${a.word} AND payload->>'locale'=${a.locale} AND payload->>'day'=${a.day} AND payload->>'assistance'='none' AND payload->>'correct'='true' AND payload->>'exercise'<>'test' LIMIT 1`;
+            if (!prior.length) await tx`UPDATE users SET xp=xp+${XP_PER_CORRECT} WHERE id=${user!.id}`;
+          }
+        }
+        for (const r of data.tests) {
+          // Resolve answers from owned, validated events rather than trusting embedded answer data.
+          let answers:any[]=[];
+          if (r.answers) for(const a of r.answers) {
+            const found=await tx`SELECT payload FROM learning_attempts WHERE user_id=${user!.id} AND id=${a.id}`;
+            if (found.length && found[0].payload.exercise==='test') answers.push(found[0].payload);
+          }
+          const result={id:r.id,owner:user!.username,date:r.date,locale:r.locale,level:r.level,total:r.total,correct:r.answers?answers.filter(a=>a.correct).length:r.correct,...(answers.length===r.total?{answers}:{})};
+          await tx`INSERT INTO learning_tests(user_id,id,payload) VALUES (${user!.id},${r.id},${result}::jsonb) ON CONFLICT DO NOTHING`;
+        }
+      });
+      return json({ok:true});
     }
 
     // words
     if (path === "/api/words" && req.method === "GET") {
       const rows = await sql`
-        SELECT w.id, w.word, w.created_at, COUNT(a.id) AS seen, COALESCE(SUM(a.correct),0) AS correct
+        SELECT w.id, w.word, w.locale, w.created_at, COUNT(a.id) FILTER (WHERE a.eligible) AS seen, COALESCE(SUM(a.correct) FILTER (WHERE a.eligible),0) AS correct
         FROM words w LEFT JOIN attempts a ON a.word_id=w.id
-        WHERE w.user_id=${user!.id} GROUP BY w.id ORDER BY w.created_at DESC`;
+         WHERE w.user_id=${user!.id} AND w.saved GROUP BY w.id ORDER BY w.created_at DESC`;
       return json((rows as any[]).map(r => ({
-        id: r.id, word: r.word, createdAt: r.created_at,
+        id: r.id, word: r.word, locale:r.locale, createdAt: r.created_at,
         timesSeen: num(r.seen), timesCorrect: num(r.correct),
       })));
     }
     if (path === "/api/words" && req.method === "POST") {
-      const { word } = await body<{word:string}>(req);
-      const w = (word||"").trim().toLowerCase();
+      const { word, locale='en', confirmed=false } = await body<{word:string,locale?:string,confirmed?:boolean}>(req);
+      if(typeof word!=='string' || !['en','de','es'].includes(locale)) return json({error:'word and language required'},400);
+      const w = word.normalize('NFC').trim().toLowerCase();
+      if(!/^[\p{L}\p{M}’'\- ]+$/u.test(w)) return json({error:'use letters, spaces, apostrophes or hyphens'},400);
       if (!w) return json({ error: "word required" }, 400);
       if (w.length > 50) return json({ error: "word too long" }, 400);
+      const known=listPacks().filter(p=>p.locale===locale).some(p=>(loadPack(p.locale,p.name)??[]).some(e=>e.word.normalize('NFC').toLowerCase()===w));
+      if(!known && confirmed!==true) return json({error:'confirm spelling for names or unusual words'},400);
       try {
-        const rows = await sql`INSERT INTO words (user_id, word) VALUES (${user!.id},${w}) RETURNING id, word, created_at`;
+        const rows = await sql`INSERT INTO words (user_id, word, locale) VALUES (${user!.id},${w},${locale}) ON CONFLICT(user_id,locale,word) DO UPDATE SET saved=TRUE WHERE NOT words.saved RETURNING id, word, created_at`;
+        if(!rows.length) return json({error:'word already exists'},409);
         const r = rows[0] as any;
-        return json({ id: r.id, word: r.word, timesSeen: 0, timesCorrect: 0 }, 201);
+        return json({ id: r.id, word: r.word, locale, timesSeen: 0, timesCorrect: 0 }, 201);
       } catch (e:any) {
         if (isUniqueViolation(e)) return json({ error: "word already exists" }, 409);
         return json({ error: "db error" }, 500);
@@ -232,7 +292,7 @@ Bun.serve({
     }
     if (path.match(/^\/api\/words\/\d+$/) && req.method === "DELETE") {
       const id = Number(path.split("/").pop());
-      const rows = await sql`DELETE FROM words WHERE id=${id} AND user_id=${user!.id} RETURNING id`;
+      const rows = await sql`UPDATE words SET saved=FALSE WHERE id=${id} AND user_id=${user!.id} AND saved RETURNING id`;
       if (!rows.length) return json({ error: "not found" }, 404);
       return json({ ok: true });
     }
@@ -282,11 +342,11 @@ Bun.serve({
       return json(await dayActivity(user!.id, n, url.searchParams.get("today") || undefined));
     }
     if (path === "/api/stats" && req.method === "GET") {
-      const s = (await sql`SELECT COUNT(*) as total, SUM(correct) as correct FROM attempts a JOIN words w ON w.id=a.word_id WHERE w.user_id=${user!.id}`)[0] as any;
+      const s = (await sql`SELECT COUNT(*) as total, SUM(correct) as correct FROM attempts a JOIN words w ON w.id=a.word_id WHERE w.user_id=${user!.id} AND a.eligible`)[0] as any;
       const total = num(s?.total);
       const correct = num(s?.correct);
       // streak/best computed from sequential attempts — simple: current consecutive correct at end
-      const rows = await sql`SELECT correct FROM attempts a JOIN words w ON w.id=a.word_id WHERE w.user_id=${user!.id} ORDER BY a.id ASC` as any[];
+      const rows = await sql`SELECT correct FROM attempts a JOIN words w ON w.id=a.word_id WHERE w.user_id=${user!.id} AND a.eligible ORDER BY a.id ASC` as any[];
       const vals = rows.map(r => Number(r.correct));
       let streak=0, best=0, cur=0;
       for (const v of vals) {
@@ -306,6 +366,8 @@ Bun.serve({
     }
     if (path === "/api/stats" && req.method === "DELETE") {
       await sql`DELETE FROM attempts WHERE word_id IN (SELECT id FROM words WHERE user_id=${user!.id})`;
+      await sql`DELETE FROM learning_attempts WHERE user_id=${user!.id}`;
+      await sql`DELETE FROM learning_tests WHERE user_id=${user!.id}`;
       await sql`UPDATE users SET xp=0 WHERE id=${user!.id}`;
       return json({ ok: true });
     }

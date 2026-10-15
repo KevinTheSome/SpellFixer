@@ -27,12 +27,15 @@ test('repetition mode shows word, requires correct answer, blocks paste', async 
 
   await page.locator('input.spell').fill('wrong');
   await page.locator('button.cta').click();
+  await expect(page.locator('.correction')).toBeVisible();
+  await page.getByRole('button', {name:'Try again',exact:true}).click();
   await expect(page.locator('input.spell')).toHaveValue('');
-  await expect(page.locator('.repeat-word')).toHaveText(word1);
+  await expect(page.locator('.repeat-word')).toHaveCount(0);
 
   await page.locator('input.spell').fill(word1);
   await page.locator('button.cta').click();
   await expect(page.locator('.ok')).toBeVisible();
+  await expect(page.locator('header .stats')).toContainText('0/0');
   await page.keyboard.press('Enter');
   await page.waitForFunction(
     (w) => document.querySelector('.repeat-word')?.textContent?.trim() !== w,

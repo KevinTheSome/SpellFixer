@@ -1,0 +1,31 @@
+import { test, expect } from '@playwright/test';
+import { align, isCorrect, wordKey, reviews, patterns, mergeAttempts, buildLesson, type Attempt } from '../../frontend/src/learning';
+
+test('learning evidence handles edits, reviews, variants, sync and sparse lessons', () => {
+  expect(align('market','marked').spans[0]).toMatchObject({expected:'t',typed:'d',position:'end',kind:'substituted'});
+  expect(align('necessary','necesary')).toMatchObject({confident:true,spans:[{expected:'ss',typed:'s',kind:'missing'}]});
+  expect(align('friend','freind').spans[0]).toMatchObject({expected:'ie',typed:'ei',kind:'transposed'});
+  expect(align('receive','recieve').spans[0]).toMatchObject({expected:'ei',typed:'ie',before:'c',kind:'transposed'});
+  expect(align('café','cafe\u0301').distance).toBe(0);
+  expect(align('café','cafe').spans[0]).toMatchObject({expected:'é',typed:'e'});
+  expect(align('ab','baab').confident).toBe(false);
+  expect(align('necessary','unrelated').confident).toBe(false);
+  expect(isCorrect({word:'colour',locale:'en',variants:['color']},' COLOR ')).toBe(true);
+  expect(wordKey({word:'Gift',locale:'de'})).not.toBe(wordKey({word:'gift',locale:'en'}));
+  const attempt=(word:string,submitted:string,date:string,assistance:Attempt['assistance']='none'):Attempt=>({id:crypto.randomUUID(),session:crypto.randomUUID(),word,submitted,locale:'en',date,day:date.slice(0,10),hour:12,assistance,exercise:'practice',standard:'default',correct:word===submitted});
+  const history=[attempt('market','marked','2026-01-01T12:00:00Z'),attempt('basket','basked','2026-01-02T12:00:00Z'),attempt('market','marked','2026-01-03T12:00:00Z')];
+  expect(patterns(history)[0]).toMatchObject({failures:3,opportunities:3,words:['market','basket'],expected:'t',typed:'d'});
+  expect(patterns(history.slice(0,2))).toHaveLength(0);
+  const assisted=attempt('market','marked','2026-01-04T12:00:00Z','retry');
+  expect(patterns([...history,assisted])[0].failures).toBe(3);
+  expect(mergeAttempts(history,[...history,assisted])).toHaveLength(4);
+  const success=attempt('market','market','2026-01-05T12:00:00Z');
+  expect(patterns([...history,success])[0].rate).toBeLessThan(1);
+  const recalls=[attempt('friend','friend','2026-01-01T12:00:00Z'),attempt('friend','friend','2026-01-02T12:00:00Z'),attempt('friend','friend','2026-01-05T12:00:00Z')];
+  expect(reviews(recalls)[0]).toMatchObject({stage:3,retained:true,due:'2026-01-12T12:00:00.000Z'});
+  expect(reviews([recalls[0],attempt('friend','friend','2026-01-01T13:00:00Z')])[0].stage).toBe(1);
+  expect(reviews([recalls[0],attempt('friend','friend','2026-01-02T12:00:00Z','copy')])[0].stage).toBe(1);
+  const lesson=buildLesson(history,[{word:'jacket',locale:'en'},{word:'ticket',locale:'en'}],'en',true,Date.parse('2026-01-06'));
+  expect(lesson.map(w=>w.word)).toEqual(['market','basket','jacket','ticket']);
+  expect(buildLesson([history[0]],[],'en',true)).toHaveLength(1);
+});

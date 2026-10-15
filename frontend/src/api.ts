@@ -15,7 +15,7 @@ async function req<T>(path: string, opts: RequestInit = {}): Promise<T> {
 }
 
 export type PackMeta = { id: string; locale: string; name: string; count: number; minDifficulty: number | null; maxDifficulty: number | null };
-export type PackEntry = { word: string; locale: string; syllables?: string[]; tags?: string[]; difficulty?: number; hint?: string };
+export type PackEntry = { word: string; locale: string; syllables?: string[]; tags?: string[]; difficulty?: number; hint?: string; variants?:string[] };
 export type Stats = { total:number; correct:number; accuracy:number; streak:number; best:number; dayStreak:number; bestDayStreak:number; activeDays:number; xp:number; level:number; xpPrev:number; xpNext:number };
 export type LeaderEntry = { username:string; xp:number };
 export type DayActivity = { date:string; total:number; correct:number };
@@ -29,8 +29,10 @@ export const api = {
   login: (u:string,p:string)=> req<{token:string,username:string}>("/api/auth/login",{method:"POST",body:JSON.stringify({username:u,password:p})}),
   logout: ()=> req<{ok:boolean}>("/api/auth/logout",{method:"POST"}),
   me: ()=> req<{id:number,username:string}>("/api/me"),
-  getWords: ()=> req<{id:number,word:string,timesSeen:number,timesCorrect:number}[]>("/api/words"),
-  addWord: (word:string)=> req<{id:number,word:string}>("/api/words",{method:"POST",body:JSON.stringify({word})}),
+   getWords: ()=> req<{id:number,word:string,locale:string,timesSeen:number,timesCorrect:number}[]>("/api/words"),
+   addWord: (word:string,locale='en',confirmed=false)=> req<{id:number,word:string}>("/api/words",{method:"POST",body:JSON.stringify({word,locale,confirmed})}),
+   learning: ()=>req<{attempts:Attempt[],tests:SavedTest[]}>('/api/learning'),
+   syncLearning: (attempts:Attempt[],tests:SavedTest[])=>req<{ok:boolean}>('/api/learning',{method:'POST',body:JSON.stringify({attempts,tests})}),
   deleteWord: (id:number)=> req<{ok:boolean}>(`/api/words/${id}`,{method:"DELETE"}),
   attempt: (wordId:number, correct:boolean, day?:string, hour?:number)=> req<{ok:boolean}>("/api/attempts",{method:"POST",body:JSON.stringify({wordId,correct,day,hour})}),
   stats: ()=> req<Stats>("/api/stats"),
@@ -46,3 +48,4 @@ export const api = {
 };
 
 export function isLoggedIn() { return !!token(); }
+import type { Attempt, SavedTest } from './learning'
