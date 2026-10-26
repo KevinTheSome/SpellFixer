@@ -55,6 +55,7 @@ await sql`ALTER TABLE words DROP CONSTRAINT IF EXISTS words_user_id_word_key`;
 await sql`CREATE UNIQUE INDEX IF NOT EXISTS words_language_key ON words(user_id, locale, word)`;
 await sql`ALTER TABLE attempts ADD COLUMN IF NOT EXISTS eligible BOOLEAN NOT NULL DEFAULT TRUE`;
 await sql`ALTER TABLE attempts ADD COLUMN IF NOT EXISTS exercise TEXT NOT NULL DEFAULT 'practice'`;
+await sql`ALTER TABLE attempts ADD COLUMN IF NOT EXISTS event_id UUID`;
 await sql`CREATE TABLE IF NOT EXISTS learning_attempts (
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   id UUID NOT NULL, payload JSONB NOT NULL, PRIMARY KEY(user_id,id)

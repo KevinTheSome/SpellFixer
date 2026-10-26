@@ -1,18 +1,21 @@
 import { test, expect } from '@playwright/test';
 import type { Attempt } from '../../frontend/src/learning';
 
-test('every tab shares the same shell, heading alignment and card styling at every screen size',async({page})=>{
+test('every tab omits introductory headings and shares the same shell and card styling at every screen size',async({page})=>{
   await page.goto('/');
   for(const width of [320,375,768,1440,1920]) {
     await page.setViewportSize({width,height:900});
     let baseline:unknown;
     for(const tab of ['Practice','My words','Test','Statistics','Settings']) {
       await page.locator('header nav').getByRole('button',{name:tab,exact:true}).click();
+      await expect(page.locator('main')).toHaveAttribute('aria-label',tab);
+      await expect(page.locator('main .page-heading')).toHaveCount(0);
+      await expect(page.getByText('Click listen, then spell what you hear',{exact:true})).toHaveCount(0);
       await page.evaluate(()=>window.scrollTo(0,0));
       const layout=await page.evaluate(()=>{
-        const main=document.querySelector('main')!,heading=main.querySelector('.page-heading')!,panel=main.querySelector('.panel')!;
-        const style=getComputedStyle(panel),mainBox=main.getBoundingClientRect(),headingBox=heading.getBoundingClientRect();
-        return {shell:document.querySelector('header')!.getBoundingClientRect().width,width:mainBox.width,padding:getComputedStyle(main).padding,headingX:headingBox.x,headingTop:headingBox.y-mainBox.y,radius:style.borderRadius,surface:style.backgroundColor,overflow:document.documentElement.scrollWidth>window.innerWidth};
+        const main=document.querySelector('main')!,panel=main.querySelector('.panel')!;
+        const style=getComputedStyle(panel),mainBox=main.getBoundingClientRect();
+        return {shell:document.querySelector('header')!.getBoundingClientRect().width,width:mainBox.width,padding:getComputedStyle(main).padding,panelX:panel.getBoundingClientRect().x,radius:style.borderRadius,surface:style.backgroundColor,overflow:document.documentElement.scrollWidth>window.innerWidth};
       });
       expect(layout.width).toBe(width);
       expect(layout.shell).toBe(width);

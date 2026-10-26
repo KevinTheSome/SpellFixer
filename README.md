@@ -3,9 +3,45 @@
 ## Warning this whole project is "vibe-coded"
 The only human writen line of code.
 
-A spelling drill web app: listen to a word, type what you hear, get scored.
+A spelling and grammar practice app: read a sentence, type one corrected word
+or contraction, and learn why the spelling works. New profiles start in
+**Correct spelling** mode; existing drill preferences are preserved.
 Works as a guest (offline, browser storage) or with an account (progress synced
-to the server). Word lists (“packs”) come in three languages with per-word audio.
+to the server). The text-first pilot is in English. Existing word lists and
+optional dictation remain available in English, German and Spanish.
+
+## Text-first learning
+
+- **42 exercises, three skills:** common spelling patterns, confusing words,
+  and apostrophes/contractions. Correct a marked word or type a missing word;
+  no audio or answer-choice buttons are required.
+- **Teach, then apply:** daily and skill lessons introduce one rule with two
+  examples before practice. Answers receive a correction, an explanation and
+  a contrasting example. British `colour` and American `color` are both accepted
+  in the relevant exercise; typographic apostrophes are accepted, but meaningful
+  punctuation and explicitly tested capitalization are not ignored.
+- **Personalized sessions:** eight main questions mix due reviews, weak skills
+  and fresh examples. Up to two missed questions return after two intervening
+  questions, without replacing the main questions. Later mistakes stay due for
+  a future session. Reviews retain the existing 10-minute / 1 / 3 / 7 / 14-day
+  schedule; assisted answers never establish mastery.
+- **My mistakes:** Statistics includes actual submitted mistakes, their corrected
+  words, and exercise explanations, with a practice action. A revealed notebook
+  answer is assisted study when practised again. Skill progress uses up to the
+  latest 20 independent answers per skill within the selected statistics period;
+  remembering an item does not prove mastery of a whole skill.
+- **Persistence:** public lesson content is cached after download; guest and
+  account answer histories remain separate. Account sync, guest import, resets
+  and deletion use the existing ledger. Exercise IDs distinguish contexts with
+  the same target word. XP remains limited to one award per word per day.
+
+Curriculum lives in `backend/content/en/practice.json` and is served publicly by
+`GET /api/curriculum`. Exercise IDs identify immutable prompts: give a materially
+different prompt or answer a new ID. Every exercise targets one real word or
+contraction; whole sentences are never added to a user's word bank. The server
+resolves IDs and grades against its own content, not client-provided answer keys,
+variants, skill labels or scores. No new dependencies or database migration are
+needed. Free-form writing grading and diagnostic placement are not included.
 
 ## Layout
 
@@ -18,6 +54,13 @@ to the server). Word lists (“packs”) come in three languages with per-word a
 | `frontend/` | Vue 3 + TypeScript + Vite SPA |
 | `e2e/` | Playwright tests, run against the docker stack |
 | `docker-compose.yml` | Postgres (:5432) + backend (:3000) + frontend (:5173) |
+
+### Source structure
+
+- `frontend/src/App.vue` is the shared shell; `pages/` contains Practice, My words, Test, Statistics and Settings.
+- `frontend/src/components/` holds the header/account menu and reusable word manager. Shared styles live in `styles/app.css`.
+- `frontend/src/composables/` separates theme, audio, self-test and statistics logic. `createSpellingApp.ts` coordinates practice, accounts and learning sync; `appContext.ts` shares that single instance so navigating does not reset progress. Translations live in `i18n.ts`.
+- `backend/src/index.ts` starts Bun; `app.ts` dispatches requests and guards protected routes. `routes/` contains auth, account deletion, learning, words and statistics; `content.ts` serves packs/audio and `http.ts` holds request/response helpers.
 
 ## Run locally (no docker)
 
@@ -90,6 +133,15 @@ What’s covered:
 | `tests/features.spec.ts` | Drill-mode picker + weakest-mode lock, hint skips scoring, stats grouped by language/difficulty, pack API serves hints |
 | `tests/audio.spec.ts` | `/api/audio` serves mp3 (incl. case-insensitive), 404 falls back to browser voice, Listen button actually plays backend audio |
 | `tests/wanted-features.spec.ts` | Dark themes, full-width responsive statistics, shared date filters, personal-word persistence and account isolation |
+| `tests/regressions.spec.ts` | Mocked-API checks for safe resets, tab isolation, login recovery, sync limits, weakest mode, test loading and DST |
+| `tests/api-regressions.spec.ts` | Password/logout handling, retired score writer, event ordering, concurrent reset/sync and calendar-day streaks |
+| `tests/page-state.spec.ts` | Shared shell/preferences and unfinished practice, tests, word forms and statistics periods survive page changes (mocked API) |
+| `tests/account-deletion.spec.ts` | Password checks, confirmation/cancellation, failed deletes, complete account/data erasure, session revocation, concurrent writes and guest-data preservation |
+| `tests/writing-practice.spec.ts` | Fresh-profile text-first practice, explanations, micro-lessons, bounded delayed retries, mistake notebook, navigation, offline content, spelling variants and guest-to-account import (mocked API) |
+| `tests/learning-logic.spec.ts` | Client/server writing-grade parity, exercise identities, skill evidence, balanced lesson selection, non-destructive retries and legacy learning/sync logic |
+
+Existing browser drill tests explicitly start with the saved `rand` mode;
+writing-practice tests use a fresh profile to verify the new `correct` default.
 
 `drill.spec.ts` seeds guest `localStorage` with a known word list and tracks the
 hidden current word via the `/api/audio/` request the Listen/Next buttons fire
@@ -147,10 +199,20 @@ Rebuild the backend image afterwards so the new files are served from docker.
   the leaderboard. Week and month mean the last 7 and 30 local calendar days.
   The main header still shows lifetime progress; review status retains earlier learning evidence.
 - **Themes:** Settings includes Navy and Forest dark presets alongside the existing themes.
-- **Guest vs account:** guests store words/stats in `localStorage` only; logging
-  in moves everything server-side (per-word seen/correct, per-day activity).
+- **Guest vs account:** guest progress stays in `localStorage`; logging in uses
+  a separate server-synced account ledger. Registration can import guest words,
+  answers and tests without deleting the guest copy on this device.
 - **Audio fallback:** missing mp3 → backend 404 → frontend uses the browser’s
   built-in voice, so drills never break. The per-word file is just cached
   (`Cache-Control: immutable`) for consistent pronunciation.
 - **Hints are unscored:** showing a hint excludes that attempt from stats.
 - **Weakest-first mode** unlocks after spelling over half the pack at least once.
+- **Reset settings** changes appearance and app language only. **Clear stats** separately deletes learning history, tests, activity and XP.
+- **Account deletion:** signed-in Settings includes **Delete data** (saved words, answers, tests, activity and XP; account kept) and **Delete account** (account and all its data). Both require the current password and explicit confirmation. Deletion is permanent; the current browser's account cache is cleared, but guest data and offline copies on other devices are not erased. Data deletion rotates the current session and signs out other sessions so stale uploads cannot immediately restore deleted progress.
+- **Deletion API:** `DELETE /api/account/data` and `DELETE /api/account` accept `{ "password": "current password" }` with Bearer authentication. The former returns a replacement `{ token, username }`; the latter revokes every session. Writes are serialized with deletion and recheck the session after acquiring the learner lock.
+- **Answer limits:** new answers are limited to 200 characters. Older oversized answers and tests that depend on them stay on this device, with a warning; they do not block other uploads.
+- **Account tabs:** each open tab keeps its own credentials and does not adopt another tab's login. Logging out still revokes that session on the server.
+- **Attempt API:** `POST /api/attempts` is retired (HTTP 410). Submit answer events through `/api/learning`; client-supplied scores are not accepted.
+- **Historical streaks:** complete answer ledgers are ordered by original answer time. Mixed legacy histories without event timestamps keep their recorded timestamps rather than inventing historical dates.
+
+Run regressions only against a disposable, isolated stack with dummy accounts, no external network, an allowlisted environment, read-only source/toolchain, scratch-only writes, and CPU/memory/process/file-size/disk/time limits. API tests create disposable users and clear only their progress. Repeat the calendar-day API check with the backend's `TZ=Europe/Berlin`; changing the browser timezone alone does not cover the backend.

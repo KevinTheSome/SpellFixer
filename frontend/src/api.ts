@@ -1,6 +1,15 @@
 const BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-function token() { return localStorage.getItem("st-token") || ""; }
+// Credentials and the ledger must keep the same identity when another tab signs in.
+function storedSession():{token:string;username:string} {
+  try {
+    const saved=JSON.parse(localStorage.getItem('st-session') || 'null');
+    if(typeof saved?.token==='string' && typeof saved?.username==='string') return saved;
+  } catch { /* Fall back to credentials saved before atomic sessions were introduced. */ }
+  return {token:localStorage.getItem('st-token') || '',username:localStorage.getItem('st-user') || ''};
+}
+let session=storedSession();
+function token() { return session.token; }
 function headers(): Record<string,string> {
   const h: Record<string,string> = { "Content-Type": "application/json" };
   const t = token();
@@ -34,18 +43,27 @@ export const api = {
    learning: ()=>req<{attempts:Attempt[],tests:SavedTest[]}>('/api/learning'),
    syncLearning: (attempts:Attempt[],tests:SavedTest[])=>req<{ok:boolean}>('/api/learning',{method:'POST',body:JSON.stringify({attempts,tests})}),
   deleteWord: (id:number)=> req<{ok:boolean}>(`/api/words/${id}`,{method:"DELETE"}),
-  attempt: (wordId:number, correct:boolean, day?:string, hour?:number)=> req<{ok:boolean}>("/api/attempts",{method:"POST",body:JSON.stringify({wordId,correct,day,hour})}),
   stats: ()=> req<Stats>("/api/stats"),
   resetStats: ()=> req<{ok:boolean}>("/api/stats",{method:"DELETE"}),
+  deleteAccountData: (password:string)=> req<{token:string,username:string}>("/api/account/data",{method:"DELETE",body:JSON.stringify({password})}),
+  deleteAccount: (password:string)=> req<{ok:boolean}>("/api/account",{method:"DELETE",body:JSON.stringify({password})}),
   activity: (days=182, today?:string)=> req<Activity>(`/api/activity?days=${days}${today ? `&today=${encodeURIComponent(today)}` : ''}`),
   activityHourly: (date:string)=> req<{date:string, hourly:HourActivity[]}>(`/api/activity?date=${encodeURIComponent(date)}`),
   leaderboard: (limit=10,days=30,today='')=> req<LeaderEntry[]>(`/api/leaderboard?limit=${limit}&days=${days}&today=${encodeURIComponent(today)}`),
   getPacks: ()=> req<PackMeta[]>("/api/packs"),
+  curriculum: ()=>req<Curriculum>('/api/curriculum'),
   getPack: (locale:string, name:string)=> req<PackEntry[]>(`/api/packs/${encodeURIComponent(locale)}/${encodeURIComponent(name)}`),
   audioUrl: (locale:string, word:string)=> `${BASE}/api/audio/${encodeURIComponent(locale)}/${encodeURIComponent(word.trim().toLowerCase())}`,
-  setToken(t:string){ if(t) localStorage.setItem("st-token",t); else localStorage.removeItem("st-token"); },
-  getToken: token,
+   setToken(t:string,username=''){
+     const previous=session.token,next={token:t,username};
+     if(t || storedSession().token===previous) localStorage.setItem('st-session',JSON.stringify(next));
+     session=next;
+     if(t) {localStorage.setItem('st-token',t);localStorage.setItem('st-user',username)}
+     else if(localStorage.getItem('st-token')===previous) {localStorage.removeItem('st-token');localStorage.removeItem('st-user')}
+   },
+   getToken: token,
+   getUsername: ()=>session.username,
 };
 
 export function isLoggedIn() { return !!token(); }
-import type { Attempt, SavedTest } from './learning'
+import type { Attempt, SavedTest, Curriculum } from './learning'

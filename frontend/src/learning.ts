@@ -1,9 +1,29 @@
-export type LearningWord = { word:string; locale:string; difficulty?:number|null; variants?:string[] }
+export type LearningWord = { word:string; locale:string; difficulty?:number|null; variants?:string[]; exerciseId?:string; skill?:string; caseSensitive?:boolean }
+export type WritingExercise = LearningWord & { exerciseId:string; skill:string; kind:'correct_word'|'fill_blank'; prompt:string; incorrect?:string; hint:string; explanation:string; contrast:string }
+export type Curriculum = {skills:{id:string;name:string;rule:string;examples:string[]}[];exercises:WritingExercise[]}
 export type Attempt = LearningWord & { id:string; submitted:string; date:string; day:string; hour:number; session:string; exercise:'practice'|'test'|'daily'|'weak'; assistance:'none'|'hint'|'copy'|'retry'; correct:boolean; standard:string }
 export type SavedTest = { id:string; owner:string; date:string; level:'starter'|'intermediate'|'expert'; locale:string; correct:number; total:number; answers?:Attempt[] }
+export type LearningStore = {attempts:Attempt[];tests:SavedTest[];pending:string[];pendingTests:string[]}
+export const validAnswer = (answer:string) => {const text=answer.normalize('NFC').trim();return text.length>0 && text.length<=200}
+export function learningBatch(data:LearningStore) {
+  const pending=new Set(data.pending),pendingTests=new Set(data.pendingTests)
+  const attempts=data.attempts.filter(a=>pending.has(a.id) && validAnswer(a.submitted)).slice(0,500).map(a=>({...a,submitted:a.submitted.normalize('NFC').trim()}))
+  const sent=new Set(attempts.map(a=>a.id)), waiting=new Set(data.pending.filter(id=>!sent.has(id)))
+  // Keep invalid historical answers locally without blocking unrelated answers or tests.
+  const tests=data.tests.filter(r=>pendingTests.has(r.id) && !r.answers?.some(a=>waiting.has(a.id) || !validAnswer(a.submitted))).slice(0,100)
+  return {attempts,tests}
+}
 export const normalize = (s:string) => s.normalize('NFC').trim().toLowerCase()
-export const wordKey = (w:LearningWord) => `${w.locale}:${normalize(w.word)}`
-export const isCorrect = (w:LearningWord, answer:string) => [w.word, ...(w.variants ?? [])].some(s => normalize(s) === normalize(answer))
+export const spellingKey = (w:LearningWord) => `${w.locale}:${normalize(w.word)}`
+export const wordKey = (w:LearningWord) => w.exerciseId ? `${w.locale}:exercise:${w.exerciseId}` : spellingKey(w)
+export const isCorrect = (w:LearningWord, answer:string) => {
+  const clean = (s:string) => {
+    const text=s.normalize('NFC').trim();
+    const punctuation=w.exerciseId ? text.replace(/[‘’]/g,"'") : text
+    return w.caseSensitive ? punctuation : punctuation.toLowerCase()
+  }
+  return [w.word, ...(w.variants ?? [])].some(s => clean(s) === clean(answer))
+}
 export const eligible = (a:Attempt) => a.assistance === 'none'
 export function mergeAttempts(a:Attempt[], b:Attempt[]) {
   return [...new Map([...a, ...b].map(x => [x.id, x])).values()].sort((x,y) => x.date.localeCompare(y.date) || x.id.localeCompare(y.id))
@@ -16,7 +36,7 @@ export function reviews(attempts:Attempt[]):Review[] {
   for (const a of mergeAttempts([], attempts)) {
     const key = wordKey(a)
     let r = states.get(key)
-    if (!r) { r = {word:a.word, locale:a.locale, key, stage:0, due:a.date, last:'', lastDay:'', successes:0, retained:false, recent:[], mistakes:0, rate:0}; states.set(key,r) }
+    if (!r) { r = {word:a.word, locale:a.locale, exerciseId:a.exerciseId, skill:a.skill, variants:a.variants, caseSensitive:a.caseSensitive, key, stage:0, due:new Date(Date.parse(a.date)+10*60000).toISOString(), last:'', lastDay:'', successes:0, retained:false, recent:[], mistakes:0, rate:0}; states.set(key,r) }
     if (eligible(a)) {
       r.recent.push(a); r.recent = r.recent.slice(-20)
       if (!a.correct) { r.stage=0; r.successes=0; r.retained=false; r.last=a.date; r.lastDay=a.day; r.due=new Date(Date.parse(a.date)+10*60000).toISOString() }
@@ -28,7 +48,7 @@ export function reviews(attempts:Attempt[]):Review[] {
     } else {
       // Assistance never advances mastery or postpones an existing earlier review.
       const soon=new Date(Date.parse(a.date)+10*60000).toISOString()
-      r.due=r.last ? (r.due < soon ? r.due : soon) : soon
+      r.due=r.due < soon ? r.due : soon
     }
     r.mistakes=r.recent.filter(x=>!x.correct).length
     r.rate=r.recent.length ? r.mistakes/r.recent.length : 0
@@ -71,7 +91,7 @@ export function align(target:string, submitted:string):{ spans:Span[]; confident
   for(const s of spans) {s.position=s.start===0?'start':s.end===n?'end':'middle';s.before=a.slice(Math.max(0,s.start-1),s.start).join('');s.after=a.slice(s.end,s.end+1).join('')}
   // Repeated identical letters have equivalent deletion paths but the same observable doubled-letter change.
   const doubled=spans.length===1 && spans[0].kind==='missing' && spans[0].expected.length===1 && (spans[0].before===spans[0].expected || spans[0].after===spans[0].expected)
-  if(doubled) { const s=spans[0]; if(s.before===s.expected) s.start--; else s.end++; s.expected=a.slice(s.start,s.end).join('');s.typed=s.expected.slice(0,1);s.before=a.slice(Math.max(0,s.start-1),s.start).join('');s.after=a.slice(s.end,s.end+1).join('') }
+  if(doubled) { const s=spans[0]; if(s.before===s.expected) s.start--; else s.end++; s.expected=a.slice(s.start,s.end).join('');s.typed=s.expected.slice(0,1);s.position=s.start===0?'start':s.end===n?'end':'middle';s.before=a.slice(Math.max(0,s.start-1),s.start).join('');s.after=a.slice(s.end,s.end+1).join('') }
   return {spans, distance:d[n][m], confident:(paths[n][m]===1 || doubled) && d[n][m]<=Math.max(1,Math.floor(n/3))}
 }
 export type Pattern = Span & { key:string; locale:string; failures:number; opportunities:number; words:string[]; rate:number }
@@ -86,7 +106,7 @@ export function matchesPattern(word:string,p:Span) {
   return false
 }
 export function patterns(attempts:Attempt[]):Pattern[] {
-  const recent=reviews(attempts).flatMap(r=>r.recent)
+  const recent=reviews(attempts.filter(a=>!a.exerciseId || a.skill==='common_spelling')).flatMap(r=>r.recent)
   const candidates=new Map<string,Pattern>()
   for(const a of recent.filter(x=>!x.correct)) {
     const result=align(a.word,a.submitted)
@@ -107,16 +127,42 @@ export function patterns(attempts:Attempt[]):Pattern[] {
   return [...candidates.values()].filter(p=>p.failures>=3 && p.words.length>=2).sort((a,b)=>b.rate-a.rate || b.failures-a.failures || b.words.length-a.words.length)
 }
 export function buildLesson(attempts:Attempt[], pool:LearningWord[], locale:string, weak=false, now=Date.now()):LearningWord[] {
-  const ranked=rankWords(reviews(attempts).filter(r=>r.locale===locale),now)
+  const available=pool.filter(w=>w.locale===locale)
+  const catalog=new Map(available.map(w=>[wordKey(w),w]))
+  const writing=available.some(w=>w.exerciseId)
+  const ranked=rankWords(reviews(attempts).filter(r=>r.locale===locale && (writing ? catalog.has(r.key) : !r.exerciseId)),now)
   const due=ranked.filter(r=>Date.parse(r.due)<=now)
   const missed=ranked.filter(r=>r.mistakes>0)
   const focus=patterns(attempts).find(p=>p.locale===locale)
   const known=new Set(ranked.map(wordKey))
-  const available=pool.filter(w=>w.locale===locale)
+  const weakest=skillStats(attempts,available).find(s=>s.mistakes>0)
+  const targeted=weakest ? available.filter(w=>w.skill===weakest.skill).sort((a,b)=>Number(known.has(wordKey(a)))-Number(known.has(wordKey(b)))) : []
   const related=focus ? available.filter(w=>matchesPattern(w.word,focus)).sort((a,b)=>Number(known.has(wordKey(a)))-Number(known.has(wordKey(b)))) : []
   const fresh=available.filter(w=>!known.has(wordKey(w)))
+  const groups=new Map<string,LearningWord[]>()
+  for(const w of fresh) {const key=w.skill??'';groups.set(key,[...(groups.get(key)??[]),w])}
+  const mixedFresh:LearningWord[]=[]
+  for(let i=0;i<fresh.length;i++) for(const group of groups.values()) if(group[i]) mixedFresh.push(group[i])
   const chosen=new Map<string,LearningWord>()
-  const add=(list:LearningWord[],count:number)=>{let added=0; for(const w of list) if(!chosen.has(wordKey(w)) && chosen.size<10 && added<count){chosen.set(wordKey(w),w);added++}}
-  add(due,10);add(missed,weak?5:3);add(related,3);add(fresh,3);add(ranked,10)
-  return [...chosen.values()].slice(0,10)
+  // Eight main items leave room for two retries without discarding planned questions.
+  const add=(list:LearningWord[],count:number)=>{let added=0; for(const w of list) if(!chosen.has(wordKey(w)) && chosen.size<8 && added<count){chosen.set(wordKey(w),catalog.get(wordKey(w))??w);added++}}
+  add(due,weak?3:4);add(targeted,2);add(mixedFresh,2);add(missed,3);add(related,2);add(due,8);add(mixedFresh,8);add(available,8);add(ranked,8)
+  return [...chosen.values()]
+}
+
+export function skillStats(attempts:Attempt[], pool:LearningWord[]) {
+  const catalog=new Map(pool.filter(w=>w.skill).map(w=>[wordKey(w),w.skill!]))
+  const groups=new Map<string,Attempt[]>()
+  for(const a of mergeAttempts([],attempts).filter(eligible)) {
+    const skill=catalog.get(wordKey(a))
+    if(skill) groups.set(skill,[...(groups.get(skill)??[]),a].slice(-20))
+  }
+  return [...groups].map(([skill,answers])=>({skill,total:answers.length,correct:answers.filter(a=>a.correct).length,mistakes:answers.filter(a=>!a.correct).length,rate:answers.filter(a=>!a.correct).length/answers.length,items:new Set(answers.map(wordKey)).size}))
+    .sort((a,b)=>b.rate-a.rate || b.mistakes-a.mistakes)
+}
+
+export function queueLessonRetry(items:(LearningWord & {retry?:boolean})[], position:number) {
+  const item=items[position], place=position+3
+  if(!item || item.retry || items.filter(w=>w.retry).length>=2 || items.length>=10 || place>items.length || items.slice(position+1).some(w=>wordKey(w)===wordKey(item))) return
+  items.splice(place,0,{...item,retry:true})
 }
