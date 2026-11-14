@@ -6,7 +6,7 @@ async function account(request:APIRequestContext,password='test12345') {
   const username=`regression_${crypto.randomUUID().slice(0,8)}`;
   const response=await request.post(`${base}/api/auth/register`,{data:{username,password}});
   expect(response.ok(),await response.text()).toBeTruthy();
-  const auth=await response.json();return {username,password,headers:{Authorization:`Bearer ${auth.token}`}};
+  const auth=await response.json();return {username,password,learningKey:auth.learningKey,headers:{Authorization:`Bearer ${auth.token}`}};
 }
 function answer(correct:boolean,date:string):Attempt {
   return {id:crypto.randomUUID(),session:crypto.randomUUID(),word:'friend',submitted:correct?'friend':'wrong',locale:'en',date,day:date.slice(0,10),hour:12,exercise:'practice',assistance:'none',correct,standard:'default'};
@@ -34,9 +34,9 @@ test('retired score writer cannot award XP',async({request})=>{
 test('streaks depend on event time, not upload order or batching',async({request})=>{
   const history=[answer(false,'2026-01-01T12:01:00.000Z'),answer(true,'2026-01-01T12:02:00.000Z'),answer(true,'2026-01-01T12:03:00.000Z')];
   for(const events of [history,[...history].reverse()]) {
-    const {headers}=await account(request);
+    const {headers,learningKey}=await account(request);
     for(const a of events) {
-      const response=await request.post(`${base}/api/learning`,{headers,data:{attempts:[a],tests:[]}});
+      const response=await request.post(`${base}/api/learning`,{headers,data:{learningKey,attempts:[a],tests:[]}});
       expect(response.ok(),await response.text()).toBeTruthy();
     }
     expect(await (await request.get(`${base}/api/stats`,{headers})).json()).toMatchObject({total:3,correct:2,streak:2,best:2,xp:10});
@@ -44,15 +44,18 @@ test('streaks depend on event time, not upload order or batching',async({request
 });
 
 test('concurrent clear and sync keep attempts, history and XP consistent',async({request})=>{
-  const {headers}=await account(request);
+  const user=await account(request),headers=user.headers;
+  let learningKey=user.learningKey;
   for(let i=0;i<5;i++) {
-    const response=await request.post(`${base}/api/learning`,{headers,data:{attempts:[answer(true,'2026-01-01T12:00:00.000Z')],tests:[]}});
+    const response=await request.post(`${base}/api/learning`,{headers,data:{learningKey,attempts:[answer(true,'2026-01-01T12:00:00.000Z')],tests:[]}});
     expect(response.ok(),await response.text()).toBeTruthy();
     const responses=await Promise.all([
       request.delete(`${base}/api/stats`,{headers}),
-      request.post(`${base}/api/learning`,{headers,data:{attempts:[answer(true,'2026-01-01T12:01:00.000Z')],tests:[]}}),
+      request.post(`${base}/api/learning`,{headers,data:{learningKey,attempts:[answer(true,'2026-01-01T12:01:00.000Z')],tests:[]}}),
     ]);
-    for(const response of responses) expect(response.ok(),await response.text()).toBeTruthy();
+    expect(responses[0].ok()).toBeTruthy();
+    expect([200,409]).toContain(responses[1].status());
+    learningKey=(await responses[0].json()).learningKey;
     const history=await (await request.get(`${base}/api/learning`,{headers})).json();
     const stats=await (await request.get(`${base}/api/stats`,{headers})).json();
     expect(stats.total).toBe(history.attempts.length);expect(stats.correct).toBe(history.attempts.length);
@@ -64,10 +67,26 @@ test('best calendar-day streak crosses DST with a skipped-day control',async({re
   // Run the backend with TZ=Europe/Berlin as well as UTC to cover its local-time path.
   const {headers}=await account(request);
   for(const days of [['2026-03-29','2026-03-30'],['2026-03-28','2026-03-30']]) {
-    expect((await request.delete(`${base}/api/stats`,{headers})).ok()).toBeTruthy();
-    const response=await request.post(`${base}/api/learning`,{headers,data:{attempts:days.map(day=>answer(true,`${day}T12:00:00.000Z`)),tests:[]}});
+    const cleared=await request.delete(`${base}/api/stats`,{headers});
+    expect(cleared.ok()).toBeTruthy();
+    const learningKey=(await cleared.json()).learningKey;
+    const response=await request.post(`${base}/api/learning`,{headers,data:{learningKey,attempts:days.map(day=>answer(true,`${day}T12:00:00.000Z`)),tests:[]}});
     expect(response.ok(),await response.text()).toBeTruthy();
     const activity=await (await request.get(`${base}/api/activity?days=7&today=2026-03-30`,{headers})).json();
     expect(activity.bestDayStreak).toBe(days[0]==='2026-03-29'?2:1);
   }
+});
+
+test('clear rejects a previously committed upload retry but permits new progress',async({request})=>{
+  const {headers,learningKey}=await account(request);
+  const event=answer(true,new Date().toISOString());
+  const data={learningKey,attempts:[event],tests:[]};
+  expect((await request.post(`${base}/api/learning`,{headers,data})).ok()).toBeTruthy();
+  const cleared=await request.delete(`${base}/api/stats`,{headers});
+  expect(cleared.ok()).toBeTruthy();
+  const fresh=(await cleared.json()).learningKey;
+  expect(fresh).not.toBe(learningKey);
+  expect((await request.post(`${base}/api/learning`,{headers,data})).status()).toBe(409);
+  expect((await (await request.get(`${base}/api/learning`,{headers})).json()).attempts).toEqual([]);
+  expect((await request.post(`${base}/api/learning`,{headers,data:{learningKey:fresh,attempts:[answer(true,new Date().toISOString())],tests:[]}})).ok()).toBeTruthy();
 });

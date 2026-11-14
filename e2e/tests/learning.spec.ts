@@ -3,6 +3,7 @@ import { test, expect, type Page } from '@playwright/test';
 async function answer(page:Page, text:string) {
   await page.locator('input.spell').fill(text);
   await page.getByRole('button',{name:'Check',exact:true}).click();
+  await expect(page.locator('.save-status')).not.toContainText('Saving…');
 }
 
 test('guest retries stay hidden, assistance is retained, reviews survive reload and daily lesson stops', async ({page})=>{
@@ -68,10 +69,11 @@ test('guest import, failed-save retry, idempotent sync and cross-device test his
   await expect(page.locator('.save-status')).toContainText('Progress saved');
   await expect(page.locator('header .stats')).toContainText('0/1');
   const token=await page.evaluate(()=>localStorage.getItem('st-token')!);
+  const learningKey=await page.evaluate(()=>JSON.parse(localStorage.getItem('st-session')!).learningKey);
   const headers={Authorization:`Bearer ${token}`};
   const history=await (await request.get('http://localhost:3000/api/learning',{headers})).json();
   expect(history.attempts).toHaveLength(1);
-  for(let i=0;i<2;i++) {const response=await request.post('http://localhost:3000/api/learning',{headers,data:{attempts:history.attempts,tests:[]}});expect(response.ok(),await response.text()).toBeTruthy()}
+  for(let i=0;i<2;i++) {const response=await request.post('http://localhost:3000/api/learning',{headers,data:{learningKey,attempts:history.attempts,tests:[]}});expect(response.ok(),await response.text()).toBeTruthy()}
   expect((await (await request.get('http://localhost:3000/api/learning',{headers})).json()).attempts).toHaveLength(1);
   await page.route('**/api/learning',route=>route.request().method()==='POST'?route.abort():route.continue());
   await answer(page,'because');
@@ -81,15 +83,15 @@ test('guest import, failed-save retry, idempotent sync and cross-device test his
   await expect(page.locator('.save-status')).toContainText('Progress saved');
   const a={...history.attempts[0],id:crypto.randomUUID(),session:crypto.randomUUID(),exercise:'test',submitted:'because',correct:true};
   const result={id:crypto.randomUUID(),date:a.date,level:'starter',locale:'en',correct:1,total:1,answers:[a]};
-  expect((await request.post('http://localhost:3000/api/learning',{headers,data:{attempts:[a],tests:[result]}})).ok()).toBeTruthy();
+  expect((await request.post('http://localhost:3000/api/learning',{headers,data:{learningKey,attempts:[a],tests:[result]}})).ok()).toBeTruthy();
   const other=await browser.newContext();const second=await other.newPage();
   await second.goto('/');await second.getByRole('button',{name:'Account',exact:true}).click();await second.getByPlaceholder('username',{exact:true}).fill(user);await second.getByPlaceholder('password',{exact:true}).fill('test12345');await second.getByRole('button',{name:'Login',exact:true}).click();
   await second.getByRole('button',{name:'Test',exact:true}).click();await expect(second.locator('.test-history')).toContainText('1/1');
   await other.close();
   expect((await request.get('http://localhost:3000/api/learning')).status()).toBe(401);
   const invalid={...a,id:crypto.randomUUID(),locale:'../en'};
-  expect((await request.post('http://localhost:3000/api/learning',{headers,data:{attempts:[invalid],tests:[]}})).status()).toBe(400);
+  expect((await request.post('http://localhost:3000/api/learning',{headers,data:{learningKey,attempts:[invalid],tests:[]}})).status()).toBe(400);
   const outsider=await (await request.post('http://localhost:3000/api/auth/register',{data:{username:`other_${crypto.randomUUID().slice(0,8)}`,password:'test12345'}})).json();
   const outsiderHistory=await (await request.get('http://localhost:3000/api/learning',{headers:{Authorization:`Bearer ${outsider.token}`}})).json();
-  expect(outsiderHistory).toEqual({attempts:[],tests:[]});
+  expect(outsiderHistory).toEqual({learningKey:outsider.learningKey,attempts:[],tests:[]});
 });

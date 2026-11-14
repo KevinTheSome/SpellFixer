@@ -18,7 +18,8 @@ function mockApi() {
     let json:unknown={},status=200;
     if(path==='/api/curriculum') json=curriculum;
     else if(path==='/api/packs' || path==='/api/leaderboard') json=[];
-    else if(path==='/api/auth/register' || path==='/api/auth/login') json={token:'writing-test-token',username:request.postDataJSON().username};
+    else if(path==='/api/auth/register' || path==='/api/auth/login') json={token:'writing-test-token',username:request.postDataJSON().username,learningKey:'writing-test-key'};
+    else if(path==='/api/me') json={id:1,username:'writing-learner',learningKey:'writing-test-key'};
     else if(path==='/api/auth/logout') json={ok:true};
     else if(path==='/api/words') json=method==='GET'?[]:{id:1,word:request.postDataJSON().word};
     else if(path==='/api/learning') {
@@ -31,7 +32,7 @@ function mockApi() {
         account.attempts=[...new Map([...account.attempts,...answers].map((a:Attempt)=>[a.id,a])).values()];
         account.tests=[...new Map([...account.tests,...data.tests].map((a:SavedTest)=>[a.id,a])).values()];
         json={ok:true};
-      } else json=account;
+      } else json={...account,learningKey:'writing-test-key'};
     } else if(path==='/api/stats') {
       const answers=account.attempts.filter(a=>a.assistance==='none' && a.exercise!=='test');
       const correct=answers.filter(a=>a.correct).length;
@@ -50,6 +51,7 @@ test.beforeEach(async({page})=>{
 async function answer(page:Page,text:string) {
   await page.getByLabel('Your spelling',{exact:true}).fill(text);
   await page.getByRole('button',{name:'Check',exact:true}).click();
+  await expect(page.locator('.save-status')).toContainText('Progress saved');
 }
 
 async function currentExercise(page:Page) {
@@ -128,6 +130,7 @@ test('skill practice survives navigation, and notebook review of a revealed answ
     await page.getByRole('button',{name:'Practice',exact:true}).click();
     await expect(page.getByLabel('Your spelling',{exact:true})).toHaveValue(exercise.word);
     await page.getByRole('button',{name:'Check',exact:true}).click();
+    await expect(page.locator('.save-status')).toContainText('Progress saved');
     if(exercise.exerciseId==='spelling_because_01') {completed=true;break}
     await page.getByRole('button',{name:'Next →',exact:true}).click();
   }
@@ -215,7 +218,7 @@ test('guest writing history imports to an account without deleting the guest cop
   expect(server.account.attempts[0]).toMatchObject({exerciseId:'spelling_because_01',skill:'common_spelling',correct:true});
   const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('st-learning')!));
   expect(saved.guest.attempts).toHaveLength(1);
-  expect(saved['account:writing-learner'].attempts).toHaveLength(1);
+  expect(saved['account:writing-test-key'].attempts).toHaveLength(1);
   await page.getByRole('button',{name:'Logout → guest',exact:true}).click();
   await expect(page.locator('.account-trigger')).toContainText('Login');
   await page.getByRole('button',{name:'Statistics',exact:true}).click();

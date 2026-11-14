@@ -3,7 +3,7 @@ import type { Attempt, SavedTest } from '../../frontend/src/learning';
 
 const base = 'http://localhost:3000';
 const password = 'test12345';
-type Account = { username: string; token: string };
+type Account = { username: string; token: string; learningKey:string };
 const headers = (account: Account) => ({ Authorization: `Bearer ${account.token}` });
 
 async function account(request: APIRequestContext): Promise<Account> {
@@ -30,13 +30,13 @@ async function seed(request: APIRequestContext, user: Account) {
     id: crypto.randomUUID(), owner: user.username, date: attempts[1].date, locale: 'en', level: 'starter',
     correct: 1, total: 1, answers: [attempts[1]],
   };
-  const response = await request.post(`${base}/api/learning`, { headers: headers(user), data: { attempts, tests: [result] } });
+  const response = await request.post(`${base}/api/learning`, { headers: headers(user), data: { learningKey:user.learningKey, attempts, tests: [result] } });
   expect(response.ok(), await response.text()).toBeTruthy();
 }
 
 async function expectEmpty(request: APIRequestContext, user: Account) {
   expect(await (await request.get(`${base}/api/words`, { headers: headers(user) })).json()).toEqual([]);
-  expect(await (await request.get(`${base}/api/learning`, { headers: headers(user) })).json()).toEqual({ attempts: [], tests: [] });
+  expect(await (await request.get(`${base}/api/learning`, { headers: headers(user) })).json()).toEqual({ learningKey:user.learningKey, attempts: [], tests: [] });
   expect(await (await request.get(`${base}/api/stats`, { headers: headers(user) })).json()).toMatchObject({ total: 0, correct: 0, xp: 0, activeDays: 0 });
   const activity = await (await request.get(`${base}/api/activity`, { headers: headers(user) })).json();
   expect(activity.days.every((day: {total:number}) => day.total === 0)).toBe(true);
@@ -60,7 +60,7 @@ async function settings(page: Page, user: Account) {
   await page.goto('/');
   await expect(page.locator('.save-status')).toContainText('Progress saved');
   await expect(page.locator('.account-trigger')).toContainText(user.username);
-  await expect.poll(() => page.evaluate(username => JSON.parse(localStorage.getItem('st-learning')!)[`account:${username}`]?.attempts.length, user.username)).toBe(2);
+  await expect.poll(() => page.evaluate(key => JSON.parse(localStorage.getItem('st-learning')!)[`account:${key}`]?.attempts.length, user.learningKey)).toBe(2);
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
 }
 
@@ -90,7 +90,9 @@ test('deleting data keeps the account, rotates sessions, deletes all learning da
   const fresh: Account = await response.json();
   expect(fresh.username).toBe(user.username);
   expect(fresh.token).not.toBe(user.token);
+  expect(fresh.learningKey).not.toBe(user.learningKey);
   for (const old of [user, second]) expect((await request.get(`${base}/api/me`, { headers: headers(old) })).status()).toBe(401);
+  expect((await request.post(`${base}/api/learning`, { headers: headers(fresh), data: { learningKey:user.learningKey, attempts:[answer()], tests:[] } })).status()).toBe(409);
   await expectEmpty(request, fresh);
   expect((await request.post(`${base}/api/auth/login`, { data: { username: user.username, password } })).ok()).toBeTruthy();
   expect(await (await request.get(`${base}/api/stats`, { headers: headers(other) })).json()).toMatchObject({ total: 1, xp: 10 });
@@ -109,7 +111,9 @@ test('deleting an account removes its data and all sessions without affecting an
   expect((await request.post(`${base}/api/auth/login`, { data: { username: user.username, password } })).status()).toBe(401);
   const recreated = await request.post(`${base}/api/auth/register`, { data: { username: user.username, password } });
   expect(recreated.ok(), await recreated.text()).toBeTruthy();
-  await expectEmpty(request, await recreated.json());
+  const replacement:Account=await recreated.json();
+  expect(replacement.learningKey).not.toBe(user.learningKey);
+  await expectEmpty(request,replacement);
   expect(await (await request.get(`${base}/api/stats`, { headers: headers(other) })).json()).toMatchObject({ total: 1, xp: 10 });
 });
 
@@ -119,7 +123,7 @@ test('concurrent sync and word writes cannot restore data after deletion revokes
     await seed(request, user);
     const [deleted, synced, saved] = await Promise.all([
       request.delete(`${base}/api/account/data`, { headers: headers(user), data: { password } }),
-      request.post(`${base}/api/learning`, { headers: headers(user), data: { attempts: [answer()], tests: [] } }),
+      request.post(`${base}/api/learning`, { headers: headers(user), data: { learningKey:user.learningKey, attempts: [answer()], tests: [] } }),
       request.post(`${base}/api/words`, { headers: headers(user), data: { word: 'beautiful' } }),
     ]);
     expect(deleted.ok(), await deleted.text()).toBeTruthy();
@@ -127,7 +131,7 @@ test('concurrent sync and word writes cannot restore data after deletion revokes
     expect([201, 401]).toContain(saved.status());
     const fresh: Account = await deleted.json();
     await expectEmpty(request, fresh);
-    expect((await request.post(`${base}/api/learning`, { headers: headers(user), data: { attempts: [answer()], tests: [] } })).status()).toBe(401);
+    expect((await request.post(`${base}/api/learning`, { headers: headers(user), data: { learningKey:user.learningKey, attempts: [answer()], tests: [] } })).status()).toBe(401);
   }
 });
 
@@ -158,7 +162,7 @@ test('cancelled or failed deletion leaves local progress, words and credentials 
   await page.route('**/api/account/data', route => route.fulfill({ status: 500, json: { error: 'Deletion failed' }, headers: { 'Access-Control-Allow-Origin': '*' } }));
   page.once('dialog', dialog => dialog.accept());
   await remove.click();
-  await expect(page.getByRole('alert')).toHaveText('Deletion failed');
+  await expect(page.locator('.account-data').getByRole('alert')).toHaveText('Deletion failed');
   expect(await page.evaluate(() => ({ session: localStorage.getItem('st-session'), history: localStorage.getItem('st-learning') }))).toEqual(before);
   await expect(remove).toBeEnabled();
   await page.getByRole('button', { name: 'My words', exact: true }).click();
@@ -178,7 +182,7 @@ for (const removeAccount of [false, true]) test(`settings ${removeAccount ? 'acc
   await page.getByRole('button', { name: removeAccount ? 'Delete account' : 'Delete data', exact: true }).click();
   await expect(page.getByRole('status').filter({ hasText: removeAccount ? 'Account deleted.' : 'Account data deleted.' })).toBeVisible();
   const cache = await page.evaluate(user => ({
-    learning: JSON.parse(localStorage.getItem('st-learning')!)[`account:${user.username}`],
+    learning: JSON.parse(localStorage.getItem('st-learning')!)[`account:${user.learningKey}`],
     guestWords: JSON.parse(localStorage.getItem('st-words')!), guestXp: localStorage.getItem('st-xp'),
     testOwners: JSON.parse(localStorage.getItem('st-test-results')!).map((result: SavedTest) => result.owner),
     session: JSON.parse(localStorage.getItem('st-session')!),

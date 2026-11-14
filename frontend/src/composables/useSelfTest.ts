@@ -16,7 +16,7 @@ export function useSelfTest({ contentLocale, mode, authUser, packs, packEntries,
   store: Ref<LearningStore>
   resetting: Ref<boolean>
   recordAnswer: (w:LearningWord, answer:string, exercise:Attempt['exercise'], assistance:Attempt['assistance'], session?:string) => Attempt|null
-  persistLearning: () => void
+  persistLearning: () => Promise<boolean>
   syncLearning: () => Promise<void>
   speak: ReturnType<typeof useAudio>['speak']
 }) {
@@ -76,7 +76,8 @@ export function useSelfTest({ contentLocale, mode, authUser, packs, packEntries,
     testIndex.value++
     if (testFinished.value) {
       const result:SavedTest={id:crypto.randomUUID(),owner:testOwner.value, date:new Date().toISOString(), level:testLevel.value, locale:testLocale.value, correct:testCorrect.value, total:testWords.value.length,answers:[...testAnswers.value]}
-      store.value.tests.unshift(result); store.value.pendingTests.push(result.id); persistLearning(); syncLearning()
+      store.value.tests.unshift(result); store.value.pendingTests.push(result.id)
+      void persistLearning().then(()=>{if(mode.value==='auth') return syncLearning()})
     } else {
       testInput.value = ''; testFeedback.value = 'idle'
       speak(false, testCurrent.value.word, testCurrent.value.locale)

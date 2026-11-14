@@ -3,7 +3,14 @@ export type WritingExercise = LearningWord & { exerciseId:string; skill:string; 
 export type Curriculum = {skills:{id:string;name:string;rule:string;examples:string[]}[];exercises:WritingExercise[]}
 export type Attempt = LearningWord & { id:string; submitted:string; date:string; day:string; hour:number; session:string; exercise:'practice'|'test'|'daily'|'weak'; assistance:'none'|'hint'|'copy'|'retry'; correct:boolean; standard:string }
 export type SavedTest = { id:string; owner:string; date:string; level:'starter'|'intermediate'|'expert'; locale:string; correct:number; total:number; answers?:Attempt[] }
-export type LearningStore = {attempts:Attempt[];tests:SavedTest[];pending:string[];pendingTests:string[]}
+export type GuestProgress = {
+  stats:{total:number;correct:number;streak:number;best:number}
+  xp:number
+  days:Record<string,{total:number;correct:number}>
+  hours:Record<string,number[]>
+  words:Record<string,{seen:number;correct:number}>
+}
+export type LearningStore = {attempts:Attempt[];tests:SavedTest[];pending:string[];pendingTests:string[];generation?:string;legacy?:GuestProgress & {ids:string[]}}
 export const validAnswer = (answer:string) => {const text=answer.normalize('NFC').trim();return text.length>0 && text.length<=200}
 export function learningBatch(data:LearningStore) {
   const pending=new Set(data.pending),pendingTests=new Set(data.pendingTests)

@@ -164,7 +164,7 @@ test('leaderboard period includes boundary days, excludes assisted/test answers 
   const day=(ago:number)=>{const d=new Date();d.setDate(d.getDate()-ago);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
   const make=(ago:number,word:string,assistance:Attempt['assistance']='none',exercise:Attempt['exercise']='practice'):Attempt=>({id:crypto.randomUUID(),session:crypto.randomUUID(),word,submitted:word,locale:'en',date:new Date(day(ago)+'T00:00:00').toISOString(),day:day(ago),hour:0,exercise,assistance,correct:true,standard:'default'});
   const attempts=[make(30,'outside'),make(29,'monthly'),make(7,'lastweek'),make(6,'weekly'),make(0,'friend'),make(0,'friend'),make(0,'assisted','copy'),make(0,'tested','none','test')];
-  const response=await request.post('http://localhost:3000/api/learning',{headers,data:{attempts,tests:[]}});
+  const response=await request.post('http://localhost:3000/api/learning',{headers,data:{learningKey:auth.learningKey,attempts,tests:[]}});
   expect(response.ok(),await response.text()).toBeTruthy();
   for (const [days,xp] of [[1,10],[7,20],[30,40]]) {
     const rows=await (await request.get(`http://localhost:3000/api/leaderboard?limit=50&days=${days}&today=${day(0)}`)).json();

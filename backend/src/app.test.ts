@@ -4,7 +4,7 @@ import { beforeEach, expect, mock, test } from "bun:test";
 const sql = mock(async (_query: TemplateStringsArray, ..._values: unknown[]) => [] as any[]);
 mock.module("./db.ts", () => ({
   sql,
-  getUserByToken: async (token: string) => token === "valid-token" ? { id: 42, username: "learner" } : null,
+  getUserByToken: async (token: string) => token === "valid-token" ? { id: 42, username: "learner", learningKey:"11111111-1111-4111-8111-111111111111" } : null,
   num: (value: unknown) => value == null ? 0 : Number(value),
   isUniqueViolation: () => false,
 }));
@@ -75,7 +75,7 @@ const writingAnswer=()=>({id:crypto.randomUUID(),session:crypto.randomUUID(),wor
 
 test('unknown exercises, mismatched targets and blank submissions are rejected before database writes',async()=>{
   for(const change of [{exerciseId:'made_up'},{word:'fake'},{locale:'de'},{submitted:'   '},{exerciseId:null}]) {
-    expect((await request('/api/learning','POST','valid-token',{attempts:[{...writingAnswer(),...change}],tests:[]})).status).toBe(400);
+    expect((await request('/api/learning','POST','valid-token',{learningKey:"11111111-1111-4111-8111-111111111111",attempts:[{...writingAnswer(),...change}],tests:[]})).status).toBe(400);
   }
   expect(sql).not.toHaveBeenCalled();
 });
@@ -85,16 +85,29 @@ test('writing answers use trusted content, not client scores, variants or skill 
   const tx=mock(async(query:TemplateStringsArray,...values:any[])=>{
     const text=query.join('?');
     if(text.includes('SELECT id FROM users') || text.includes('SELECT 1 FROM tokens')) return [{id:42}];
+    if(text.includes('SELECT learning_key')) return [{learning_key:"11111111-1111-4111-8111-111111111111"}];
     if(text.includes('INSERT INTO learning_attempts')) {saved.push(structuredClone(values[2]));return [{id:values[1]}]}
     if(text.includes('INSERT INTO words')) return [{id:1}];
     return [];
   });
   Object.assign(sql,{begin:async(run:(tx:unknown)=>unknown)=>run(tx)});
   const a={...writingAnswer(),submitted:'fake',correct:true,variants:['fake'],skill:'invented'};
-  expect((await request('/api/learning','POST','valid-token',{attempts:[a],tests:[]})).status).toBe(200);
+  expect((await request('/api/learning','POST','valid-token',{learningKey:"11111111-1111-4111-8111-111111111111",attempts:[a],tests:[]})).status).toBe(200);
   expect(saved[0]).toMatchObject({correct:false,word:'because',skill:'common_spelling',exerciseId:'spelling_because_01'});
   expect(saved[0].variants).toBeUndefined();
   const wordInsert=tx.mock.calls.find(([query])=>query.join('?').includes('INSERT INTO words'))!;
   expect(wordInsert[2]).toBe('because');
   expect(wordInsert[0].join('?')).toContain('FALSE');
+});
+
+test('missing and pre-reset learning keys cannot write history',async()=>{
+  const tx=mock(async(query:TemplateStringsArray)=>{
+    const text=query.join('?');
+    if(text.includes('SELECT id FROM users') || text.includes('SELECT 1 FROM tokens')) return [{id:42}];
+    if(text.includes('SELECT learning_key')) return [{learning_key:crypto.randomUUID()}];
+    throw new Error('stale upload reached a write');
+  });
+  Object.assign(sql,{begin:async(run:(tx:unknown)=>unknown)=>run(tx)});
+  expect((await request('/api/learning','POST','valid-token',{attempts:[],tests:[]})).status).toBe(400);
+  expect((await request('/api/learning','POST','valid-token',{learningKey:"11111111-1111-4111-8111-111111111111",attempts:[writingAnswer()],tests:[]})).status).toBe(409);
 });

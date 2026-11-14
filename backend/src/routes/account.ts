@@ -20,11 +20,12 @@ export async function handleAccount(req: Request, url: URL, user: User) {
     await tx`DELETE FROM words WHERE user_id=${user.id}`;
     await tx`DELETE FROM learning_attempts WHERE user_id=${user.id}`;
     await tx`DELETE FROM learning_tests WHERE user_id=${user.id}`;
-    await tx`UPDATE users SET xp=0 WHERE id=${user.id}`;
+    const learningKey = crypto.randomUUID();
+    await tx`UPDATE users SET xp=0, learning_key=${learningKey} WHERE id=${user.id}`;
     // Old sessions must not re-upload their cached progress after the wipe.
     await tx`DELETE FROM tokens WHERE user_id=${user.id}`;
     const token = crypto.randomUUID();
     await tx`INSERT INTO tokens(token, user_id) VALUES (${token},${user.id})`;
-    return json({ token, username: user.username }, 200, { "Cache-Control": "no-store" });
+    return json({ token, username: user.username, learningKey }, 200, { "Cache-Control": "no-store" });
   });
 }

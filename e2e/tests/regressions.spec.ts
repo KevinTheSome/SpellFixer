@@ -13,6 +13,7 @@ function attempt(word='friend',correct=true):Attempt {
   return {id:crypto.randomUUID(),session:crypto.randomUUID(),word,locale:'en',submitted:correct?word:'wrong',date:date.toISOString(),day,hour:date.getHours(),exercise:'practice',assistance:'none',correct,standard:'default'};
 }
 function stubApi(accounts:Record<string,Account>={}) {
+  const keys:Record<string,string>={}
   return async(route:Route)=>{
     const req=route.request(),path=new URL(req.url()).pathname,method=req.method();
     const user=req.headers().authorization?.replace(/^Bearer\s+token-/,'')??'';
@@ -24,19 +25,20 @@ function stubApi(accounts:Record<string,Account>={}) {
     else if(path==='/api/leaderboard') json=[];
     else if(path==='/api/auth/login' || path==='/api/auth/register') {
       const username=req.postDataJSON().username;
-      accounts[username]??={attempts:[],tests:[]};json={token:`token-${username}`,username};
+      accounts[username]??={attempts:[],tests:[]};json={token:`token-${username}`,username,learningKey:keys[username]??`key-${username}`};
     } else if(path==='/api/auth/logout') json={ok:true};
     else if(!accounts[user]) {status=401;json={error:'unauthorized'}}
-    else if(path==='/api/me') json={id:1,username:user};
+    else if(path==='/api/me') json={id:1,username:user,learningKey:keys[user]??`key-${user}`};
     else if(path==='/api/learning') {
       if(method==='POST') {
         const data=req.postDataJSON();
+        if(data.learningKey!==(keys[user]??`key-${user}`)) return route.fulfill({status:409,json:{error:'history reset'},headers:cors});
         accounts[user].attempts=[...new Map([...accounts[user].attempts,...data.attempts].map((a:Attempt)=>[a.id,a])).values()];
         accounts[user].tests=[...new Map([...accounts[user].tests,...data.tests].map((r:SavedTest)=>[r.id,r])).values()];
-      } else json=accounts[user];
+      } else json={...accounts[user],learningKey:keys[user]??`key-${user}`};
     } else if(path==='/api/words') json=[{id:1,word:'friend',locale:'en',timesSeen:0,timesCorrect:0}];
     else if(path==='/api/stats') {
-      if(method==='DELETE') accounts[user]={attempts:[],tests:[]};
+      if(method==='DELETE') {accounts[user]={attempts:[],tests:[]};keys[user]=crypto.randomUUID();json={learningKey:keys[user]}}
       else {const a=accounts[user].attempts;json={...emptyStats,total:a.length,correct:a.filter(a=>a.correct).length,xp:a.filter(a=>a.correct).length*10}}
     } else if(path==='/api/activity') json={days:[],hourly:Array.from({length:24},(_,hour)=>({hour,total:0,correct:0}))};
     else {status=404;json={error:'not found'}}
@@ -48,7 +50,8 @@ async function seedAccount(page:Page,user:string,answers:Attempt[]=[],pending:st
     if(localStorage.getItem('regression-seeded')) return;
     localStorage.setItem('regression-seeded','1');
     localStorage.setItem('st-token',`token-${user}`);localStorage.setItem('st-user',user);
-    localStorage.setItem('st-learning',JSON.stringify({[`account:${user}`]:{attempts:answers,tests:[],pending,pendingTests:[]}}));
+    localStorage.setItem('st-session',JSON.stringify({token:`token-${user}`,username:user,learningKey:`key-${user}`}));
+    localStorage.setItem('st-learning',JSON.stringify({[`account:key-${user}`]:{attempts:answers,tests:[],pending,pendingTests:[]}}));
   },{user,answers,pending});
 }
 
@@ -57,8 +60,9 @@ for(const account of [false,true]) test(`settings reset preserves ${account?'acc
   const accounts={alice:{attempts:[a],tests:[result]}};
   await page.route('**/api/**',stubApi(accounts));
   await page.addInitScript(({account,a,result})=>{
-    const key=account?'account:alice':'guest';
+    const key=account?'account:key-alice':'guest';
     if(account) {localStorage.setItem('st-token','token-alice');localStorage.setItem('st-user','alice')}
+    if(account) localStorage.setItem('st-session',JSON.stringify({token:'token-alice',username:'alice',learningKey:'key-alice'}));
     localStorage.setItem('st-learning',JSON.stringify({[key]:{attempts:[a],tests:[result],pending:[],pendingTests:[]}}));
     localStorage.setItem('st-stats',JSON.stringify({total:1,correct:1}));localStorage.setItem('st-xp','10');
   },{account,a,result});
@@ -70,7 +74,7 @@ for(const account of [false,true]) test(`settings reset preserves ${account?'acc
   await page.getByRole('button',{name:'Forest',exact:true}).click();
   await page.getByRole('button',{name:'Español',exact:true}).click();
   await page.getByRole('button',{name:'Restablecer todo',exact:true}).click();
-  const saved=await page.evaluate(key=>({store:JSON.parse(localStorage.getItem('st-learning')!)[key],locale:localStorage.getItem('st-locale'),theme:JSON.parse(localStorage.getItem('st-theme')!)}),account?'account:alice':'guest');
+   const saved=await page.evaluate(key=>({store:JSON.parse(localStorage.getItem('st-learning')!)[key],locale:localStorage.getItem('st-locale'),theme:JSON.parse(localStorage.getItem('st-theme')!)}),account?'account:key-alice':'guest');
   expect(saved.store.attempts).toEqual([a]);expect(saved.store.tests).toEqual([result]);
   expect(saved.locale).toBe('en');expect(saved.theme.bg).toBe('#fbfbfd');expect(deletions).toEqual([]);
   expect(accounts.alice.attempts).toEqual([a]);
@@ -138,8 +142,8 @@ test('another tab cannot send or merge history using a different account token',
   await page.getByRole('button',{name:'Retry sync',exact:true}).click();await expect(page.locator('.save-status')).toContainText('Progress saved');
   expect(accounts.alice.attempts.map(a=>a.id)).toContain(a.id);expect(accounts.bob.attempts.map(a=>a.id)).not.toContain(a.id);
   const cache=await page.evaluate(()=>JSON.parse(localStorage.getItem('st-learning')!));
-  expect(cache['account:alice'].attempts.map((a:Attempt)=>a.id)).not.toContain(b.id);
-  expect(cache['account:bob'].attempts.map((a:Attempt)=>a.id)).toContain(b.id);
+  expect(cache['account:key-alice'].attempts.map((a:Attempt)=>a.id)).not.toContain(b.id);
+  expect(cache['account:key-bob'].attempts.map((a:Attempt)=>a.id)).toContain(b.id);
   await page.getByRole('button',{name:'Account',exact:true}).click();await page.getByRole('button',{name:'Logout → guest',exact:true}).click();
   expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('st-session')!).username)).toBe('bob');
   await second.reload();await expect(second.locator('.account-trigger')).toContainText('bob');
@@ -151,7 +155,8 @@ test('switching accounts waits for the new sync and ignores old account response
   await page.route('**/api/**',stubApi(accounts));
   await page.addInitScript(b=>{
     localStorage.setItem('st-token','token-alice');localStorage.setItem('st-user','alice');
-    localStorage.setItem('st-learning',JSON.stringify({'account:alice':{attempts:[],tests:[],pending:[],pendingTests:[]},'account:bob':{attempts:[b],tests:[],pending:[b.id],pendingTests:[]}}));
+    localStorage.setItem('st-session',JSON.stringify({token:'token-alice',username:'alice',learningKey:'key-alice'}));
+    localStorage.setItem('st-learning',JSON.stringify({'account:key-alice':{attempts:[],tests:[],pending:[],pendingTests:[]},'account:key-bob':{attempts:[b],tests:[],pending:[b.id],pendingTests:[]}}));
   },b);
   let release!:()=>void;const held=new Promise<void>(resolve=>{release=resolve}),order:string[]=[];
   await page.route('**/api/learning',async r=>{
@@ -166,7 +171,7 @@ test('switching accounts waits for the new sync and ignores old account response
   await expect(page.locator('.account-trigger')).toContainText('bob');release();
   await expect.poll(()=>order.includes('read')).toBe(true);expect(order[0]).toBe('write');
   await expect(page.getByRole('button',{name:'Retry sync',exact:true})).toBeEnabled();
-  const cache=await page.evaluate(()=>JSON.parse(localStorage.getItem('st-learning')!)['account:bob']);
+  const cache=await page.evaluate(()=>JSON.parse(localStorage.getItem('st-learning')!)['account:key-bob']);
   expect(cache.attempts.map((a:Attempt)=>a.id)).toEqual([b.id]);
 });
 
@@ -177,14 +182,14 @@ test('clear is blocked until a token-only session resolves its account identity'
   await page.route('**/api/me',async r=>{await held;await r.fallback()});
   await page.addInitScript(a=>{
     localStorage.setItem('st-token','token-alice');localStorage.setItem('st-stats',JSON.stringify({total:1,correct:1}));
-    localStorage.setItem('st-learning',JSON.stringify({'account:alice':{attempts:[a],tests:[],pending:[a.id],pendingTests:[]}}));
+    localStorage.setItem('st-learning',JSON.stringify({'account:key-alice':{attempts:[a],tests:[],pending:[a.id],pendingTests:[]}}));
   },a);
   let deleted=false;page.on('request',r=>{if(r.method()==='DELETE')deleted=true});
   await page.goto('/');const clear=page.getByRole('button',{name:'clear stats',exact:true});await expect(clear).toBeDisabled();
   await clear.evaluate(button=>button.dispatchEvent(new MouseEvent('click',{bubbles:true})));expect(deleted).toBe(false);
   release();await expect(page.locator('.account-trigger')).toContainText('alice');await expect(clear).toBeEnabled();
   await clear.click();await expect.poll(()=>deleted).toBe(true);
-  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('st-learning')!)['account:alice'].pending)).toEqual([]);
+  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('st-learning')!)[`account:${JSON.parse(localStorage.getItem('st-session')!).learningKey}`]?.pending)).toEqual([]);
   expect(accounts.alice.attempts).toEqual([]);
 });
 
@@ -200,7 +205,7 @@ test('clearing waits for active sync and clears local data before fallible refre
   await page.locator('input.spell').fill('wrong');await page.getByRole('button',{name:'Check',exact:true}).click();await expect.poll(()=>uploading).toBe(true);
   const clear=page.getByRole('button',{name:'clear stats',exact:true});await clear.click();await expect(clear).toBeDisabled();expect(deleted).toBe(false);
   release();await expect.poll(()=>deleted).toBe(true);
-  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('st-learning')!)['account:alice'])).toEqual({attempts:[],tests:[],pending:[],pendingTests:[]});
+  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('st-learning')!)[`account:${JSON.parse(localStorage.getItem('st-session')!).learningKey}`])).toEqual({attempts:[],tests:[],pending:[],pendingTests:[]});
   await page.unroute('**/api/**',failRefresh);await page.unroute('**/api/learning',holdUpload);
   await expect(page.getByRole('button',{name:'Retry sync',exact:true})).toBeEnabled();await page.getByRole('button',{name:'Retry sync',exact:true}).click();
   await expect(page.locator('.save-status')).toContainText('Progress saved');expect(accounts.alice.attempts).toEqual([]);
@@ -211,7 +216,7 @@ test('a failed clear preserves local progress',async({page})=>{
   await page.route('**/api/stats',r=>r.request().method()==='DELETE'?r.abort():r.fallback());
   await page.goto('/');await expect(page.getByRole('button',{name:'Retry sync',exact:true})).toBeEnabled();
   await page.getByRole('button',{name:'clear stats',exact:true}).click();await expect(page.getByRole('alert')).toBeVisible();
-  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('st-learning')!)['account:alice'].attempts.map((a:Attempt)=>a.id))).toEqual([a.id]);
+  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('st-learning')!)['account:key-alice'].attempts.map((a:Attempt)=>a.id))).toEqual([a.id]);
 });
 
 test('invalid historical answers stay local while valid answers continue syncing',async({page})=>{
@@ -222,8 +227,8 @@ test('invalid historical answers stay local while valid answers continue syncing
   expect(accounts.alice.attempts.map(a=>a.id)).toEqual([good.id]);
   await page.locator('input.spell').fill('friend');await page.getByRole('button',{name:'Check',exact:true}).click();
   await expect.poll(()=>accounts.alice.attempts.length).toBe(2);
-  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('st-learning')!)['account:alice'].pending)).toEqual([bad.id]);
-  const saved:LearningStore=await page.evaluate(()=>JSON.parse(localStorage.getItem('st-learning')!)['account:alice']);
+  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('st-learning')!)['account:key-alice'].pending)).toEqual([bad.id]);
+  const saved:LearningStore=await page.evaluate(()=>JSON.parse(localStorage.getItem('st-learning')!)['account:key-alice']);
   expect(saved.attempts.find(a=>a.id===bad.id)?.submitted).toBe(bad.submitted);expect(saved.pending).toEqual([bad.id]);
 });
 

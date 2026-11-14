@@ -40,8 +40,8 @@ Curriculum lives in `backend/content/en/practice.json` and is served publicly by
 different prompt or answer a new ID. Every exercise targets one real word or
 contraction; whole sentences are never added to a user's word bank. The server
 resolves IDs and grades against its own content, not client-provided answer keys,
-variants, skill labels or scores. No new dependencies or database migration are
-needed. Free-form writing grading and diagnostic placement are not included.
+variants, skill labels or scores. No new dependencies are needed; backend startup
+applies additive schema changes. Free-form writing grading and diagnostic placement are not included.
 
 ## Layout
 
@@ -202,6 +202,21 @@ Rebuild the backend image afterwards so the new files are served from docker.
 - **Guest vs account:** guest progress stays in `localStorage`; logging in uses
   a separate server-synced account ledger. Registration can import guest words,
   answers and tests without deleting the guest copy on this device.
+- **Multiple tabs:** learning saves use the browser's Web Locks API on HTTPS or
+  localhost. Answers and completed tests are merged by ID, and guest totals are
+  derived from that history. A guest reset invalidates older tab snapshots.
+- **Save failures:** device-save errors remain visible even when online sync also
+  fails. Retry saves to the device before trying the network, so freeing storage
+  works while offline.
+- **Account cache identity:** server-issued `learningKey` values identify account
+  histories, not usernames. Clear stats and Delete data replace that key; old
+  uploads are rejected. Username-only account caches and old account test summaries
+  are kept on the device, with a warning, but are never silently uploaded to an
+  account whose original identity cannot be established.
+- **Upgrade together:** rebuild the backend and frontend, then reload existing tabs.
+  The backend adds `users.learning_key` without deleting history. Auth and `/api/me`
+  return `learningKey`, and `POST /api/learning` requires it. Clear stats returns
+  a new key; older clients must reload before syncing. Guest history is preserved.
 - **Audio fallback:** missing mp3 → backend 404 → frontend uses the browser’s
   built-in voice, so drills never break. The per-word file is just cached
   (`Cache-Control: immutable`) for consistent pronunciation.
@@ -209,7 +224,7 @@ Rebuild the backend image afterwards so the new files are served from docker.
 - **Weakest-first mode** unlocks after spelling over half the pack at least once.
 - **Reset settings** changes appearance and app language only. **Clear stats** separately deletes learning history, tests, activity and XP.
 - **Account deletion:** signed-in Settings includes **Delete data** (saved words, answers, tests, activity and XP; account kept) and **Delete account** (account and all its data). Both require the current password and explicit confirmation. Deletion is permanent; the current browser's account cache is cleared, but guest data and offline copies on other devices are not erased. Data deletion rotates the current session and signs out other sessions so stale uploads cannot immediately restore deleted progress.
-- **Deletion API:** `DELETE /api/account/data` and `DELETE /api/account` accept `{ "password": "current password" }` with Bearer authentication. The former returns a replacement `{ token, username }`; the latter revokes every session. Writes are serialized with deletion and recheck the session after acquiring the learner lock.
+- **Deletion API:** `DELETE /api/account/data` and `DELETE /api/account` accept `{ "password": "current password" }` with Bearer authentication. The former returns a replacement `{ token, username, learningKey }`; the latter revokes every session. Writes are serialized with deletion and recheck the session and learning key after acquiring the learner lock.
 - **Answer limits:** new answers are limited to 200 characters. Older oversized answers and tests that depend on them stay on this device, with a warning; they do not block other uploads.
 - **Account tabs:** each open tab keeps its own credentials and does not adopt another tab's login. Logging out still revokes that session on the server.
 - **Attempt API:** `POST /api/attempts` is retired (HTTP 410). Submit answer events through `/api/learning`; client-supplied scores are not accepted.

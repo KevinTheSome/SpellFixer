@@ -12,10 +12,10 @@ export async function handleAuth(req: Request, url: URL) {
     if (!/^[a-z0-9_\-]+$/.test(u)) return json({ error: "username: a-z 0-9 _ - only" }, 400);
     const hash = await Bun.password.hash(p);
     try {
-      const rows = await sql`INSERT INTO users (username, password_hash) VALUES (${u},${hash}) RETURNING id`;
+      const rows = await sql`INSERT INTO users (username, password_hash) VALUES (${u},${hash}) RETURNING id, learning_key`;
       const token = crypto.randomUUID();
       await sql`INSERT INTO tokens (token, user_id) VALUES (${token},${(rows[0] as any).id})`;
-      return json({ token, username: u });
+      return json({ token, username: u, learningKey: rows[0].learning_key });
     } catch (e:any) {
       if (isUniqueViolation(e)) return json({ error: "username taken" }, 409);
       return json({ error: "db error" }, 500);
@@ -25,14 +25,14 @@ export async function handleAuth(req: Request, url: URL) {
     const { username, password } = await body<{username:string,password:string}>(req);
     if(typeof username!=='string' || typeof password!=='string') return json({error:'username and password required'},400);
     const u = (username||"").trim().toLowerCase();
-    const rows = await sql`SELECT id, password_hash FROM users WHERE username=${u}`;
+    const rows = await sql`SELECT id, password_hash, learning_key FROM users WHERE username=${u}`;
     const row = rows[0] as any;
     if (!row) return json({ error: "invalid credentials" }, 401);
     const ok = await Bun.password.verify(password.trim(), row.password_hash);
     if (!ok) return json({ error: "invalid credentials" }, 401);
     const token = crypto.randomUUID();
     await sql`INSERT INTO tokens (token, user_id) VALUES (${token},${row.id})`;
-    return json({ token, username: u });
+    return json({ token, username: u, learningKey: row.learning_key });
   }
   if (path === "/api/auth/logout" && req.method === "POST") {
     const user = await getAuth(req);

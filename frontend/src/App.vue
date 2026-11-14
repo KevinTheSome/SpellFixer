@@ -7,16 +7,17 @@ import TestPage from './pages/TestPage.vue'
 import StatisticsPage from './pages/StatisticsPage.vue'
 import SettingsPage from './pages/SettingsPage.vue'
 
-const { t, view, mode, saveState, pendingCount, syncLearning, resetting, syncError } = provideSpellingApp()
+const { t, view, mode, saveState, localSaveFailed, pendingCount, syncLearning, resetting, syncError, historyNotice } = provideSpellingApp()
 </script>
 
 <template>
   <AppHeader />
   <div class="save-status" role="status" aria-live="polite">
-    {{ saveState==='failed' ? 'Could not save on this device. Keep this page open and free browser storage.' : saveState==='saving' ? t('saving') : mode==='auth' && pendingCount ? t('unsaved') : t('saved') }}
-    <button v-if="mode==='auth'" class="link" @click="syncLearning" :disabled="saveState==='saving' || resetting">{{ t('retrySave') }}</button>
+    {{ localSaveFailed || saveState==='failed' ? 'Could not save on this device. Keep this page open and free browser storage.' : saveState==='saving' ? t('saving') : mode==='auth' && pendingCount ? t('unsaved') : t('saved') }}
+    <button v-if="mode==='auth' || localSaveFailed" class="link" @click="syncLearning" :disabled="saveState==='saving' || resetting">{{ t('retrySave') }}</button>
   </div>
   <p v-if="syncError" class="err" role="alert">{{ syncError }}</p>
+  <p v-if="historyNotice" class="muted" role="status">{{ historyNotice }}</p>
 
   <PracticePage v-if="view==='practice'" />
   <WordsPage v-else-if="view==='words'" />

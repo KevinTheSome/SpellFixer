@@ -10,13 +10,14 @@ export async function handleLearning(req: Request, url: URL, user: User) {
   if (path === '/api/learning' && req.method === 'GET') {
     const attempts = await sql`SELECT payload FROM learning_attempts WHERE user_id=${user.id}`;
     const tests = await sql`SELECT payload FROM learning_tests WHERE user_id=${user.id}`;
-    return json({ attempts:attempts.map((r:any)=>r.payload), tests:tests.map((r:any)=>({...r.payload,owner:user.username})) });
+    return json({ learningKey:user.learningKey, attempts:attempts.map((r:any)=>r.payload), tests:tests.map((r:any)=>({...r.payload,owner:user.username})) });
   }
   if (path === '/api/learning' && req.method === 'POST') {
     const data = await body<any>(req);
     const uuid = (v:unknown) => typeof v==='string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
     const text = (v:unknown,max:number) => typeof v==='string' && v.length>0 && v.length<=max;
     if (!Array.isArray(data.attempts) || !Array.isArray(data.tests) || data.attempts.length>500 || data.tests.length>100) return json({error:'invalid sync batch'},400);
+    if (!uuid(data.learningKey)) return json({error:'learning key required; refresh your session'},400);
     const normalized:any[]=[];
     const content=new Map(listPacks().flatMap(p=>loadPack(p.locale,p.name)??[]).map(e=>[`${e.locale}:${e.word.normalize('NFC').toLowerCase()}`,e]));
     const exercises=new Map(loadCurriculum().exercises.map(e=>[e.exerciseId,e]));
@@ -31,9 +32,11 @@ export async function handleLearning(req: Request, url: URL, user: User) {
       normalized.push({id:a.id,session:a.session,word,submitted,locale:a.locale,date:new Date(a.date).toISOString(),day:a.day,hour:a.hour,exercise:a.exercise,assistance:a.assistance,standard:a.standard,correct,...(writing?{exerciseId:writing.exerciseId,skill:writing.skill,variants:writing.variants,caseSensitive:writing.caseSensitive}:{})});
     }
     for (const r of data.tests) if (!r || !uuid(r.id) || !text(r.date,40) || !Number.isFinite(Date.parse(r.date)) || !['en','de','es'].includes(r.locale) || !['starter','intermediate','expert'].includes(r.level) || !Number.isInteger(r.total) || r.total<1 || r.total>10 || !Number.isInteger(r.correct) || r.correct<0 || r.correct>r.total || (r.answers && (!Array.isArray(r.answers) || r.answers.length!==r.total || r.answers.some((a:any)=>!uuid(a?.id))))) return json({error:'invalid test result'},400);
-    const synced = await sql.begin(async tx => {
+    return sql.begin(async tx => {
       // Serialize XP awards per learner, including simultaneous retries of the same sync batch.
-      if (!await lockSession(tx, req, user)) return false;
+      if (!await lockSession(tx, req, user)) return json({error:'unauthorized'},401);
+      const rows=await tx`SELECT learning_key FROM users WHERE id=${user.id}`;
+      if(rows[0].learning_key!==data.learningKey) return json({error:'learning history was reset; refresh before syncing'},409);
       for (const a of normalized) {
         if(a.assistance==='none') {
           const prior=await tx`SELECT 1 FROM learning_attempts WHERE user_id=${user.id} AND id<>${a.id} AND payload->>'session'=${a.session} AND payload->>'word'=${a.word} AND payload->>'locale'=${a.locale} AND COALESCE(payload->>'exerciseId','')=${a.exerciseId??''} LIMIT 1`;
@@ -62,10 +65,8 @@ export async function handleLearning(req: Request, url: URL, user: User) {
         const result={id:r.id,owner:user.username,date:r.date,locale:r.locale,level:r.level,total:r.total,correct:r.answers?answers.filter(a=>a.correct).length:r.correct,...(answers.length===r.total?{answers}:{})};
         await tx`INSERT INTO learning_tests(user_id,id,payload) VALUES (${user.id},${r.id},${result}::jsonb) ON CONFLICT DO NOTHING`;
       }
-      return true;
+      return json({ok:true});
     });
-    if (!synced) return json({ error: "unauthorized" }, 401);
-    return json({ok:true});
   }
   // The legacy writer trusted client-supplied scores and bypassed event deduplication.
   if (path === "/api/attempts" && req.method === "POST") {

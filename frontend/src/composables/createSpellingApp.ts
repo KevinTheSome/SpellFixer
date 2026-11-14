@@ -1,6 +1,6 @@
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { api, isLoggedIn, type PackMeta, type PackEntry, type Stats } from '../api'
-import { xpProgress, XP_PER_CORRECT } from '../xp'
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
+import { api, isLoggedIn, type PackMeta, type PackEntry, type Stats, type Session } from '../api'
+import { xpProgress } from '../xp'
 import { normalize, wordKey, spellingKey, isCorrect, eligible, mergeAttempts, reviews, patterns, align, buildLesson, queueLessonRetry, validAnswer, learningBatch, type LearningStore, type Attempt, type LearningWord, type SavedTest, type Curriculum } from '../learning'
 import { useI18n } from '../i18n'
 import { localDay, shuffled } from '../utils'
@@ -8,6 +8,7 @@ import { useTheme } from './useTheme'
 import { useAudio } from './useAudio'
 import { useSelfTest, LS_TEST_RESULTS } from './useSelfTest'
 import { useStatistics, type DayStat, type WordMeta } from './useStatistics'
+import { emptyLearning, readLearning, mergeLearning, guestProgress, learningLock, saveLearning } from '../learningStorage'
 
 const DEFAULT_WORDS = ['because','beautiful','friend','necessary','accommodate','rhythm','definitely','separate','occasion','embarrass']
 const LS_WORDS = 'st-words'
@@ -36,7 +37,6 @@ export function createSpellingApp() {
   const words = ref<string[]>(JSON.parse(localStorage.getItem(LS_WORDS) || 'null') ?? [...DEFAULT_WORDS])
   const stats = ref<Stats>(migrateStats(JSON.parse(localStorage.getItem(LS_STATS) || 'null')))
   const guestXp = ref(Number(localStorage.getItem(LS_XP) || '0') || 0)
-  watch(guestXp, v => localStorage.setItem(LS_XP, String(v)))
   const currentXp = computed(() => mode.value === 'auth' ? (stats.value.xp ?? 0) : guestXp.value)
   const levelInfo = computed(() => xpProgress(currentXp.value))
   const xpPct = computed(() => {
@@ -45,13 +45,7 @@ export function createSpellingApp() {
   })
 
   const dayStats = ref<Record<string,DayStat>>(JSON.parse(localStorage.getItem(LS_DAYS) || 'null') ?? {})
-  watch(dayStats, v => localStorage.setItem(LS_DAYS, JSON.stringify(v)), { deep:true })
   const hourStats = ref<Record<string, number[]>>(JSON.parse(localStorage.getItem(LS_HOURS) || 'null') ?? {})
-  watch(hourStats, v => localStorage.setItem(LS_HOURS, JSON.stringify(v)), { deep:true })
-  function bumpHour(day: string, hour: number) {
-    const arr = hourStats.value[day] ?? (hourStats.value[day] = Array(24).fill(0))
-    arr[hour] = (arr[hour] ?? 0) + 1
-  }
   const wstats = ref<Record<string,WStat>>(JSON.parse(localStorage.getItem(LS_WSTATS) || 'null') ?? {})
   function ensureWStats(list:string[]){
     for(const w of list) if(!wstats.value[w]) wstats.value[w] = { seen:0, correct:0 }
@@ -61,6 +55,7 @@ export function createSpellingApp() {
   const backendWords = ref<{id:number,word:string,locale:string,timesSeen:number,timesCorrect:number}[]>([])
   const mode = ref<'guest'|'auth'>(isLoggedIn() ? 'auth' : 'guest')
   const authUser = ref<string>(api.getUsername())
+  const learningKey = ref(api.getLearningKey())
   const authForm = ref({ username: '', password: '', error: '' })
   const authLoading = ref(false)
   const view = ref<'practice'|'words'|'test'|'stats'|'settings'>('practice')
@@ -140,6 +135,7 @@ export function createSpellingApp() {
       if (!list.length) return
       contentLocale.value = p.locale
       if(drill.value==='correct') drill.value='rand'
+      await nextTick()
       activePackId.value = p.id
       lesson.value=null; reviewQueue.value=[]
       sessionId.value=crypto.randomUUID()
@@ -151,8 +147,6 @@ export function createSpellingApp() {
   }
 
   watch(words, v => { if(mode.value==='guest'){ localStorage.setItem(LS_WORDS, JSON.stringify(v)); ensureWStats(v) } }, { deep:true })
-  watch(stats, v => { if(mode.value==='guest') localStorage.setItem(LS_STATS, JSON.stringify(v)) }, { deep:true })
-  watch(wstats, v => localStorage.setItem(LS_WSTATS, JSON.stringify(v)), { deep:true })
   const current = computed(() => displayWords.value[idx.value] ?? '')
   const currentWord = computed<LearningWord>(()=>practiceWords.value[idx.value] ?? {word:'',locale:contentLocale.value})
   const accuracy = computed(() => stats.value.total ? Math.round(stats.value.correct / stats.value.total * 100) : 0)
@@ -219,9 +213,9 @@ export function createSpellingApp() {
   }
 
   // The guest ledger is independent of account caches; logging out always restores guest progress.
-  const learningStores = ref<Record<string,LearningStore>>(JSON.parse(localStorage.getItem('st-learning') || '{}'))
-  const owner = computed(()=>mode.value==='auth'?`account:${authUser.value}`:'guest')
-  watch(owner,key=>{if(!learningStores.value[key])learningStores.value[key]={attempts:[],tests:[],pending:[],pendingTests:[]}},{immediate:true,flush:'sync'})
+  const learningStores = ref<Record<string,LearningStore>>(readLearning())
+  const owner = computed(()=>mode.value==='auth'?`account:${learningKey.value || 'unresolved'}`:'guest')
+  watch(owner,key=>{if(!learningStores.value[key])learningStores.value[key]=emptyLearning()},{immediate:true,flush:'sync'})
   const store = computed(()=>learningStores.value[owner.value]!)
   const attempts = computed(()=>store.value.attempts)
   const reviewRows = computed(()=>reviews(attempts.value))
@@ -231,50 +225,103 @@ export function createSpellingApp() {
   const confirmCustom = ref(false)
   const customLocale = ref('en')
   const saveState = ref<'saved'|'pending'|'saving'|'failed'>('saved')
+  const localSaveFailures = ref<Record<string,boolean>>({})
+  const localWrites = ref<Record<string,number>>({})
+  const localSaveFailed = computed(()=>!!localSaveFailures.value[owner.value])
   const syncError = ref('')
+  const historyNotice = ref('')
   const resetting = ref(false)
   const sessionId = ref(crypto.randomUUID())
   const pendingCount = computed(()=>store.value.pending.length+store.value.pendingTests.length)
-  function persistLearning(key=owner.value) {
-    try {
-      const saved=JSON.parse(localStorage.getItem('st-learning') || '{}')
-      saved[key]=learningStores.value[key]
-      localStorage.setItem('st-learning',JSON.stringify(saved))
-      saveState.value=mode.value==='auth' && pendingCount.value?'pending':'saved'
+  function refreshGuest() {
+    const data=learningStores.value.guest
+    if(mode.value!=='guest' || !data?.legacy) return
+    const totals=guestProgress(data)
+    stats.value=migrateStats(totals.stats);guestXp.value=totals.xp
+    dayStats.value=totals.days;hourStats.value=totals.hours;wstats.value=totals.words
+  }
+  function discardPracticeSession() {
+    lesson.value=null;reviewQueue.value=[];sessionId.value=crypto.randomUUID();idx.value=0
+    input.value='';feedback.value='idle';hintShown.value=false;retrying.value=false;covered.value=false
+    resetSelfTest()
+  }
+  function acceptStored(key:string, data:LearningStore, stale=false) {
+    if(stale) {
+      learningStores.value[key]=data
+      if(owner.value===key) {
+        discardPracticeSession()
+        historyNotice.value=t('historyReset')
+      }
     }
-    catch {saveState.value='failed'}
+    if(key==='guest') refreshGuest()
+  }
+  async function persistLearning(key=owner.value, ack:string[]=[], ackTests:string[]=[]) {
+    const data=learningStores.value[key]
+    if(key==='account:unresolved') return false
+    localWrites.value[key]=(localWrites.value[key]??0)+1
+    updateSaveState()
+    try {
+      const result=await saveLearning(key,data,ack,ackTests)
+      if(learningStores.value[key]!==data) return false
+      localSaveFailures.value[key]=false
+      acceptStored(key,result.data,result.stale)
+      return !result.stale
+    }
+    catch(error) {
+      localSaveFailures.value[key]=true
+      if(owner.value===key) saveState.value='failed'
+      if(!navigator.locks && owner.value===key) syncError.value=error instanceof Error?error.message:String(error)
+      return false
+    }
+    finally {localWrites.value[key]--;updateSaveState()}
   }
   let syncing:Promise<void>|null = null
+  function updateSaveState() {
+    saveState.value=localSaveFailed.value?'failed':syncing || localWrites.value[owner.value]>0?'saving':mode.value==='auth' && pendingCount.value?'pending':'saved'
+  }
   function syncLearning():Promise<void> {
     if(syncing) return syncing
-    if(mode.value!=='auth' || !authUser.value || resetting.value) return Promise.resolve()
-    const key=owner.value, user=authUser.value, data=store.value, token=api.getToken()
+    if(resetting.value) return Promise.resolve()
+    if(mode.value!=='auth') return persistLearning().then(()=>{})
+    if(!authUser.value) return Promise.resolve()
+    const key=owner.value, data=store.value, token=api.getToken()
     const current=()=>owner.value===key && api.getToken()===token && store.value===data
     saveState.value='saving';syncError.value=''
     let success=false
     syncing=(async()=>{try {
-      // Also migrate existing browser-local self-test summaries, without inventing answer text.
-      for(const old of testResults.value.filter(r=>r.owner===user)) {
-        if(!old.id) old.id=crypto.randomUUID()
-        if(!data.tests.some(r=>r.id===old.id)) {data.tests.push(old);data.pendingTests.push(old.id)}
+      await persistLearning(key)
+      if(!current()) return
+      // Resolve the server's current namespace before uploading any offline history.
+      const identity=await api.me()
+      if(!current()) return
+      if(typeof identity.learningKey!=='string' || !identity.learningKey) throw new Error('Server upgrade required before syncing')
+      if(identity.learningKey!==learningKey.value) {
+        const hadIdentity=!!learningKey.value
+        api.setToken(token,identity.username,identity.learningKey)
+        authUser.value=identity.username;learningKey.value=identity.learningKey
+        if(hadIdentity) {discardPracticeSession();historyNotice.value=t('historyReset')}
+        return
       }
-      localStorage.setItem(LS_TEST_RESULTS,JSON.stringify(testResults.value))
+      const legacy=learningStores.value[`account:${authUser.value}`]
+      if(legacy?.attempts.length || legacy?.tests.length || testResults.value.some(r=>r.owner===authUser.value)) syncError.value=t('legacyAccountCache')
       while(data.pending.length || data.pendingTests.length) {
         if(!current()) return
         const batch=learningBatch(data)
         if(!batch.attempts.length && !batch.tests.length) break
-        await api.syncLearning(batch.attempts,batch.tests)
+        await api.syncLearning(batch.attempts,batch.tests,learningKey.value)
         if(!current()) return
         const ids=new Set(batch.attempts.map(a=>a.id)), tests=new Set(batch.tests.map(r=>r.id))
         data.pending=data.pending.filter(id=>!ids.has(id));data.pendingTests=data.pendingTests.filter(id=>!tests.has(id))
-        persistLearning(key)
+        await persistLearning(key,[...ids],[...tests])
       }
       if(!current()) return
       const remote=await api.learning()
       if(!current()) return
+      if(remote.learningKey!==learningKey.value) return
       data.attempts=mergeAttempts(data.attempts,remote.attempts)
       data.tests=[...new Map([...data.tests,...remote.tests].map(r=>[r.id,r])).values()].sort((a,b)=>b.date.localeCompare(a.date))
-      persistLearning(key)
+      await persistLearning(key)
+      if(!current()) return
       const [s,w]=await Promise.all([api.stats(),api.getWords()])
       if(!current()) return
       stats.value=s;backendWords.value=w;await refreshActivity()
@@ -284,32 +331,34 @@ export function createSpellingApp() {
     } catch {if(current()) saveState.value='pending'}
     })().finally(()=>{
       syncing=null
+      updateSaveState()
       const remaining=learningBatch(store.value)
       if(!resetting.value && mode.value==='auth' && (!current() || success && (remaining.attempts.length || remaining.tests.length))) return syncLearning()
     })
     return syncing
   }
   const onOnline = () => { void syncLearning() }
+  const onStorage = (event:StorageEvent) => {
+    if(event.key!=='st-learning') return
+    try {
+      const saved=readLearning()[owner.value], data=store.value
+      if(!saved) return
+      const stale=saved.generation!==data.generation
+      if(!stale) Object.assign(data,mergeLearning(saved,data))
+      acceptStored(owner.value,saved,stale)
+    } catch { /* Keep in-memory work if another browser write failed. */ }
+  }
   window.addEventListener('online', onOnline)
-  onUnmounted(() => window.removeEventListener('online', onOnline))
+  window.addEventListener('storage', onStorage)
+  onUnmounted(() => {window.removeEventListener('online', onOnline);window.removeEventListener('storage',onStorage)})
   function recordAnswer(w:LearningWord,answer:string,exercise:Attempt['exercise'],assistance:Attempt['assistance'],session:string=sessionId.value):Attempt|null {
-    if(resetting.value || mode.value==='auth' && !authUser.value) return null
+    if(resetting.value || mode.value==='auth' && (!authUser.value || !learningKey.value)) return null
     if(!validAnswer(answer)) {syncError.value=locale.value==='es'?'Usa entre 1 y 200 caracteres para tu respuesta.':'Use 1–200 characters for your answer.';return null}
     const a:Attempt={id:crypto.randomUUID(),word:w.word,locale:w.locale,...(w.exerciseId?{exerciseId:w.exerciseId,skill:w.skill,variants:w.variants,caseSensitive:w.caseSensitive}:{}),submitted:answer.normalize('NFC').trim(),date:new Date().toISOString(),day:localDay(),hour:new Date().getHours(),session,exercise,assistance,correct:isCorrect(w,answer),standard:'default'}
-    const rewarded=attempts.value.some(x=>spellingKey(x)===spellingKey(a) && x.day===a.day && x.correct && eligible(x) && x.exercise!=='test')
     store.value.attempts.push(a)
     if(mode.value==='auth') store.value.pending.push(a.id)
-    else {
-      const d=dayStats.value[a.day]??(dayStats.value[a.day]={total:0,correct:0});d.total++;if(a.correct)d.correct++
-      bumpHour(a.day,a.hour)
-      if(eligible(a) && exercise!=='test') {
-        stats.value.total++
-        if(a.correct) {stats.value.correct++;stats.value.streak++;stats.value.best=Math.max(stats.value.best,stats.value.streak);if(!rewarded)guestXp.value+=XP_PER_CORRECT}
-        else stats.value.streak=0
-        const s=wstats.value[spellingKey(a)]??(wstats.value[spellingKey(a)]={seen:0,correct:0});s.seen++;if(a.correct)s.correct++
-      }
-    }
-    persistLearning();syncLearning()
+    else refreshGuest()
+    void persistLearning().then(()=>{if(mode.value==='auth') return syncLearning()})
     return a
   }
 
@@ -465,12 +514,24 @@ export function createSpellingApp() {
     try {
       await syncing
       if(owner.value!==key || api.getToken()!==token) return
-      if(mode.value==='auth') await api.resetStats()
-      learningStores.value[key]={attempts:[],tests:[],pending:[],pendingTests:[]}
+      if(mode.value==='auth') {
+        const result=await api.resetStats()
+        if(owner.value!==key || api.getToken()!==token) return
+        await learningLock(()=>{
+          const saved=readLearning();delete saved[key]
+          localStorage.setItem('st-learning',JSON.stringify(saved))
+        })
+        api.setToken(token,authUser.value,result.learningKey);learningKey.value=result.learningKey
+        delete learningStores.value[key]
+        await persistLearning()
+      } else {
+        const next:LearningStore={...emptyLearning(),generation:crypto.randomUUID(),legacy:{ids:[],stats:{total:0,correct:0,streak:0,best:0},xp:0,days:{},hours:{},words:{}}}
+        await saveLearning(key,next,[],[],true)
+        learningStores.value[key]=next
+        localSaveFailures.value[key]=false
+      }
       testResults.value=testResults.value.filter(r=>r.owner!==user)
-      persistLearning(key)
-      if(owner.value!==key || api.getToken()!==token) return
-      stats.value=migrateStats({});syncError.value='';reviewQueue.value=[];lesson.value=null;resetSelfTest()
+      stats.value=migrateStats({});syncError.value='';historyNotice.value='';reviewQueue.value=[];lesson.value=null;resetSelfTest()
       if(mode.value==='guest') {
         guestXp.value=0;dayStats.value={};hourStats.value={}
         for(const k of Object.keys(wstats.value)) wstats.value[k]={seen:0,correct:0}
@@ -490,13 +551,16 @@ export function createSpellingApp() {
     restoreGuest()
   }
   function restoreGuest() {
-    api.setToken(''); authUser.value=''; mode.value='guest'; authForm.value={username:'',password:'',error:''}
-    backendWords.value=[];serverDays.value=[];serverHourly.value=Array(24).fill(0);syncError.value=''
+    api.setToken(''); authUser.value='';learningKey.value=''; mode.value='guest'; authForm.value={username:'',password:'',error:''}
+    backendWords.value=[];serverDays.value=[];serverHourly.value=Array(24).fill(0);syncError.value='';historyNotice.value=''
     words.value = JSON.parse(localStorage.getItem(LS_WORDS) || 'null') ?? [...DEFAULT_WORDS]
     stats.value = migrateStats(JSON.parse(localStorage.getItem(LS_STATS) || 'null'))
     guestXp.value = Number(localStorage.getItem(LS_XP) || '0') || 0
     wstats.value = JSON.parse(localStorage.getItem(LS_WSTATS) || 'null') ?? {}
     hourStats.value = JSON.parse(localStorage.getItem(LS_HOURS) || 'null') ?? {}
+    const guest=readLearning().guest
+    if(guest) learningStores.value.guest=guest
+    refreshGuest()
     ensureWStats(words.value)
     idx.value=0
     lesson.value=null; reviewQueue.value=[]; retrying.value=false; covered.value=false; feedback.value='idle';input.value='';resetSelfTest()
@@ -509,7 +573,7 @@ export function createSpellingApp() {
     try {
       await syncing
       if (!current()) return false
-      let session: {token:string,username:string}|undefined
+      let session: Session|undefined
       if (removeAccount) await api.deleteAccount(password)
       else session=await api.deleteAccountData(password)
       if (!current()) return false
@@ -517,21 +581,26 @@ export function createSpellingApp() {
       // Clear the device cache before accepting a fresh session, so a reload cannot upload erased answers.
       const remainingTests=testResults.value.filter(r=>r.owner!==user)
       try {
-        const cached=JSON.parse(localStorage.getItem('st-learning') || '{}')
-        delete cached[key]
-        localStorage.setItem('st-learning',JSON.stringify(cached))
+        await learningLock(()=>{
+          const cached=readLearning()
+          delete cached[key]
+          delete cached[`account:${user}`]
+          localStorage.setItem('st-learning',JSON.stringify(cached))
+        })
         localStorage.setItem(LS_TEST_RESULTS,JSON.stringify(remainingTests))
       } catch {
         saveState.value='failed'
         throw new Error(t('localDeleteFailed'))
       }
-      learningStores.value[key]={attempts:[],tests:[],pending:[],pendingTests:[]}
+      learningStores.value[key]=emptyLearning()
       testResults.value=remainingTests
       backendWords.value=[]; stats.value=migrateStats({}); serverDays.value=[]; serverHourly.value=Array(24).fill(0)
       newWord.value='';wordError.value='';wordMessage.value='';submitted.value='';confirmCustom.value=false
-      manualPractice();resetSelfTest();syncError.value='';saveState.value='saved'
-      if (session) api.setToken(session.token,session.username)
-      else { restoreGuest(); delete learningStores.value[key] }
+      manualPractice();resetSelfTest();syncError.value='';historyNotice.value='';saveState.value='saved'
+      if (session) {api.setToken(session.token,session.username,session.learningKey);learningKey.value=session.learningKey}
+      else restoreGuest()
+      delete learningStores.value[key]
+      delete learningStores.value[`account:${user}`]
       await refreshBoard()
       return true
     } finally {
@@ -542,10 +611,10 @@ export function createSpellingApp() {
     if (mode.value !== 'auth') return
     const token=api.getToken()
     try {
-      if(!authUser.value) {
+      if(!authUser.value || !learningKey.value) {
         const user=await api.me()
         if(api.getToken()!==token || mode.value!=='auth') return
-        api.setToken(token,user.username);authUser.value=user.username
+        api.setToken(token,user.username,user.learningKey);authUser.value=user.username;learningKey.value=user.learningKey
       }
       const key=owner.value, data=store.value
       const current=()=>owner.value===key && api.getToken()===token && store.value===data && !resetting.value
@@ -564,10 +633,11 @@ export function createSpellingApp() {
       if(api.getToken()===token && e.message.includes('unauthorized')) void logout()
     }
   }
-  function startSession(r:{token:string;username:string}) {
-    api.setToken(r.token,r.username);authUser.value=r.username;mode.value='auth'
+  function startSession(r:Session) {
+    if(typeof r.learningKey!=='string' || !r.learningKey) throw new Error('Server upgrade required before signing in')
+    api.setToken(r.token,r.username,r.learningKey);authUser.value=r.username;learningKey.value=r.learningKey;mode.value='auth'
     backendWords.value=[];stats.value=migrateStats({});serverDays.value=[];serverHourly.value=Array(24).fill(0)
-    resetSelfTest();lesson.value=null;reviewQueue.value=[];feedback.value='idle';input.value='';sessionId.value=crypto.randomUUID();syncError.value=''
+    resetSelfTest();lesson.value=null;reviewQueue.value=[];feedback.value='idle';input.value='';sessionId.value=crypto.randomUUID();syncError.value='';historyNotice.value=''
   }
   async function login() {
     authForm.value.error=''; authLoading.value=true
@@ -579,11 +649,12 @@ export function createSpellingApp() {
   async function register() {
     authForm.value.error=''; authLoading.value=true
     try{
+      await persistLearning()
       const guest=learningStores.value.guest, guestWords=[...savedWords.value]
       const r = await api.register(authForm.value.username, authForm.value.password)
       startSession(r)
       if(importGuest.value) {
-        if(guest) {store.value.attempts=mergeAttempts(store.value.attempts,guest.attempts);store.value.pending=[...new Set([...store.value.pending,...guest.attempts.map(a=>a.id)])];const tests=guest.tests.map(t=>({...t,owner:r.username}));store.value.tests=[...store.value.tests,...tests];store.value.pendingTests.push(...tests.map(t=>t.id));persistLearning()}
+        if(guest) {store.value.attempts=mergeAttempts(store.value.attempts,guest.attempts);store.value.pending=[...new Set([...store.value.pending,...guest.attempts.map(a=>a.id)])];const tests=guest.tests.map(t=>({...t,owner:r.username}));store.value.tests=[...store.value.tests,...tests];store.value.pendingTests.push(...tests.map(t=>t.id));await persistLearning()}
         for(const w of guestWords) try{await api.addWord(w.word,w.locale,true)}catch(e:any){if(!e.message.includes('already exists'))authForm.value.error=e.message}
       } else for(const word of DEFAULT_WORDS) await api.addWord(word)
       await refreshAuthData(); await refreshBoard()
@@ -594,8 +665,8 @@ export function createSpellingApp() {
     loadCurriculum()
     loadPacks()
     refreshBoard()
-    for(const old of testResults.value.filter(r=>r.owner===testOwner.value)) {if(!old.id)old.id=crypto.randomUUID();if(!store.value.tests.some(r=>r.id===old.id)){store.value.tests.push(old);if(mode.value==='auth')store.value.pendingTests.push(old.id)}}
-    persistLearning()
+    if(mode.value==='guest' && !store.value.generation) for(const old of testResults.value.filter(r=>r.owner==='guest')) {if(!old.id)old.id=crypto.randomUUID();if(!store.value.tests.some(r=>r.id===old.id))store.value.tests.push(old)}
+    await persistLearning()
     if(mode.value==='auth') await refreshAuthData()
     if (displayWords.value.length && drill.value!=='correct'){
       idx.value = 0
@@ -605,7 +676,7 @@ export function createSpellingApp() {
   return {
     ...i18n, ...appearance, ...statistics, ...selfTest, resetAll,
     view, mode, stats, currentXp, levelInfo, xpPct, accuracy, authUser, authForm, authLoading,
-    importGuest, login, register, logout, resetStats, deleteAccountData, resetting, saveState, pendingCount, syncLearning, syncError,
+    importGuest, login, register, logout, resetStats, deleteAccountData, resetting, saveState, localSaveFailed, pendingCount, syncLearning, syncError, historyNotice,
     savedWords, newWord, showList, customLocale, confirmCustom, wordError, wordMessage, wordSaving, addWord, removeWord,
     packs, packsLoading, packsError, activePackId, packApplying, diffLabel, usePack, contentLocale,
     curriculum, curriculumLoading, curriculumError, loadCurriculum, currentExercise, spellingExplanation, writingPractice, lessonSkill, finishTeaching, practiceSkill, practiceMistake,

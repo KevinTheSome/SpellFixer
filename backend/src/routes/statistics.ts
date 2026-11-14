@@ -115,8 +115,9 @@ export async function handleStatistics(req: Request, url: URL, user: User) {
       await tx`DELETE FROM attempts WHERE word_id IN (SELECT id FROM words WHERE user_id=${user.id})`;
       await tx`DELETE FROM learning_attempts WHERE user_id=${user.id}`;
       await tx`DELETE FROM learning_tests WHERE user_id=${user.id}`;
-      await tx`UPDATE users SET xp=0 WHERE id=${user.id}`;
-      return json({ ok: true });
+      const learningKey = crypto.randomUUID();
+      await tx`UPDATE users SET xp=0, learning_key=${learningKey} WHERE id=${user.id}`;
+      return json({ learningKey }, 200, { "Cache-Control": "no-store" });
     });
   }
 }

@@ -31,6 +31,8 @@ CREATE TABLE IF NOT EXISTS tokens (
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT NOW()
 )`;
+// A new account or a reset must never inherit an older browser's upload queue.
+await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS learning_key UUID NOT NULL DEFAULT gen_random_uuid()`;
 await sql`
 CREATE TABLE IF NOT EXISTS words (
   id SERIAL PRIMARY KEY,
@@ -69,10 +71,10 @@ await sql`UPDATE learning_tests SET payload=(payload #>> '{}')::jsonb WHERE json
 
 export async function getUserByToken(token: string) {
   const rows = await sql`
-    SELECT u.id, u.username FROM tokens t
+    SELECT u.id, u.username, u.learning_key AS "learningKey" FROM tokens t
     JOIN users u ON u.id = t.user_id WHERE t.token = ${token}`;
   return (
-    (rows[0] as unknown as { id: number; username: string } | undefined) ?? null
+    (rows[0] as unknown as { id: number; username: string; learningKey: string } | undefined) ?? null
   );
 }
 

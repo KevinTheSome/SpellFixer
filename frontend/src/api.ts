@@ -1,7 +1,7 @@
 const BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 // Credentials and the ledger must keep the same identity when another tab signs in.
-function storedSession():{token:string;username:string} {
+function storedSession():{token:string;username:string;learningKey?:string} {
   try {
     const saved=JSON.parse(localStorage.getItem('st-session') || 'null');
     if(typeof saved?.token==='string' && typeof saved?.username==='string') return saved;
@@ -30,22 +30,23 @@ export type LeaderEntry = { username:string; xp:number };
 export type DayActivity = { date:string; total:number; correct:number };
 export type Activity = { days: DayActivity[]; dayStreak:number; bestDayStreak:number; totalActiveDays:number };
 export type HourActivity = { hour:number; total:number; correct:number };
+export type Session = { token:string; username:string; learningKey:string };
 
 export const api = {
   base: BASE,
  health: () => req<{ok:boolean}>("/health"),
-  register: (u:string,p:string)=> req<{token:string,username:string}>("/api/auth/register",{method:"POST",body:JSON.stringify({username:u,password:p})}),
-  login: (u:string,p:string)=> req<{token:string,username:string}>("/api/auth/login",{method:"POST",body:JSON.stringify({username:u,password:p})}),
+  register: (u:string,p:string)=> req<Session>("/api/auth/register",{method:"POST",body:JSON.stringify({username:u,password:p})}),
+  login: (u:string,p:string)=> req<Session>("/api/auth/login",{method:"POST",body:JSON.stringify({username:u,password:p})}),
   logout: ()=> req<{ok:boolean}>("/api/auth/logout",{method:"POST"}),
-  me: ()=> req<{id:number,username:string}>("/api/me"),
+  me: ()=> req<{id:number,username:string,learningKey:string}>("/api/me"),
    getWords: ()=> req<{id:number,word:string,locale:string,timesSeen:number,timesCorrect:number}[]>("/api/words"),
    addWord: (word:string,locale='en',confirmed=false)=> req<{id:number,word:string}>("/api/words",{method:"POST",body:JSON.stringify({word,locale,confirmed})}),
-   learning: ()=>req<{attempts:Attempt[],tests:SavedTest[]}>('/api/learning'),
-   syncLearning: (attempts:Attempt[],tests:SavedTest[])=>req<{ok:boolean}>('/api/learning',{method:'POST',body:JSON.stringify({attempts,tests})}),
+   learning: ()=>req<{learningKey:string,attempts:Attempt[],tests:SavedTest[]}>('/api/learning'),
+   syncLearning: (attempts:Attempt[],tests:SavedTest[],learningKey:string)=>req<{ok:boolean}>('/api/learning',{method:'POST',body:JSON.stringify({attempts,tests,learningKey})}),
   deleteWord: (id:number)=> req<{ok:boolean}>(`/api/words/${id}`,{method:"DELETE"}),
   stats: ()=> req<Stats>("/api/stats"),
-  resetStats: ()=> req<{ok:boolean}>("/api/stats",{method:"DELETE"}),
-  deleteAccountData: (password:string)=> req<{token:string,username:string}>("/api/account/data",{method:"DELETE",body:JSON.stringify({password})}),
+  resetStats: ()=> req<{learningKey:string}>("/api/stats",{method:"DELETE"}),
+  deleteAccountData: (password:string)=> req<Session>("/api/account/data",{method:"DELETE",body:JSON.stringify({password})}),
   deleteAccount: (password:string)=> req<{ok:boolean}>("/api/account",{method:"DELETE",body:JSON.stringify({password})}),
   activity: (days=182, today?:string)=> req<Activity>(`/api/activity?days=${days}${today ? `&today=${encodeURIComponent(today)}` : ''}`),
   activityHourly: (date:string)=> req<{date:string, hourly:HourActivity[]}>(`/api/activity?date=${encodeURIComponent(date)}`),
@@ -54,8 +55,8 @@ export const api = {
   curriculum: ()=>req<Curriculum>('/api/curriculum'),
   getPack: (locale:string, name:string)=> req<PackEntry[]>(`/api/packs/${encodeURIComponent(locale)}/${encodeURIComponent(name)}`),
   audioUrl: (locale:string, word:string)=> `${BASE}/api/audio/${encodeURIComponent(locale)}/${encodeURIComponent(word.trim().toLowerCase())}`,
-   setToken(t:string,username=''){
-     const previous=session.token,next={token:t,username};
+   setToken(t:string,username='',learningKey=''){
+     const previous=session.token,next={token:t,username,learningKey};
      if(t || storedSession().token===previous) localStorage.setItem('st-session',JSON.stringify(next));
      session=next;
      if(t) {localStorage.setItem('st-token',t);localStorage.setItem('st-user',username)}
@@ -63,6 +64,7 @@ export const api = {
    },
    getToken: token,
    getUsername: ()=>session.username,
+   getLearningKey: ()=>session.learningKey || '',
 };
 
 export function isLoggedIn() { return !!token(); }
